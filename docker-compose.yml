@@ -1,0 +1,24 @@
+services:
+  app:
+    build: .
+    restart: unless-stopped
+    env_file: .env
+    environment:
+      # nginx-proxy + acme-companion
+      VIRTUAL_HOST: appi.droni.vip
+      VIRTUAL_PORT: 3333
+      LETSENCRYPT_HOST: appi.droni.vip
+      # Overrides del .env para producción en contenedor
+      HOST: 0.0.0.0
+      DB_HOST: mysql
+      NODE_ENV: production
+
+    networks:
+      - nginx-proxy  # para que nginx-proxy lo detecte
+      - cluster      # para alcanzar cluster-mysql
+
+networks:
+  nginx-proxy:
+    external: true
+  cluster:
+    external: true
