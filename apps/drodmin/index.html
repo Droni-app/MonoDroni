@@ -1,0 +1,23 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <link rel="icon" type="image/x-icon" href="/favicon.ico" />
+    <script>
+      (function () {
+        var stored = localStorage.getItem('theme')
+        var prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches
+        if (stored === 'dark' || (!stored && prefersDark)) {
+          document.documentElement.classList.add('dark')
+        }
+      })()
+    </script>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>drodmin</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@mdi/font/css/materialdesignicons.min.css" />
+  </head>
+  <body>
+    <div id="app"></div>
+    <script type="module" src="/src/main.ts"></script>
+  </body>
+</html>
