@@ -24,7 +24,7 @@ export const controllers = {
   Sites: () => import('#controllers/sites_controller'),
   social: {
     Comments: () => import('#controllers/social/comments_controller'),
-    Topics: () => import('#controllers/social/topics_controller'),
     Replies: () => import('#controllers/social/replies_controller'),
+    Topics: () => import('#controllers/social/topics_controller'),
   },
 }

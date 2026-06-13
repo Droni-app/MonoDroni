@@ -3,7 +3,7 @@ import tailwindcss from "@tailwindcss/vite";
 export default defineNuxtConfig({
   compatibilityDate: '2024-11-01',
   sourcemap: false,
-  devtools: { enabled: true },
+  devtools: { enabled: process.env.NUXT_DEVTOOLS === '1' },
   modules: ['@nuxt/eslint', '@nuxt/image', 'nuxt-gtag', '@sidebase/nuxt-auth', '@nuxtjs/color-mode', 'nuxt-monaco-editor'],
   gtag: {
     id: 'G-HB48CY1HBF'
