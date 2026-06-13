@@ -35,54 +35,39 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - name: Setup PHP
-        uses: shivammathur/setup-php@v2
+      - uses: actions/setup-node@v4
         with:
-          php-version: '8.2'
-          extensions: mbstring, pdo, pdo_mysql, bcmath, gd
-          coverage: none
-
-      - name: Setup Node
-        uses: actions/setup-node@v4
-        with:
-          node-version: '22'
+          node-version: '24'
           cache: 'npm'
           cache-dependency-path: apps/appi/package-lock.json
 
-      - name: Install PHP dependencies
-        run: composer install --no-interaction --prefer-dist --optimize-autoloader
-
-      - name: Install Node dependencies
+      - name: Install dependencies
         run: npm ci
 
       - name: Copy .env
         run: cp .env.example .env
 
-      - name: Generate app key
-        run: php artisan key:generate
-
       - name: Run migrations
         env:
-          DB_CONNECTION: mysql
+          NODE_ENV: test
           DB_HOST: 127.0.0.1
           DB_PORT: 3306
-          DB_DATABASE: appi_test
-          DB_USERNAME: root
+          DB_USER: root
           DB_PASSWORD: password
-        run: php artisan migrate --force
-
-      - name: Build assets
-        run: npm run build
+          DB_DATABASE: appi_test
+          APP_KEY: test-key-for-ci-only-not-used-in-prod
+        run: node ace migration:run --force
 
       - name: Run tests
         env:
-          DB_CONNECTION: mysql
+          NODE_ENV: test
           DB_HOST: 127.0.0.1
           DB_PORT: 3306
-          DB_DATABASE: appi_test
-          DB_USERNAME: root
+          DB_USER: root
           DB_PASSWORD: password
-        run: php artisan test
+          DB_DATABASE: appi_test
+          APP_KEY: test-key-for-ci-only-not-used-in-prod
+        run: npm test
 
   deploy:
     name: Deploy
@@ -93,10 +78,10 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      # TODO: Configurar el paso de deploy según tu infraestructura
-      # Opciones:
-      #   - SSH deploy: appleboy/ssh-action
-      #   - Docker: build + push image
-      #   - Laravel Forge / Envoyer: webhook trigger
+      # El proyecto usa Docker + nginx-proxy (ver apps/appi/docker-compose.yml)
+      # Despliegue a appi.droni.vip
+      # TODO: Configurar según tu servidor:
+      #   - SSH + docker compose pull && docker compose up -d
+      #   - Push imagen a registry + webhook al servidor
       - name: Deploy (pendiente de configurar)
         run: echo "Deploy de appi pendiente de configurar"
