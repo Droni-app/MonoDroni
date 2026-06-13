@@ -128,7 +128,8 @@ Este repositorio usa [Conventional Commits](https://www.conventionalcommits.org/
 | `droni-kit` | UI Library (`packages/droni-kit`) |
 | `ci` | GitHub Actions / pipelines |
 | `deps` | Actualizaciones de dependencias |
-| `infra` | Infraestructura general (Docker, nginx, etc.) |
+| `repo` | Configuración raíz del monorepo (turbo.json, .nvmrc, README, husky...) |
+| `infra` | Infraestructura de servidores (Docker, nginx, docker-compose) |
 | `release` | Commits de release automatizados |
 
 ### Tipos disponibles

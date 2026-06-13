@@ -7,13 +7,14 @@ export default {
       2,
       'always',
       [
-        'appi',      // Backend Laravel
+        'appi',      // Backend AdonisJs
         'site',      // Front Droni.co
         'drodmin',   // Front Backoffice
         'droni-kit', // UI Library
         'deps',      // Actualizaciones de dependencias
         'ci',        // GitHub Actions / CI
-        'infra',     // Infraestructura general
+        'repo',      // Configuración raíz del monorepo (turbo, nvmrc, README, husky...)
+        'infra',     // Infraestructura de servidores (Docker, nginx, docker-compose)
         'release',   // Release commits (semantic-release)
       ],
     ],
