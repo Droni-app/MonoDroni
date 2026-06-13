@@ -1,7 +1,0 @@
-@import "tailwindcss";
-@custom-variant dark (&:where(.dark, .dark *));
-@import "tailwindcss" prefix(dk);
-
-.mdi {
-  font-size: 0.9em;
-}

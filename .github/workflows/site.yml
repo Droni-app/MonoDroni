@@ -6,14 +6,12 @@ on:
       - main
     paths:
       - 'apps/site/**'
-      - 'packages/droni-kit/**'
       - '.github/workflows/site.yml'
   pull_request:
     branches:
       - main
     paths:
       - 'apps/site/**'
-      - 'packages/droni-kit/**'
 
 jobs:
   build:
@@ -26,16 +24,12 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: '22'
-          # Cachea desde la raíz del monorepo
           cache: 'npm'
-          cache-dependency-path: package-lock.json
+          cache-dependency-path: apps/site/package-lock.json
 
-      - name: Install all workspace dependencies
+      - name: Install dependencies
+        working-directory: apps/site
         run: npm ci
-
-      - name: Build droni-kit (dependency)
-        working-directory: packages/droni-kit
-        run: npm run build
 
       - name: Build site
         working-directory: apps/site
