@@ -1,0 +1,13 @@
+services:
+  drodmin:
+    build: .
+    restart: unless-stopped
+    environment:
+      VIRTUAL_HOST: drodmin.droni.vip
+      LETSENCRYPT_HOST: drodmin.droni.vip
+    networks:
+      - nginx-proxy
+
+networks:
+  nginx-proxy:
+    external: true
