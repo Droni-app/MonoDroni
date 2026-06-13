@@ -1,0 +1,19 @@
+# Dependencies (root)
+node_modules/
+
+# Turbo
+.turbo/
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Editor
+.idea/
+.vscode/
+*.swp
+*.swo
+
+# Environment (root level only — each app has its own)
+.env
+.env.local

@@ -1,0 +1,72 @@
+name: Drodmin CI/CD
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - 'apps/drodmin/**'
+      - '.github/workflows/drodmin.yml'
+  pull_request:
+    branches:
+      - main
+    paths:
+      - 'apps/drodmin/**'
+
+defaults:
+  run:
+    working-directory: apps/drodmin
+
+jobs:
+  build:
+    name: Build
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: 'npm'
+          cache-dependency-path: apps/drodmin/package-lock.json
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Build
+        run: npm run build
+        env:
+          # Agrega aquí las variables de entorno necesarias para el build
+          NODE_ENV: production
+
+      - name: Upload build artifact
+        if: github.ref == 'refs/heads/main' && github.event_name == 'push'
+        uses: actions/upload-artifact@v4
+        with:
+          name: drodmin-build
+          path: apps/drodmin/.output/
+          retention-days: 1
+
+  deploy:
+    name: Deploy
+    runs-on: ubuntu-latest
+    needs: build
+    if: github.ref == 'refs/heads/main' && github.event_name == 'push'
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Download build artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: drodmin-build
+          path: apps/drodmin/.output/
+
+      # TODO: Configurar deploy según tu infraestructura
+      # El Dockerfile ya existe en apps/drodmin/
+      # Opciones:
+      #   - Docker build + push a registry + deploy
+      #   - SSH deploy del .output/
+      - name: Deploy (pendiente de configurar)
+        run: echo "Deploy de drodmin pendiente de configurar"

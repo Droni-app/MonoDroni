@@ -1,5 +1,5 @@
 {
-  "name": "nuxt-app",
+  "name": "@dronico/site",
   "private": true,
   "type": "module",
   "scripts": {

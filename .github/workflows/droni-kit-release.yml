@@ -1,0 +1,41 @@
+name: droni-kit Release
+
+on:
+  push:
+    branches:
+      - main
+      - beta
+    paths:
+      - 'packages/droni-kit/**'
+      - '.github/workflows/droni-kit-release.yml'
+
+permissions:
+  contents: write
+  issues: write
+  pull-requests: write
+
+defaults:
+  run:
+    working-directory: packages/droni-kit
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+
+      - run: npm i
+
+      - run: npm run build
+
+      - name: Release
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
+        run: npm run release
