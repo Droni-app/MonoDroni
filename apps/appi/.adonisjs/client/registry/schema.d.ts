@@ -235,6 +235,54 @@ export interface Registry {
       errorResponse: ExtractErrorResponse<Awaited<ReturnType<import('#controllers/social/comments_controller').default['update']>>> | { status: 422; response: { errors: SimpleError[] } }
     }
   }
+  'social.topics.index': {
+    methods: ["GET","HEAD"]
+    pattern: '/social/topics'
+    types: {
+      body: {}
+      paramsTuple: []
+      params: {}
+      query: {}
+      response: ExtractResponse<Awaited<ReturnType<import('#controllers/social/topics_controller').default['index']>>>
+      errorResponse: ExtractErrorResponse<Awaited<ReturnType<import('#controllers/social/topics_controller').default['index']>>>
+    }
+  }
+  'social.topics.show': {
+    methods: ["GET","HEAD"]
+    pattern: '/social/topics/:id'
+    types: {
+      body: {}
+      paramsTuple: [ParamValue]
+      params: { id: ParamValue }
+      query: {}
+      response: ExtractResponse<Awaited<ReturnType<import('#controllers/social/topics_controller').default['show']>>>
+      errorResponse: ExtractErrorResponse<Awaited<ReturnType<import('#controllers/social/topics_controller').default['show']>>>
+    }
+  }
+  'social.topics.store': {
+    methods: ["POST"]
+    pattern: '/social/topics'
+    types: {
+      body: ExtractBody<InferInput<(typeof import('#validators/social/topic').storeTopicValidator)>>
+      paramsTuple: []
+      params: {}
+      query: ExtractQuery<InferInput<(typeof import('#validators/social/topic').storeTopicValidator)>>
+      response: ExtractResponse<Awaited<ReturnType<import('#controllers/social/topics_controller').default['store']>>>
+      errorResponse: ExtractErrorResponse<Awaited<ReturnType<import('#controllers/social/topics_controller').default['store']>>> | { status: 422; response: { errors: SimpleError[] } }
+    }
+  }
+  'social.replies.store': {
+    methods: ["POST"]
+    pattern: '/social/topics/:topic_id/replies'
+    types: {
+      body: ExtractBody<InferInput<(typeof import('#validators/social/reply').storeReplyValidator)>>
+      paramsTuple: [ParamValue]
+      params: { topic_id: ParamValue }
+      query: ExtractQuery<InferInput<(typeof import('#validators/social/reply').storeReplyValidator)>>
+      response: ExtractResponse<Awaited<ReturnType<import('#controllers/social/replies_controller').default['store']>>>
+      errorResponse: ExtractErrorResponse<Awaited<ReturnType<import('#controllers/social/replies_controller').default['store']>>> | { status: 422; response: { errors: SimpleError[] } }
+    }
+  }
   'admin.content.posts.index': {
     methods: ["GET","HEAD"]
     pattern: '/admin/content/posts'
@@ -413,6 +461,54 @@ export interface Registry {
       query: {}
       response: ExtractResponse<Awaited<ReturnType<import('#controllers/admin/social/comments_controller').default['destroy']>>>
       errorResponse: ExtractErrorResponse<Awaited<ReturnType<import('#controllers/admin/social/comments_controller').default['destroy']>>>
+    }
+  }
+  'admin.social.topics.index': {
+    methods: ["GET","HEAD"]
+    pattern: '/admin/social/topics'
+    types: {
+      body: {}
+      paramsTuple: []
+      params: {}
+      query: {}
+      response: ExtractResponse<Awaited<ReturnType<import('#controllers/admin/social/topics_controller').default['index']>>>
+      errorResponse: ExtractErrorResponse<Awaited<ReturnType<import('#controllers/admin/social/topics_controller').default['index']>>>
+    }
+  }
+  'admin.social.topics.show': {
+    methods: ["GET","HEAD"]
+    pattern: '/admin/social/topics/:id'
+    types: {
+      body: {}
+      paramsTuple: [ParamValue]
+      params: { id: ParamValue }
+      query: {}
+      response: ExtractResponse<Awaited<ReturnType<import('#controllers/admin/social/topics_controller').default['show']>>>
+      errorResponse: ExtractErrorResponse<Awaited<ReturnType<import('#controllers/admin/social/topics_controller').default['show']>>>
+    }
+  }
+  'admin.social.topics.update': {
+    methods: ["PUT","PATCH"]
+    pattern: '/admin/social/topics/:id'
+    types: {
+      body: ExtractBody<InferInput<(typeof import('#validators/admin/social/topic').updateTopicValidator)>>
+      paramsTuple: [ParamValue]
+      params: { id: ParamValue }
+      query: ExtractQuery<InferInput<(typeof import('#validators/admin/social/topic').updateTopicValidator)>>
+      response: ExtractResponse<Awaited<ReturnType<import('#controllers/admin/social/topics_controller').default['update']>>>
+      errorResponse: ExtractErrorResponse<Awaited<ReturnType<import('#controllers/admin/social/topics_controller').default['update']>>> | { status: 422; response: { errors: SimpleError[] } }
+    }
+  }
+  'admin.social.topics.replies.index': {
+    methods: ["GET","HEAD"]
+    pattern: '/admin/social/topics/:topic_id/replies'
+    types: {
+      body: {}
+      paramsTuple: [ParamValue]
+      params: { topic_id: ParamValue }
+      query: {}
+      response: ExtractResponse<Awaited<ReturnType<import('#controllers/admin/social/replies_controller').default['index']>>>
+      errorResponse: ExtractErrorResponse<Awaited<ReturnType<import('#controllers/admin/social/replies_controller').default['index']>>>
     }
   }
 }

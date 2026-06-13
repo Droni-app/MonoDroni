@@ -120,6 +120,30 @@ const routes = {
     tokens: [{"old":"/social/comments/:id","type":0,"val":"social","end":""},{"old":"/social/comments/:id","type":0,"val":"comments","end":""},{"old":"/social/comments/:id","type":1,"val":"id","end":""}],
     types: placeholder as Registry['social.comments.update']['types'],
   },
+  'social.topics.index': {
+    methods: ["GET","HEAD"],
+    pattern: '/social/topics',
+    tokens: [{"old":"/social/topics","type":0,"val":"social","end":""},{"old":"/social/topics","type":0,"val":"topics","end":""}],
+    types: placeholder as Registry['social.topics.index']['types'],
+  },
+  'social.topics.show': {
+    methods: ["GET","HEAD"],
+    pattern: '/social/topics/:id',
+    tokens: [{"old":"/social/topics/:id","type":0,"val":"social","end":""},{"old":"/social/topics/:id","type":0,"val":"topics","end":""},{"old":"/social/topics/:id","type":1,"val":"id","end":""}],
+    types: placeholder as Registry['social.topics.show']['types'],
+  },
+  'social.topics.store': {
+    methods: ["POST"],
+    pattern: '/social/topics',
+    tokens: [{"old":"/social/topics","type":0,"val":"social","end":""},{"old":"/social/topics","type":0,"val":"topics","end":""}],
+    types: placeholder as Registry['social.topics.store']['types'],
+  },
+  'social.replies.store': {
+    methods: ["POST"],
+    pattern: '/social/topics/:topic_id/replies',
+    tokens: [{"old":"/social/topics/:topic_id/replies","type":0,"val":"social","end":""},{"old":"/social/topics/:topic_id/replies","type":0,"val":"topics","end":""},{"old":"/social/topics/:topic_id/replies","type":1,"val":"topic_id","end":""},{"old":"/social/topics/:topic_id/replies","type":0,"val":"replies","end":""}],
+    types: placeholder as Registry['social.replies.store']['types'],
+  },
   'admin.content.posts.index': {
     methods: ["GET","HEAD"],
     pattern: '/admin/content/posts',
@@ -209,6 +233,30 @@ const routes = {
     pattern: '/admin/social/comments/:id',
     tokens: [{"old":"/admin/social/comments/:id","type":0,"val":"admin","end":""},{"old":"/admin/social/comments/:id","type":0,"val":"social","end":""},{"old":"/admin/social/comments/:id","type":0,"val":"comments","end":""},{"old":"/admin/social/comments/:id","type":1,"val":"id","end":""}],
     types: placeholder as Registry['admin.social.comments.destroy']['types'],
+  },
+  'admin.social.topics.index': {
+    methods: ["GET","HEAD"],
+    pattern: '/admin/social/topics',
+    tokens: [{"old":"/admin/social/topics","type":0,"val":"admin","end":""},{"old":"/admin/social/topics","type":0,"val":"social","end":""},{"old":"/admin/social/topics","type":0,"val":"topics","end":""}],
+    types: placeholder as Registry['admin.social.topics.index']['types'],
+  },
+  'admin.social.topics.show': {
+    methods: ["GET","HEAD"],
+    pattern: '/admin/social/topics/:id',
+    tokens: [{"old":"/admin/social/topics/:id","type":0,"val":"admin","end":""},{"old":"/admin/social/topics/:id","type":0,"val":"social","end":""},{"old":"/admin/social/topics/:id","type":0,"val":"topics","end":""},{"old":"/admin/social/topics/:id","type":1,"val":"id","end":""}],
+    types: placeholder as Registry['admin.social.topics.show']['types'],
+  },
+  'admin.social.topics.update': {
+    methods: ["PUT","PATCH"],
+    pattern: '/admin/social/topics/:id',
+    tokens: [{"old":"/admin/social/topics/:id","type":0,"val":"admin","end":""},{"old":"/admin/social/topics/:id","type":0,"val":"social","end":""},{"old":"/admin/social/topics/:id","type":0,"val":"topics","end":""},{"old":"/admin/social/topics/:id","type":1,"val":"id","end":""}],
+    types: placeholder as Registry['admin.social.topics.update']['types'],
+  },
+  'admin.social.topics.replies.index': {
+    methods: ["GET","HEAD"],
+    pattern: '/admin/social/topics/:topic_id/replies',
+    tokens: [{"old":"/admin/social/topics/:topic_id/replies","type":0,"val":"admin","end":""},{"old":"/admin/social/topics/:topic_id/replies","type":0,"val":"social","end":""},{"old":"/admin/social/topics/:topic_id/replies","type":0,"val":"topics","end":""},{"old":"/admin/social/topics/:topic_id/replies","type":1,"val":"topic_id","end":""},{"old":"/admin/social/topics/:topic_id/replies","type":0,"val":"replies","end":""}],
+    types: placeholder as Registry['admin.social.topics.replies.index']['types'],
   },
 } as const satisfies Record<string, AdonisEndpoint>
 
