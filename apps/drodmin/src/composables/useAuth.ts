@@ -8,6 +8,8 @@ const TOKEN_KEY = 'auth_token'
 const SITE_ID_KEY = 'site_id'
 const USER_KEY = 'auth_user'
 const ALLOWED_ROLES = ['owner', 'admin', 'editor']
+const appUrl = import.meta.env.VITE_APP_URL
+
 
 const token = ref<string | null>(localStorage.getItem(TOKEN_KEY))
 const siteId = ref<string | null>(localStorage.getItem(SITE_ID_KEY))
@@ -39,6 +41,10 @@ function saveSession(data: any, site?: string) {
 export function useAuth() {
   const isAuthenticated = computed(() => !!token.value)
 
+  function getGoogleCallbackUrl() {
+    return `${appUrl}/oauth/google/callback`
+  }
+
   async function login(email: string, password: string, site: string) {
     const { data } = await AppiService.post('/auth/login', { email, password }, {
       headers: { 'x-site-id': site },
@@ -50,6 +56,9 @@ export function useAuth() {
     localStorage.setItem(SITE_ID_KEY, site)
     siteId.value = site
     const { data } = await AppiService.get('/auth/google/url', {
+      params: {
+        callbackUrl: getGoogleCallbackUrl(),
+      },
       headers: { 'x-site-id': site },
     })
     window.location.href = data.url
@@ -57,7 +66,10 @@ export function useAuth() {
 
   async function handleGoogleCallback(code: string) {
     const { data } = await AppiService.get('/auth/google/handle', {
-      params: { code },
+      params: {
+        code,
+        callbackUrl: getGoogleCallbackUrl(),
+      },
     })
     saveSession(data)
   }
