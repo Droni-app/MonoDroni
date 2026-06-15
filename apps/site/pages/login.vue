@@ -49,6 +49,17 @@
         <DuiButton type="submit" color="primary" :loading="loading" :block="true">
           Entrar
         </DuiButton>
+        <DuiButton
+          type="button"
+          color="neutral"
+          :loading="googleLoading"
+          :block="true"
+          class="mt-2"
+          @click="submitGoogleLogin"
+        >
+          <i class="mdi mdi-google" />
+          Iniciar sesion con Google
+        </DuiButton>
       </form>
 
       <form v-else @submit.prevent="submitRegister">
@@ -77,11 +88,12 @@ import { DuiAlert, DuiButton, DuiInput, DuiLabel } from '@dronico/droni-kit'
 
 const route = useRoute()
 const router = useRouter()
-const { status, login, register } = useSiteAuth()
+const { status, login, loginWithGoogle, register } = useSiteAuth()
 
 const tab = ref<'login' | 'register'>('login')
 const loading = ref(false)
 const resendLoading = ref(false)
+const googleLoading = ref(false)
 const error = ref('')
 const success = ref('')
 
@@ -166,6 +178,18 @@ async function resendActivationEmail() {
     error.value = extractApiErrorMessage(e, 'No se pudo reenviar el correo de activacion.')
   } finally {
     resendLoading.value = false
+  }
+}
+
+async function submitGoogleLogin() {
+  error.value = ''
+  success.value = ''
+  googleLoading.value = true
+  try {
+    await loginWithGoogle()
+  } catch (e: any) {
+    error.value = extractApiErrorMessage(e, 'No se pudo iniciar sesion con Google.')
+    googleLoading.value = false
   }
 }
 </script>

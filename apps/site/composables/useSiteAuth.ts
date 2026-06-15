@@ -48,6 +48,30 @@ export function useSiteAuth() {
     initialized.value = true
   }
 
+  async function loginWithGoogle() {
+    const data = await $fetch<{ url: string }>('/api/session/google/url')
+    if (!data?.url) {
+      throw new Error('Google login URL is not available')
+    }
+    await navigateTo(data.url, {
+      external: true,
+      replace: true,
+    })
+  }
+
+  async function handleGoogleCallback(code: string) {
+    status.value = 'loading'
+    const data = await $fetch<{ user: User; enrollment: Enrollment }>('/api/session/google/callback', {
+      query: {
+        code,
+      },
+    })
+    user.value = data.user
+    enrollment.value = data.enrollment
+    status.value = 'authenticated'
+    initialized.value = true
+  }
+
   async function register(payload: RegisterInput) {
     return await $fetch('/api/session/register', {
       method: 'POST',
@@ -71,6 +95,8 @@ export function useSiteAuth() {
     init,
     refreshMe,
     login,
+    loginWithGoogle,
+    handleGoogleCallback,
     register,
     logout,
   }
