@@ -107,7 +107,7 @@
 <script setup lang="ts">
 import MarkdownIt from "markdown-it";
 import { DuiAction, DuiButton, DuiAlert } from "@dronico/droni-kit";
-const { status: authStatus } = useAuth()
+const { status: authStatus } = useSiteAuth()
 const isSubmissionCode = ref(false);
 const toast:Ref<Toast> = useState('toast', () => ({
   show: false,

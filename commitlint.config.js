@@ -10,7 +10,6 @@ export default {
         'appi',      // Backend AdonisJs
         'site',      // Front Droni.co
         'drodmin',   // Front Backoffice
-        'droni-kit', // UI Library
         'deps',      // Actualizaciones de dependencias
         'ci',        // GitHub Actions / CI
         'repo',      // Configuración raíz del monorepo (turbo, nvmrc, README, husky...)

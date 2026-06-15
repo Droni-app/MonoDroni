@@ -1,5 +1,8 @@
 <template>
   <div>
+    <DuiAlert v-if="status !== 'authenticated'" color="warning" class="mb-2">
+      Debes iniciar sesion para comentar.
+    </DuiAlert>
     <CommentsCreate
       v-if="status === 'authenticated'"
       class="mb-2"
@@ -17,7 +20,9 @@
   </div>
 </template>
 <script setup lang="ts">
-const { status } = useAuth()
+import { DuiAlert } from '@dronico/droni-kit'
+
+const { status } = useSiteAuth()
 const parentId = ref<number | null>(null)
 const props = defineProps<{
   commentable: 'content_post' | 'codevs_challenge' | 'codevs_submission',

@@ -52,14 +52,14 @@
         <NuxtLink
           v-if="status === 'authenticated'"
           to="/" class="flex text-slate-700 dark:text-slate-300 hover:text-pink-600 transition border border-slate-300 dark:border-slate-600 rounded-full pe-2">
-          <img :src="data?.user?.image ?? ''" alt="User Image" class="w-6 h-6 rounded-full mr-1">
-          <span>{{ data?.user?.name }}</span>
+          <img :src="user?.avatar ?? ''" alt="User Image" class="w-6 h-6 rounded-full mr-1">
+          <span>{{ displayName }}</span>
         </NuxtLink>
         <NuxtLink
           v-if="status !== 'authenticated'"
-          class="group relative inline-block text-slate-700 dark:text-slate-300 hover:text-pink-600 transition cursor-pointer"
-          @click="signIn('google')">
-          <i class="mdi mdi-google" />
+          to="/login"
+          class="group relative inline-block text-slate-700 dark:text-slate-300 hover:text-pink-600 transition cursor-pointer">
+          <i class="mdi mdi-login" />
           Ingresa
           <span class="absolute bottom-0 left-1/2 w-0 h-0.5 bg-pink-600 transform -translate-x-1/2 transition group-hover:w-full" />
         </NuxtLink>
@@ -84,11 +84,12 @@
 <script setup lang="ts">
 const colorMode = useColorMode()
 const route = useRoute()
-const { status, data, signIn, signOut   } = useAuth()
+const { status, user, logout } = useSiteAuth()
 const toggleMenu = ref(false)
+const displayName = computed(() => user.value?.fullName ?? user.value?.name ?? user.value?.email ?? 'Cuenta')
 
-const closeSession = () => {
-  signOut()
+const closeSession = async () => {
+  await logout()
 }
 
 const changeColorMode = () => {

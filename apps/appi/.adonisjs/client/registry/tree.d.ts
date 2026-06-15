@@ -34,6 +34,14 @@ export interface ApiDefinition {
       store: typeof routes['social.comments.store']
       update: typeof routes['social.comments.update']
     }
+    topics: {
+      index: typeof routes['social.topics.index']
+      show: typeof routes['social.topics.show']
+      store: typeof routes['social.topics.store']
+    }
+    replies: {
+      store: typeof routes['social.replies.store']
+    }
   }
   admin: {
     content: {
@@ -61,6 +69,14 @@ export interface ApiDefinition {
         show: typeof routes['admin.social.comments.show']
         update: typeof routes['admin.social.comments.update']
         destroy: typeof routes['admin.social.comments.destroy']
+      }
+      topics: {
+        index: typeof routes['admin.social.topics.index']
+        show: typeof routes['admin.social.topics.show']
+        update: typeof routes['admin.social.topics.update']
+        replies: {
+          index: typeof routes['admin.social.topics.replies.index']
+        }
       }
     }
   }
