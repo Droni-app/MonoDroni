@@ -46,7 +46,7 @@
 <script setup lang="ts">
 import MarkdownIt from "markdown-it";
 const markdown = new MarkdownIt();
-const { status } = useAuth()
+const { status } = useSiteAuth()
 const props = defineProps<{
   comment: Comment,
   commentable: 'content_post' | 'codevs_challenge' | 'codevs_submission',

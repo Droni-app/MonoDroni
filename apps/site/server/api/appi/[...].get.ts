@@ -1,20 +1,22 @@
-import { getToken } from '#auth'
+import { getAppiToken } from '../../utils/appi_session'
 
 export default defineEventHandler(async (event) => {
   const runtimeConfig = useRuntimeConfig()
-  const token = await getToken({event})
-  const appiToken = `Bearer ${token?.accessToken as AppiToken}`
+  const token = getAppiToken(event)
   const endpoint = String(event.node.req.url).replace('/api/appi', '')
+  const headers: Record<string, string> = {
+    'Content-Type': 'application/json',
+    'x-site-id': String(runtimeConfig.appiSiteId),
+    Accept: 'application/json',
+  }
 
-  
+  if (token) {
+    headers.Authorization = `Bearer ${token}`
+  }
+
   const res = await $fetch(`${runtimeConfig.appi}${endpoint}`, {
     method: 'GET',
-    headers: {
-      'Content-Type': 'application/json',
-      'site': runtimeConfig.appiSiteId,
-      'Accept': 'application/json',
-      'Authorization': appiToken
-    }
+    headers,
   })
   return res
 })

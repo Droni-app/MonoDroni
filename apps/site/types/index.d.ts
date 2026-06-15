@@ -11,7 +11,7 @@ declare global {
   }
   export interface Me {
     user: User
-    enrollments: Enrollment[]
+    enrollment: Enrollment
   }
   
   export interface Enrollment {
@@ -98,9 +98,11 @@ declare global {
 
   export interface User {
     id: string
-    name: string
+    name?: string
+    fullName?: string
     email: string
-    avatar: string
+    avatar?: string
+    picture?: string
     created_at: string
     updated_at: string
   }
@@ -115,7 +117,7 @@ declare global {
 
   export interface Login {
     user: User
-    token: Token
+    token: string
     enrollment: Enrollment
   }
   

@@ -4,7 +4,7 @@ export default defineNuxtConfig({
   compatibilityDate: '2024-11-01',
   sourcemap: false,
   devtools: { enabled: process.env.NUXT_DEVTOOLS === '1' },
-  modules: ['@nuxt/eslint', '@nuxt/image', 'nuxt-gtag', '@sidebase/nuxt-auth', '@nuxtjs/color-mode', 'nuxt-monaco-editor'],
+  modules: ['@nuxt/eslint', '@nuxt/image', 'nuxt-gtag', '@nuxtjs/color-mode', 'nuxt-monaco-editor'],
   gtag: {
     id: 'G-HB48CY1HBF'
   },
@@ -36,12 +36,6 @@ export default defineNuxtConfig({
       'xl': 1280,
       'xxl': 1536,
       '2xl': 1536
-    }
-  },
-  auth: {
-    baseURL: process.env.AUTH_BASE_URL,
-    provider: {
-      type: 'authjs'
     }
   },
   vite: {
