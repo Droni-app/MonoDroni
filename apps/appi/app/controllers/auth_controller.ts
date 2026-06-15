@@ -172,14 +172,16 @@ export default class AuthController {
   /**
    * @getGoogleUrl
    * @summary Obtener URL de autenticación con Google OAuth
+   * @paramQuery callbackUrl - URL de callback que Google debe usar para regresar al cliente - @type(string) @required
    * @responseBody 200 - {"url": "https://accounts.google.com/o/oauth2/auth?..."}
    */
-  async getGoogleUrl({ ally, site }: HttpContext) {
-    const callbackUrl = `${site.url}/oauth/google/callback`
+  async getGoogleUrl({ ally, request }: HttpContext) {
+    const callbackUrl = request.input('callbackUrl')
+
     return {
-      url: await ally.use('google').redirectUrl((request) => {
-        request.clearParam('redirect_uri')
-        request.param('redirect_uri', callbackUrl)
+      url: await ally.use('google').redirectUrl((googleRequest) => {
+        googleRequest.clearParam('redirect_uri')
+        googleRequest.param('redirect_uri', callbackUrl)
       }),
     }
   }
@@ -187,10 +189,11 @@ export default class AuthController {
    * @handleCallback
    * @summary Callback de Google OAuth — intercambia el código por token de sesión
    * @paramQuery code - Código de autorización de Google - @type(string) @required
+   * @paramQuery callbackUrl - URL de callback usada en el paso inicial de OAuth - @type(string) @required
    * @responseBody 200 - {"user": {"id": "uuid", "fullName": "string", "email": "string", "avatar": "string|null"}, "enrollment": {"id": "uuid", "role": "user|owner"}, "token": "oat_xxxxxxxxxxxx"}
    */
-  async handleCallback({ ally, site }: HttpContext) {
-    const callbackUrl = `${site.url}/oauth/google/callback`
+  async handleCallback({ ally, request, site }: HttpContext) {
+    const callbackUrl = request.input('callbackUrl')
     const google = ally.use('google').stateless()
 
     if (google.hasError()) {
