@@ -16,27 +16,56 @@
       </div>
     </UiHero>
     <div class="container mx-auto py-5">
-      <div class="mx-auto p-6 max-w-4xl">
-        <div class="flex flex-col md:flex-row rounded-2xl shadow-lg overflow-hidden bg-gradient-to-r from-zinc-50 to-slate-100 text-zinc-800 dark:from-slate-800 dark:to-zinc-900 dark:text-zinc-50">
-          <!-- Imagen -->
-          <div class="flex-shrink-0">
-            <img
-              src="~/assets/img/pages/desafios-de-programacion.webp"
-              alt="Desafíos de programación"
-              class="w-full md:w-60 h-48 md:h-full object-cover rounded-t-2xl md:rounded-l-2xl md:rounded-tr-none dark:invert"
-            >
-          </div>
+      <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        <!-- Desafíos Card -->
+        <div class="mx-auto w-full">
+          <div class="flex flex-col rounded-2xl shadow-lg overflow-hidden bg-gradient-to-r from-zinc-50 to-slate-100 text-zinc-800 dark:from-slate-800 dark:to-zinc-900 dark:text-zinc-50 h-full">
+            <!-- Imagen -->
+            <div class="flex-shrink-0">
+              <img
+                src="~/assets/img/pages/desafios-de-programacion.webp"
+                alt="Desafíos de programación"
+                class="w-full h-48 object-cover rounded-t-2xl dark:invert"
+              >
+            </div>
 
-          <!-- Contenido -->
-          <div class="p-6 flex flex-col justify-center">
-            <NuxtLink to="/codelab/desafios">
-              <h2 class="text-2xl font-bold mb-4">Desafíos de programación</h2>
-            </NuxtLink>
-            <p class="text-zinc-600 dark:text-zinc-400">
-              Mejora tus habilidades de programación y resuelve problemas
-              interesantes. Puedes encontrar una variedad de desafíos que te
-              ayudarán a practicar y mejorar tus habilidades de codificación.
-            </p>
+            <!-- Contenido -->
+            <div class="p-6 flex flex-col justify-center flex-1">
+              <NuxtLink to="/codelab/desafios">
+                <h2 class="text-2xl font-bold mb-4">Desafíos de programación</h2>
+              </NuxtLink>
+              <p class="text-zinc-600 dark:text-zinc-400">
+                Mejora tus habilidades de programación y resuelve problemas
+                interesantes. Puedes encontrar una variedad de desafíos que te
+                ayudarán a practicar y mejorar tus habilidades de codificación.
+              </p>
+            </div>
+          </div>
+        </div>
+
+        <!-- JSON to TypeScript Card -->
+        <div class="mx-auto w-full">
+          <div class="flex flex-col rounded-2xl shadow-lg overflow-hidden bg-gradient-to-r from-blue-50 to-indigo-100 text-zinc-800 dark:from-indigo-900 dark:to-blue-900 dark:text-zinc-50 h-full">
+            <!-- Imagen -->
+            <div class="flex-shrink-0">
+              <img
+                src="~/assets/img/pages/convertir-json-a-typescript.webp"
+                alt="Convertir JSON a TypeScript"
+                class="w-full h-48 object-cover rounded-t-2xl dark:invert"
+              >
+            </div>
+
+            <!-- Contenido -->
+            <div class="p-6 flex flex-col justify-center flex-1">
+              <NuxtLink to="/codelab/json-to-ts">
+                <h2 class="text-2xl font-bold mb-4">JSON a TypeScript</h2>
+              </NuxtLink>
+              <p class="text-zinc-600 dark:text-zinc-300">
+                Convierte automáticamente estructuras JSON en interfaces TypeScript.
+                Una herramienta práctica para generar tipos desde tus datos JSON
+                de forma rápida y eficiente.
+              </p>
+            </div>
           </div>
         </div>
       </div>
@@ -49,7 +78,8 @@ useSeoMeta({
   ogTitle: "Laboratorio de código y programación | Droni.co",
   description: "Disfruta de algunas de nuestras herramientas y recursos para el desarrollo de software.",
   ogDescription: "Disfruta de algunas de nuestras herramientas y recursos para el desarrollo de software.",
-  ogImage: "https://dronico.nyc3.digitaloceanspaces.com/4ebaccf5-b863-4f12-aa49-9bbe0e1844e2/db7d4d54-7354-4421-9682-d1b75b1f1413/74529-dronico-card.png.png",
+  ogImage: "/_nuxt/assets/img/pages/convertir-json-a-typescript.webp",
+  twitterImage: "/_nuxt/assets/img/pages/convertir-json-a-typescript.webp",
   twitterCard: "summary_large_image",
 });
 </script>
