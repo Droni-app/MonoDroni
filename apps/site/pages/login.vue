@@ -40,12 +40,14 @@
       </DuiButton>
 
       <form v-if="tab === 'login'" @submit.prevent="submitLogin">
-        <DuiLabel title="Email">
+        <div class="flex flex-col gap-1 mb-3">
+          <label class="text-sm font-medium text-slate-700 dark:text-slate-300">Email</label>
           <DuiInput v-model="loginForm.email" type="email" :block="true" autofocus />
-        </DuiLabel>
-        <DuiLabel title="Contrasena">
+        </div>
+        <div class="flex flex-col gap-1 mb-3">
+          <label class="text-sm font-medium text-slate-700 dark:text-slate-300">Contrasena</label>
           <DuiInput v-model="loginForm.password" type="password" :block="true" />
-        </DuiLabel>
+        </div>
         <DuiButton type="submit" color="primary" :loading="loading" :block="true">
           Entrar
         </DuiButton>
@@ -63,18 +65,22 @@
       </form>
 
       <form v-else @submit.prevent="submitRegister">
-        <DuiLabel title="Nombre completo">
+        <div class="flex flex-col gap-1 mb-3">
+          <label class="text-sm font-medium text-slate-700 dark:text-slate-300">Nombre completo</label>
           <DuiInput v-model="registerForm.fullName" :block="true" autofocus />
-        </DuiLabel>
-        <DuiLabel title="Email">
+        </div>
+        <div class="flex flex-col gap-1 mb-3">
+          <label class="text-sm font-medium text-slate-700 dark:text-slate-300">Email</label>
           <DuiInput v-model="registerForm.email" type="email" :block="true" />
-        </DuiLabel>
-        <DuiLabel title="Contrasena">
+        </div>
+        <div class="flex flex-col gap-1 mb-3">
+          <label class="text-sm font-medium text-slate-700 dark:text-slate-300">Contrasena</label>
           <DuiInput v-model="registerForm.password" type="password" :block="true" />
-        </DuiLabel>
-        <DuiLabel title="Confirmar contrasena">
+        </div>
+        <div class="flex flex-col gap-1 mb-3">
+          <label class="text-sm font-medium text-slate-700 dark:text-slate-300">Confirmar contrasena</label>
           <DuiInput v-model="registerForm.passwordConfirmation" type="password" :block="true" />
-        </DuiLabel>
+        </div>
         <DuiButton type="submit" color="primary" :loading="loading" :block="true">
           Crear cuenta
         </DuiButton>
@@ -84,7 +90,7 @@
 </template>
 
 <script setup lang="ts">
-import { DuiAlert, DuiButton, DuiInput, DuiLabel } from '@dronico/droni-kit'
+import { DuiAlert, DuiButton, DuiInput } from '@dronico/droni-kit'
 
 const route = useRoute()
 const router = useRouter()

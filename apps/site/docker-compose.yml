@@ -1,0 +1,16 @@
+services:
+  site:
+    build: .
+    restart: unless-stopped
+    env_file: .env
+    environment:
+      VIRTUAL_HOST: droni.vip,www.droni.vip
+      VIRTUAL_PORT: 3000
+      LETSENCRYPT_HOST: droni.vip,www.droni.vip
+      NODE_ENV: production
+    networks:
+      - nginx-proxy
+
+networks:
+  nginx-proxy:
+    external: true
