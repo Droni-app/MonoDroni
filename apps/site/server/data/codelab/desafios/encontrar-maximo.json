@@ -1,0 +1,40 @@
+{
+  "id": 2,
+  "site_id": "default",
+  "user_id": "system",
+  "slug": "encontrar-maximo",
+  "name": "Encontrar el Máximo",
+  "description": "Encuentra el número más grande en un array de números.",
+  "content": "## Descripción del desafío\n\nDebes crear una función que reciba un array de números y retorne el número más grande.\n\n### Requisitos:\n- La función debe aceptar un array de números\n- Debe retornar el número máximo del array\n- El array tendrá al menos un elemento\n- Debe funcionar con números negativos\n\n### Ejemplo:\n```\nfindMax([3, 1, 4, 1, 5]) => 5\nfindMax([-10, -5, -1, -20]) => -1\nfindMax([42]) => 42\n```",
+  "scaffold": "function findMax(numbers: number[]): number {\n  // Tu código aquí\n  return 0;\n}\n",
+  "funcName": "findMax",
+  "level": 1,
+  "created_at": "2026-01-02T00:00:00Z",
+  "updated_at": "2026-01-02T00:00:00Z",
+  "tests": [
+    {
+      "id": 5,
+      "challenge_id": 2,
+      "input": "[3, 1, 4, 1, 5]",
+      "output": "5"
+    },
+    {
+      "id": 6,
+      "challenge_id": 2,
+      "input": "[-10, -5, -1, -20]",
+      "output": "-1"
+    },
+    {
+      "id": 7,
+      "challenge_id": 2,
+      "input": "[42]",
+      "output": "42"
+    },
+    {
+      "id": 8,
+      "challenge_id": 2,
+      "input": "[100, 50, 75, 25]",
+      "output": "100"
+    }
+  ]
+}

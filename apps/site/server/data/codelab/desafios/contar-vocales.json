@@ -1,0 +1,40 @@
+{
+  "id": 4,
+  "site_id": "default",
+  "user_id": "system",
+  "slug": "contar-vocales",
+  "name": "Contar Vocales",
+  "description": "Cuenta la cantidad de vocales en un string.",
+  "content": "## Descripción del desafío\n\nDebes crear una función que cuente cuántas vocales (a, e, i, o, u) hay en un string.\n\n### Requisitos:\n- La función debe aceptar un string\n- Debe retornar el número total de vocales\n- Las vocales deben contarse sin importar mayúsculas o minúsculas\n- Solo contar vocales simples (no diptongos)\n\n### Ejemplo:\n```\ncountVowels('hola') => 2\ncountVowels('MUNDO') => 2\ncountVowels('aeiou') => 5\n```",
+  "scaffold": "function countVowels(str: string): number {\n  // Tu código aquí\n  return 0;\n}\n",
+  "funcName": "countVowels",
+  "level": 2,
+  "created_at": "2026-01-04T00:00:00Z",
+  "updated_at": "2026-01-04T00:00:00Z",
+  "tests": [
+    {
+      "id": 13,
+      "challenge_id": 4,
+      "input": "'hola'",
+      "output": "2"
+    },
+    {
+      "id": 14,
+      "challenge_id": 4,
+      "input": "'MUNDO'",
+      "output": "2"
+    },
+    {
+      "id": 15,
+      "challenge_id": 4,
+      "input": "'aeiou'",
+      "output": "5"
+    },
+    {
+      "id": 16,
+      "challenge_id": 4,
+      "input": "'bcdfg'",
+      "output": "0"
+    }
+  ]
+}

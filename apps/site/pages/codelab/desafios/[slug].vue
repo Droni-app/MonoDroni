@@ -17,40 +17,10 @@
           class="prose lg:prose-lg max-w-full dark:prose-invert md:my-8"
           v-html="markdown.render(String(challenge.content))"
         />
-
-        <DuiAlert
-          v-for="submission in submissions?.data ?? []"
-          :key="submission.id"
-          color="primary"
-          >
-          <strong>{{ submission.user?.name }}</strong><br>
-          <span class="text-sm">
-            <i class="mdi mdi-clock-outline" />
-            {{ submission.created_at }}
-          </span> | 
-          <span class="text-sm">
-            <i class="mdi mdi-clock-outline" />
-            {{ submission.complete_time }}ms
-          </span> |
-          <span class="text-sm">
-            <i class="mdi mdi-check" />
-            {{ submission.complete ? 'Completado' : 'No completado' }}
-          </span>
-          <DuiButton
-            v-if="submission.code"
-            variant="ghost"
-            color="primary"
-            size="sm"
-            @click="loadCode(submission.code)"
-          >
-            <i class="mdi mdi-clipboard-text" />
-            Ver código
-          </DuiButton>
-        </DuiAlert>
       </div>
     </section>
-    <section class="bg-zinc-50 dark:bg-zinc-900 md:w-1/2 flex flex-col">
-      <header class="flex items-center justify-between p-2">
+    <section class="bg-zinc-50 dark:bg-zinc-900 md:w-1/2 flex flex-col h-full">
+      <header class="flex items-center justify-between p-2 flex-shrink-0">
         <NuxtLink to="/codelab/desafios/">
           <DuiAction>
             <i class="mdi mdi-arrow-left" />
@@ -65,14 +35,14 @@
         </DuiButton>
       </header>
       <ClientOnly v-if="challenge.scaffold.length > 0" fallback-tag="div" fallback="Cargando editor...">
-        <MonacoEditor v-model="code" lang="typescript" class="h-full" :options="{ theme: 'vs-dark' }" />
+        <MonacoEditor v-model="code" lang="typescript" :class="{ 'flex-1': !isResultsPanelOpen, 'h-1/2': isResultsPanelOpen }" :options="{ theme: 'vs-dark' }" />
       </ClientOnly>
       <!-- <textarea
         v-model="code"
         class="w-full h-full border-2 border-slate-500 rounded p-2 shadow-lg mb-1"
         placeholder="Escribe tu código aquí..." /> -->
-      <footer class="h-full">
-        <div class="flex justify-between border border-slate-500 rounded p-2 shadow-lg mb-2">
+      <footer :class="{ 'flex-shrink-0 h-auto': !isResultsPanelOpen, 'h-1/2': isResultsPanelOpen, 'overflow-hidden': true }">
+        <div class="flex justify-between items-center border border-slate-500 rounded p-2 shadow-lg mb-2">
           <div>
             <h2 class="font-bold">Resultado de los tests</h2>
             <p v-if="consoleTime > 0" class="text-sm">
@@ -82,24 +52,22 @@
               {{ consoleResults.length }} tests
             </p>
           </div>
-          <div>
-            <DuiButton
-              v-if="checkResult() && !isSubmissionCode"
-              variant="outline"
-              color="secondary"
-              @click="saveResult"
-            >
-              <i class="mdi mdi-save" />
-              Guardar
-            </DuiButton>
-          </div>
+          <button
+            class="text-slate-700 hover:text-slate-900 dark:text-slate-200 dark:hover:text-slate-100 transition cursor-pointer"
+            :title="isResultsPanelOpen ? 'Colapsar' : 'Expandir'"
+            @click="isResultsPanelOpen = !isResultsPanelOpen"
+          >
+            <i :class="isResultsPanelOpen ? 'mdi mdi-chevron-down' : 'mdi mdi-chevron-up'" />
+          </button>
         </div>
-        <DuiAlert v-for="result in consoleResults" :key="result.test" variant="outline" class="m-2" :color="result.check ? 'success' : 'danger'">
-          <strong class="block">Prueba: {{ result.test }}</strong>
-          <div v-if="!result.check" class="text-sm">
-            <span>Esperado: {{ JSON.stringify(result.esperado) }} | Obtenido: {{ JSON.stringify(result.obtenido) }}</span>
-          </div>
-        </DuiAlert>
+        <div v-if="isResultsPanelOpen" class="overflow-y-auto h-[calc(100%-50px)]">
+          <DuiAlert v-for="result in consoleResults" :key="result.test" variant="outline" class="m-2" :color="result.check ? 'success' : 'danger'">
+            <strong class="block">Prueba: {{ result.test }}</strong>
+            <div v-if="!result.check" class="text-sm">
+              <span>Esperado: {{ JSON.stringify(result.esperado) }} | Obtenido: {{ JSON.stringify(result.obtenido) }}</span>
+            </div>
+          </DuiAlert>
+        </div>
       </footer>
     </section>
   </div>
@@ -107,14 +75,6 @@
 <script setup lang="ts">
 import MarkdownIt from "markdown-it";
 import { DuiAction, DuiButton, DuiAlert } from "@dronico/droni-kit";
-const { status: authStatus } = useSiteAuth()
-const isSubmissionCode = ref(false);
-const toast:Ref<Toast> = useState('toast', () => ({
-  show: false,
-  message: '',
-  color: 'info',
-  duration: 5000,
-}))
 
 useHead({
   script: [
@@ -131,8 +91,12 @@ definePageMeta({
 
 const markdown = new MarkdownIt();
 const route = useRoute();
-const { data: challenge } = await useFetch<Challenge>(`/api/appi/codevs/challenges/${route.params.slug}`);
-const { data: tests } = useFetch<Test[]>(`/api/appi/codevs/challenges/${route.params.slug}/tests`);
+const { data: challenge } = useFetch<Challenge>(() => `/api/codelab/challenges/${route.params.slug}`, {
+  watch: [() => route.params.slug],
+});
+const { data: tests } = useFetch<Test[]>(() => `/api/codelab/challenges/${route.params.slug}/tests`, {
+  watch: [() => route.params.slug],
+});
 
 useSeoMeta({
   title: () => challenge.value?.name,
@@ -148,10 +112,17 @@ useSeoMeta({
 
 const consoleResults = ref<TestResult[]>([]);
 const consoleTime = ref(0);
-const code = ref(challenge.value?.scaffold || '');
-const { data: submissions } = await useFetch<Pagination<Submission[]>>(`/api/appi/codevs/challenges/${challenge.value?.slug}/submissions`)
+const code = ref('');
+const isResultsPanelOpen = ref(false);
+
+watch(challenge, (newChallenge) => {
+  if (newChallenge && !code.value) {
+    code.value = newChallenge.scaffold || ''
+  }
+}, { immediate: true })
 
 const compileCode = async () => {
+  isResultsPanelOpen.value = true;
   // eslint-disable-next-line @typescript-eslint/ban-ts-comment
   // @ts-expect-error
   const ts = globalThis.ts;
@@ -204,55 +175,5 @@ const compileCode = async () => {
   }
   const fin = performance.now();
   consoleTime.value = fin - inicio;
-}
-const checkResult = () => {
-  if(tests.value && consoleResults.value.length === tests.value.length && authStatus.value === 'authenticated') {
-    consoleResults.value.find((result) => !result.check);
-    return true;
-  }
-  return false;
-}
-
-const loadCode = (inCode: string) => {
-  isSubmissionCode.value = true;
-  code.value = inCode;
-}
-
-const saveResult = () => {
-  if(checkResult()) {
-    $fetch(`/api/appi/codevs/challenges/${challenge.value?.slug}/submissions`, {
-      method: 'POST',
-      body: {
-        challengeId: challenge.value?.id,
-        code: code.value,
-        complete_time: consoleTime.value,
-        complete: true
-      }
-    }).then((submission) => {
-      console.log('Guardando resultado...');
-      console.log(submission);
-      toast.value = {
-        show: true,
-        message: 'Guardado exitoso.',
-        color: 'success',
-        duration: 5000,
-      }
-      getSubmissions();
-    }).catch((error) => {
-      console.error(error)
-      toast.value = {
-        show: true,
-        message: 'Error al guardar el resultado.',
-        color: 'danger',
-        duration: 5000,
-      }
-    })
-  }
-}
-
-const getSubmissions = async () => {
-  if(authStatus.value === 'authenticated') {
-    submissions.value = await $fetch<Pagination<Submission[]>>(`/api/appi/codevs/challenges/${route.params.slug}/submissions`);
-  }
 }
 </script>

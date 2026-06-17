@@ -11,6 +11,27 @@
       </div>
     </UiHero>
     <div class="container mx-auto py-5">
+      <div class="mb-6">
+        <div class="flex flex-col md:flex-row gap-3">
+          <div class="flex-1">
+            <DuiInput
+              v-model="searchQuery"
+              placeholder="Buscar desafios..."
+              type="text"
+              class="w-full"
+              @keyup.enter="submitSearch"
+            />
+          </div>
+          <div class="w-full md:w-48">
+            <DuiSelect
+              v-model="selectedLevel"
+              :options="levelOptions"
+              placeholder="Todas las dificultades"
+              :nullable="true"
+            />
+          </div>
+        </div>
+      </div>
       <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
         <div
           v-for="challenge in challenges?.data ?? []"
@@ -43,11 +64,28 @@
           </div>
         </div>
       </div>
+      <div v-if="!challenges?.data || challenges.data.length === 0" class="py-12 text-center">
+        <div class="text-6xl mb-4">🤔</div>
+        <h2 class="text-2xl font-bold text-gray-800 dark:text-gray-200 mb-2">
+          Parece que no hay desafios...
+        </h2>
+        <p class="text-gray-600 dark:text-gray-400 mb-4">
+          O eres demasiado inteligente para nuestros desafios, o tu búsqueda necesita un poco de ayuda.
+        </p>
+        <DuiButton 
+          color="primary"
+          @click="resetFilters"
+        >
+          <i class="mdi mdi-refresh" />
+          Limpiar filtros
+        </DuiButton>
+      </div>
     </div>
   </div>
 </template>
 <script setup lang="ts">
-import  { DuiAction } from '@dronico/droni-kit'
+import { DuiAction, DuiInput, DuiSelect, DuiButton } from '@dronico/droni-kit'
+
 useSeoMeta({
   title: 'Desafios de programación | Droni.co',
   ogTitle: 'Desafios de programación | Droni.co',
@@ -57,11 +95,47 @@ useSeoMeta({
   twitterCard: 'summary_large_image',
   ogUrl: 'https://droni.co/codelab/desafios'
 })
+
 const filters = ref({ page: 1, itemsPerPage: 12 })
-const challenges = ref(
-  (await useFetch<Pagination<Challenge[]>>(`/api/appi/codevs/challenges?perPage=${filters.value.itemsPerPage}`)).data
-  ?? { data: [] }
-)
+const searchQuery = ref('')
+const searchQuerySubmitted = ref('')
+const selectedLevel = ref<string>('')
+
+const levelOptions = [
+  { label: 'Todas las dificultades', value: '' },
+  { label: 'Fácil', value: '1' },
+  { label: 'Intermedio', value: '2' },
+  { label: 'Difícil', value: '3' },
+]
+
+const submitSearch = () => {
+  searchQuerySubmitted.value = searchQuery.value
+}
+
+const resetFilters = () => {
+  searchQuery.value = ''
+  searchQuerySubmitted.value = ''
+  selectedLevel.value = ''
+}
+
+const { data: challenges } = useFetch<Pagination<Challenge[]>>(() => {
+  const params = new URLSearchParams({
+    perPage: String(filters.value.itemsPerPage),
+    page: String(filters.value.page),
+  })
+  
+  if (searchQuerySubmitted.value) {
+    params.append('search', searchQuerySubmitted.value)
+  }
+  
+  if (selectedLevel.value) {
+    params.append('level', String(selectedLevel.value))
+  }
+  
+  return `/api/codelab/challenges?${params.toString()}`
+}, {
+  watch: [filters, searchQuerySubmitted, selectedLevel],
+})
 
 const levelToString = (level: number) => {
   switch (level) {

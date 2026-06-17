@@ -49,34 +49,36 @@
           {{ item.name }}
           <span class="absolute bottom-0 left-1/2 w-0 h-0.5 bg-pink-600 transform -translate-x-1/2 transition-all duration-300 group-hover:w-full" />
         </NuxtLink>
-        <NuxtLink
-          v-if="status === 'authenticated'"
-          to="/" class="flex text-slate-700 dark:text-slate-300 hover:text-pink-600 transition border border-slate-300 dark:border-slate-600 rounded-full pe-2">
-          <img :src="user?.avatar ?? ''" alt="User Image" class="w-6 h-6 rounded-full mr-1">
-          <span>{{ displayName }}</span>
-        </NuxtLink>
-        <NuxtLink
-          v-if="status !== 'authenticated'"
-          to="/login"
-          class="group relative inline-block text-slate-700 dark:text-slate-300 hover:text-pink-600 transition cursor-pointer">
-          <i class="mdi mdi-login" />
-          Ingresa
-          <span class="absolute bottom-0 left-1/2 w-0 h-0.5 bg-pink-600 transform -translate-x-1/2 transition group-hover:w-full" />
-        </NuxtLink>
-        <div class="flex items-center space-x-2">
-          <button
+        <ClientOnly>
+          <NuxtLink
             v-if="status === 'authenticated'"
-            class="text-slate-700 hover:text-pink-600 dark:text-slate-100 dark:hover:text-pink-900 transition cursor-pointer"
-            @click="closeSession">
-            <i class="mdi mdi-logout" />
-          </button>
-          <button
-            class="text-slate-700 hover:text-slate-900 dark:text-slate-100 dark:hover:text-slate-200 hover:opacity-75 cursor-pointer"
-            @click="changeColorMode"
-            >
-            <i class="mdi mdi-theme-light-dark" />
-          </button>
-        </div>
+            to="/" class="flex text-slate-700 dark:text-slate-300 hover:text-pink-600 transition border border-slate-300 dark:border-slate-600 rounded-full pe-2">
+            <img :src="user?.avatar ?? ''" alt="User Image" class="w-6 h-6 rounded-full mr-1">
+            <span>{{ displayName }}</span>
+          </NuxtLink>
+          <NuxtLink
+            v-if="status !== 'authenticated'"
+            to="/login"
+            class="group relative inline-block text-slate-700 dark:text-slate-300 hover:text-pink-600 transition cursor-pointer">
+            <i class="mdi mdi-login" />
+            Ingresa
+            <span class="absolute bottom-0 left-1/2 w-0 h-0.5 bg-pink-600 transform -translate-x-1/2 transition group-hover:w-full" />
+          </NuxtLink>
+          <div class="flex items-center space-x-2">
+            <button
+              v-if="status === 'authenticated'"
+              class="text-slate-700 hover:text-pink-600 dark:text-slate-100 dark:hover:text-pink-900 transition cursor-pointer"
+              @click="closeSession">
+              <i class="mdi mdi-logout" />
+            </button>
+            <button
+              class="text-slate-700 hover:text-slate-900 dark:text-slate-100 dark:hover:text-slate-200 hover:opacity-75 cursor-pointer"
+              @click="changeColorMode"
+              >
+              <i class="mdi mdi-theme-light-dark" />
+            </button>
+          </div>
+        </ClientOnly>
       </nav>
     </div>
   </header>

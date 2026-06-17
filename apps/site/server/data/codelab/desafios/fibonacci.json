@@ -1,0 +1,40 @@
+{
+  "id": 5,
+  "site_id": "default",
+  "user_id": "system",
+  "slug": "fibonacci",
+  "name": "Secuencia de Fibonacci",
+  "description": "Calcula el n-ésimo número de la secuencia de Fibonacci.",
+  "content": "## Descripción del desafío\n\nLa secuencia de Fibonacci es una serie de números donde cada número es la suma de los dos anteriores.\nLa secuencia comienza: 0, 1, 1, 2, 3, 5, 8, 13, ...\n\nDebes crear una función que retorne el n-ésimo número de la secuencia de Fibonacci.\n\n### Requisitos:\n- La función debe aceptar un índice (número entero positivo)\n- Debe retornar el número de Fibonacci en esa posición\n- La posición 0 debe retornar 0\n- La posición 1 debe retornar 1\n\n### Ejemplo:\n```\nfibonacci(0) => 0\nfibonacci(1) => 1\nfibonacci(5) => 5\nfibonacci(10) => 55\n```",
+  "scaffold": "function fibonacci(n: number): number {\n  // Tu código aquí\n  return 0;\n}\n",
+  "funcName": "fibonacci",
+  "level": 3,
+  "created_at": "2026-01-05T00:00:00Z",
+  "updated_at": "2026-01-05T00:00:00Z",
+  "tests": [
+    {
+      "id": 17,
+      "challenge_id": 5,
+      "input": "0",
+      "output": "0"
+    },
+    {
+      "id": 18,
+      "challenge_id": 5,
+      "input": "1",
+      "output": "1"
+    },
+    {
+      "id": 19,
+      "challenge_id": 5,
+      "input": "5",
+      "output": "5"
+    },
+    {
+      "id": 20,
+      "challenge_id": 5,
+      "input": "10",
+      "output": "55"
+    }
+  ]
+}
