@@ -1,6 +1,6 @@
 <script setup lang="ts">
-import { computed, onMounted, ref } from 'vue'
-import { DuiButton, DuiAlert } from '@dronico/droni-kit'
+import { computed, onMounted, ref, watch } from 'vue'
+import { DuiButton, DuiAlert, DuiInput } from '@dronico/droni-kit'
 import AppiService from '../../../services/AppiService'
 import type { Attachment, PaginatedResponse, PaginationMeta } from '../../../types/AppiService'
 
@@ -9,6 +9,7 @@ const loading = ref(false)
 const error = ref<string | null>(null)
 const deletingId = ref<string | null>(null)
 const copiedId = ref<string | null>(null)
+const search = ref('')
 const meta = ref<Pick<PaginationMeta, 'total' | 'perPage' | 'currentPage'>>({ total: 0, perPage: 16, currentPage: 1 })
 
 const totalPages = computed(() => Math.max(1, Math.ceil(meta.value.total / meta.value.perPage)))
@@ -33,6 +34,7 @@ async function fetchAttachments(page = 1) {
       params: {
         page,
         per_page: 16,
+        ...(search.value ? { q: search.value } : {}),
       },
     })
     rows.value = data.data
@@ -80,6 +82,12 @@ function goToNextPage() {
   fetchAttachments(meta.value.currentPage + 1)
 }
 
+let searchTimer: ReturnType<typeof setTimeout>
+watch(search, () => {
+  clearTimeout(searchTimer)
+  searchTimer = setTimeout(() => fetchAttachments(1), 350)
+})
+
 onMounted(() => fetchAttachments())
 </script>
 
@@ -93,6 +101,11 @@ onMounted(() => fetchAttachments())
         </DuiButton>
       </RouterLink>
     </div>
+    <div class="relative mb-6">
+      <i class="mdi mdi-magnify absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none" />
+      <DuiInput v-model="search" placeholder="Buscar por nombre..." block class="pl-9" />
+    </div>
+
     <DuiAlert v-if="error" color="danger" class="mb-4">{{ error }}</DuiAlert>
 
     <p v-if="loading" class="text-slate-500 dark:text-slate-400">Cargando attachments...</p>
