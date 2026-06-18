@@ -4,6 +4,7 @@ import { storeAttachmentValidator } from '#validators/admin/content/attachment'
 import string from '@adonisjs/core/helpers/string'
 import drive from '@adonisjs/drive/services/main'
 import { DateTime } from 'luxon'
+import mime from 'mime-types'
 
 export default class AttachmentsController {
   /**
@@ -69,10 +70,16 @@ export default class AttachmentsController {
 
       const snapshot = await object.toSnapshot()
 
+      const contentType = snapshot.contentType
+      const inferredMime =
+        !contentType || contentType === 'application/octet-stream'
+          ? mime.lookup(snapshot.name) || 'application/octet-stream'
+          : contentType
+
       pending.push({
         name: snapshot.name,
         path: snapshot.key,
-        mime: snapshot.contentType ?? 'application/octet-stream',
+        mime: inferredMime,
         createdAt: DateTime.fromISO(snapshot.lastModified).isValid
           ? DateTime.fromISO(snapshot.lastModified)
           : DateTime.now(),
