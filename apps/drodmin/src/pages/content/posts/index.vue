@@ -15,6 +15,7 @@ const columns = [
 
 const rows = ref<Post[]>([])
 const loading = ref(false)
+const exportingId = ref<string | null>(null)
 const meta = ref<Pick<PaginationMeta, 'total' | 'perPage' | 'currentPage'>>({ total: 0, perPage: 10, currentPage: 1 })
 
 async function fetchPosts(page = 1) {
@@ -29,6 +30,25 @@ async function fetchPosts(page = 1) {
     }
   } finally {
     loading.value = false
+  }
+}
+
+async function exportPost(id: string, fallbackSlug?: string) {
+  exportingId.value = id
+  try {
+    const { data } = await AppiService.get<Post>(`/admin/content/posts/${id}`)
+    const filename = `${data.slug || fallbackSlug || 'post'}.json`
+    const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' })
+    const url = URL.createObjectURL(blob)
+    const link = document.createElement('a')
+    link.href = url
+    link.download = filename
+    document.body.appendChild(link)
+    link.click()
+    link.remove()
+    URL.revokeObjectURL(url)
+  } finally {
+    exportingId.value = null
   }
 }
 
@@ -69,12 +89,22 @@ onMounted(() => fetchPosts())
       <template #createdAt="{ createdAt }">
         {{ new Date(createdAt).toLocaleDateString() }}
       </template>
-      <template #actions="{ id }">
-        <RouterLink :to="`/content/posts/${id}`">
-          <DuiButton size="sm" color="secondary">
-            <i class="mdi mdi-pencil" />
+      <template #actions="{ id, slug }">
+        <div class="flex items-center gap-2">
+          <DuiButton
+            size="sm"
+            color="secondary"
+            :disabled="exportingId === id"
+            @click="exportPost(id, slug)"
+          >
+            <i class="mdi mdi-download" />
           </DuiButton>
-        </RouterLink>
+          <RouterLink :to="`/content/posts/${id}`">
+            <DuiButton size="sm" color="secondary">
+            <i class="mdi mdi-pencil" />
+            </DuiButton>
+          </RouterLink>
+        </div>
       </template>
     </DuiTable>
   </div>
