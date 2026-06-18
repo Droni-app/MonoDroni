@@ -69,6 +69,8 @@ export default class PostsController {
     const post = await ContentPost.query()
       .where('site_id', site.id)
       .where('id', params.id)
+      .preload('user')
+      .preload('attributes')
       .firstOrFail()
     return post
   }
