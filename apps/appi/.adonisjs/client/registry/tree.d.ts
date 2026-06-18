@@ -61,6 +61,7 @@ export interface ApiDefinition {
         index: typeof routes['admin.content.attachments.index']
         store: typeof routes['admin.content.attachments.store']
         destroy: typeof routes['admin.content.attachments.destroy']
+        import: typeof routes['admin.content.attachments.import']
       }
     }
     social: {

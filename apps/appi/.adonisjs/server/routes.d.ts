@@ -38,6 +38,7 @@ export type ScannedRoutes = {
     'admin.content.attachments.index': { paramsTuple?: []; params?: {} }
     'admin.content.attachments.store': { paramsTuple?: []; params?: {} }
     'admin.content.attachments.destroy': { paramsTuple: [ParamValue]; params: {'id': ParamValue} }
+    'admin.content.attachments.import': { paramsTuple?: []; params?: {} }
     'admin.social.comments.index': { paramsTuple?: []; params?: {} }
     'admin.social.comments.show': { paramsTuple: [ParamValue]; params: {'id': ParamValue} }
     'admin.social.comments.update': { paramsTuple: [ParamValue]; params: {'id': ParamValue} }
@@ -65,6 +66,7 @@ export type ScannedRoutes = {
     'admin.content.posts.show': { paramsTuple: [ParamValue]; params: {'id': ParamValue} }
     'admin.content.posts.attributes.index': { paramsTuple: [ParamValue]; params: {'post_id': ParamValue} }
     'admin.content.attachments.index': { paramsTuple?: []; params?: {} }
+    'admin.content.attachments.import': { paramsTuple?: []; params?: {} }
     'admin.social.comments.index': { paramsTuple?: []; params?: {} }
     'admin.social.comments.show': { paramsTuple: [ParamValue]; params: {'id': ParamValue} }
     'admin.social.topics.index': { paramsTuple?: []; params?: {} }
@@ -89,6 +91,7 @@ export type ScannedRoutes = {
     'admin.content.posts.show': { paramsTuple: [ParamValue]; params: {'id': ParamValue} }
     'admin.content.posts.attributes.index': { paramsTuple: [ParamValue]; params: {'post_id': ParamValue} }
     'admin.content.attachments.index': { paramsTuple?: []; params?: {} }
+    'admin.content.attachments.import': { paramsTuple?: []; params?: {} }
     'admin.social.comments.index': { paramsTuple?: []; params?: {} }
     'admin.social.comments.show': { paramsTuple: [ParamValue]; params: {'id': ParamValue} }
     'admin.social.topics.index': { paramsTuple?: []; params?: {} }

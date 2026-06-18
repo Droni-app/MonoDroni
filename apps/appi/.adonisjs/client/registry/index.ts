@@ -210,6 +210,12 @@ const routes = {
     tokens: [{"old":"/admin/content/attachments/:id","type":0,"val":"admin","end":""},{"old":"/admin/content/attachments/:id","type":0,"val":"content","end":""},{"old":"/admin/content/attachments/:id","type":0,"val":"attachments","end":""},{"old":"/admin/content/attachments/:id","type":1,"val":"id","end":""}],
     types: placeholder as Registry['admin.content.attachments.destroy']['types'],
   },
+  'admin.content.attachments.import': {
+    methods: ["GET","HEAD"],
+    pattern: '/admin/content/attachments/import',
+    tokens: [{"old":"/admin/content/attachments/import","type":0,"val":"admin","end":""},{"old":"/admin/content/attachments/import","type":0,"val":"content","end":""},{"old":"/admin/content/attachments/import","type":0,"val":"attachments","end":""},{"old":"/admin/content/attachments/import","type":0,"val":"import","end":""}],
+    types: placeholder as Registry['admin.content.attachments.import']['types'],
+  },
   'admin.social.comments.index': {
     methods: ["GET","HEAD"],
     pattern: '/admin/social/comments',

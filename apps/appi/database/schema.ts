@@ -8,7 +8,18 @@ import { BaseModel, column } from '@adonisjs/lucid/orm'
 import { DateTime } from 'luxon'
 
 export class AuthAccessTokenSchema extends BaseModel {
-  static $columns = ['abilities', 'createdAt', 'expiresAt', 'hash', 'id', 'lastUsedAt', 'name', 'tokenableId', 'type', 'updatedAt'] as const
+  static $columns = [
+    'abilities',
+    'createdAt',
+    'expiresAt',
+    'hash',
+    'id',
+    'lastUsedAt',
+    'name',
+    'tokenableId',
+    'type',
+    'updatedAt',
+  ] as const
   $columns = AuthAccessTokenSchema.$columns
   @column()
   declare abilities: string
@@ -69,7 +80,21 @@ export class ContentAttributeSchema extends BaseModel {
 }
 
 export class ContentPostSchema extends BaseModel {
-  static $columns = ['active', 'content', 'createdAt', 'description', 'format', 'id', 'name', 'picture', 'siteId', 'slug', 'tags', 'updatedAt', 'userId'] as const
+  static $columns = [
+    'active',
+    'content',
+    'createdAt',
+    'description',
+    'format',
+    'id',
+    'name',
+    'picture',
+    'siteId',
+    'slug',
+    'tags',
+    'updatedAt',
+    'userId',
+  ] as const
   $columns = ContentPostSchema.$columns
   @column()
   declare active: boolean
@@ -117,7 +142,16 @@ export class EnrollmentSchema extends BaseModel {
 }
 
 export class SiteSchema extends BaseModel {
-  static $columns = ['createdAt', 'description', 'expiresAt', 'id', 'logo', 'name', 'updatedAt', 'url'] as const
+  static $columns = [
+    'createdAt',
+    'description',
+    'expiresAt',
+    'id',
+    'logo',
+    'name',
+    'updatedAt',
+    'url',
+  ] as const
   $columns = SiteSchema.$columns
   @column.dateTime({ autoCreate: true })
   declare createdAt: DateTime | null
@@ -138,7 +172,19 @@ export class SiteSchema extends BaseModel {
 }
 
 export class SocialCommentSchema extends BaseModel {
-  static $columns = ['active', 'commentableId', 'commentableType', 'content', 'createdAt', 'id', 'isEdited', 'parentId', 'siteId', 'updatedAt', 'userId'] as const
+  static $columns = [
+    'active',
+    'commentableId',
+    'commentableType',
+    'content',
+    'createdAt',
+    'id',
+    'isEdited',
+    'parentId',
+    'siteId',
+    'updatedAt',
+    'userId',
+  ] as const
   $columns = SocialCommentSchema.$columns
   @column()
   declare active: boolean | null
@@ -182,7 +228,18 @@ export class SocialReplySchema extends BaseModel {
 }
 
 export class SocialTopicSchema extends BaseModel {
-  static $columns = ['active', 'content', 'createdAt', 'group', 'id', 'name', 'siteId', 'slug', 'updatedAt', 'userId'] as const
+  static $columns = [
+    'active',
+    'content',
+    'createdAt',
+    'group',
+    'id',
+    'name',
+    'siteId',
+    'slug',
+    'updatedAt',
+    'userId',
+  ] as const
   $columns = SocialTopicSchema.$columns
   @column()
   declare active: boolean
@@ -207,7 +264,16 @@ export class SocialTopicSchema extends BaseModel {
 }
 
 export class UserSchema extends BaseModel {
-  static $columns = ['avatar', 'createdAt', 'email', 'emailVerifiedAt', 'fullName', 'id', 'password', 'updatedAt'] as const
+  static $columns = [
+    'avatar',
+    'createdAt',
+    'email',
+    'emailVerifiedAt',
+    'fullName',
+    'id',
+    'password',
+    'updatedAt',
+  ] as const
   $columns = UserSchema.$columns
   @column()
   declare avatar: string | null

@@ -3,6 +3,7 @@ import ContentAttachment from '#models/content/attachment'
 import { storeAttachmentValidator } from '#validators/admin/content/attachment'
 import string from '@adonisjs/core/helpers/string'
 import drive from '@adonisjs/drive/services/main'
+import { DateTime } from 'luxon'
 
 export default class AttachmentsController {
   /**
@@ -29,6 +30,107 @@ export default class AttachmentsController {
       .orderBy('created_at', 'desc')
       .paginate(page, perPage)
     return attachments
+  }
+
+  /**
+   * @import
+   * @summary [Admin] Importar archivos del bucket a attachments del sitio
+   * @paramQuery recursive - Listar archivos recursivamente (default true) - @type(boolean)
+   * @paramQuery pagination_token - Token de paginación del provider - @type(string)
+   * @responseBody 200 - {"prefix": "site-id/", "paginationToken": null, "created": 2, "updated": 1, "data": [{"id": "uuid", "name": "file.jpg", "path": "site-id/user-id/file.jpg", "size": 100, "mime": "image/jpeg", "createdAt": "2026-01-01T00:00:00.000Z"}]}
+   * @responseBody 401 - {"message": "Unauthorized"}
+   * @responseBody 403 - {"message": "Forbidden"}
+   */
+  async import({ site, auth, request }: HttpContext) {
+    const disk = drive.use('spaces')
+    const prefix = `${site.id}/`
+    const recursiveInput = request.input('recursive')
+    const recursive =
+      recursiveInput === undefined
+        ? true
+        : recursiveInput === true || recursiveInput === 'true' || recursiveInput === '1'
+
+    const result = await disk.listAll(prefix, {
+      recursive,
+      paginationToken: request.input('pagination_token'),
+    })
+
+    const pending = [] as Array<{
+      name: string
+      path: string
+      mime: string
+      createdAt: DateTime
+    }>
+
+    for (const object of result.objects) {
+      if (object.isDirectory) {
+        continue
+      }
+
+      const snapshot = await object.toSnapshot()
+
+      pending.push({
+        name: snapshot.name,
+        path: snapshot.key,
+        mime: snapshot.contentType ?? 'application/octet-stream',
+        createdAt: DateTime.fromISO(snapshot.lastModified).isValid
+          ? DateTime.fromISO(snapshot.lastModified)
+          : DateTime.now(),
+      })
+    }
+
+    const uniqueByPath = new Map<string, (typeof pending)[number]>()
+    for (const item of pending) {
+      uniqueByPath.set(item.path, item)
+    }
+
+    const uniqueItems = Array.from(uniqueByPath.values())
+    const existingRows = uniqueItems.length
+      ? await ContentAttachment.query()
+          .where('site_id', site.id)
+          .whereIn(
+            'path',
+            uniqueItems.map((item) => item.path)
+          )
+      : []
+
+    const existingPaths = new Set(existingRows.map((row) => row.path))
+
+    for (const item of uniqueItems) {
+      await ContentAttachment.updateOrCreate(
+        {
+          siteId: site.id,
+          path: item.path,
+        },
+        {
+          userId: auth.user!.id,
+          name: item.name,
+          size: 100,
+          mime: item.mime,
+          createdAt: item.createdAt,
+        }
+      )
+    }
+
+    const rows = uniqueItems.length
+      ? await ContentAttachment.query()
+          .where('site_id', site.id)
+          .whereIn(
+            'path',
+            uniqueItems.map((item) => item.path)
+          )
+      : []
+
+    const createdCount = uniqueItems.length - existingPaths.size
+    const updatedCount = existingPaths.size
+
+    return {
+      prefix,
+      paginationToken: result.paginationToken ?? null,
+      created: createdCount,
+      updated: updatedCount,
+      data: rows,
+    }
   }
 
   /**

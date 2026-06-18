@@ -415,6 +415,18 @@ export interface Registry {
       errorResponse: ExtractErrorResponse<Awaited<ReturnType<import('#controllers/admin/content/attachments_controller').default['destroy']>>>
     }
   }
+  'admin.content.attachments.import': {
+    methods: ["GET","HEAD"]
+    pattern: '/admin/content/attachments/import'
+    types: {
+      body: {}
+      paramsTuple: []
+      params: {}
+      query: {}
+      response: ExtractResponse<Awaited<ReturnType<import('#controllers/admin/content/attachments_controller').default['import']>>>
+      errorResponse: ExtractErrorResponse<Awaited<ReturnType<import('#controllers/admin/content/attachments_controller').default['import']>>>
+    }
+  }
   'admin.social.comments.index': {
     methods: ["GET","HEAD"]
     pattern: '/admin/social/comments'

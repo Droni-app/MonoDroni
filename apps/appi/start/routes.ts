@@ -85,6 +85,7 @@ router
         router
           .resource('attachments', controllers.admin.content.Attachments)
           .only(['index', 'store', 'destroy'])
+        router.get('attachments/import', [controllers.admin.content.Attachments, 'import'])
       })
       .prefix('content')
       .as('content')
