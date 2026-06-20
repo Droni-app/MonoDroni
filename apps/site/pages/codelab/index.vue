@@ -52,13 +52,11 @@
         </DuiCard>
 
         <DuiCard
+          :image="imgBase64"
           title="Base64 Codificar / Decodificar"
           to="/codelab/base64"
           size="l"
         >
-          <div class="flex items-center justify-center h-32 text-indigo-500 dark:text-indigo-400">
-            <i class="mdi mdi-code-brackets text-8xl" />
-          </div>
           <p>
             Codifica y decodifica texto y archivos en Base64 directamente en tu navegador.
             Sube un archivo para obtener su Base64 o pega un Base64 para descargarlo.
@@ -66,16 +64,26 @@
         </DuiCard>
 
         <DuiCard
+          :image="imgFormatter"
           title="Formateador de código"
           to="/codelab/formatter"
           size="l"
         >
-          <div class="flex items-center justify-center h-32 text-emerald-500 dark:text-emerald-400">
-            <i class="mdi mdi-code-braces text-8xl" />
-          </div>
           <p>
             Formatea y embellece código minificado o mal indentado. Soporta JSON, XML, HTML,
             CSS, SCSS, JavaScript, TypeScript, GraphQL, YAML y Markdown.
+          </p>
+        </DuiCard>
+
+        <DuiCard
+          :image="imgJsonCsv"
+          title="Convertidor JSON ↔ CSV"
+          to="/codelab/json-csv"
+          size="l"
+        >
+          <p>
+            Convierte entre JSON y CSV de forma instantánea. Carga archivos JSON o CSV
+            y descarga el resultado en el formato que necesites.
           </p>
         </DuiCard>
       </div>
@@ -88,6 +96,9 @@ import { DuiCard } from '@dronico/droni-kit'
 import imgDesafios from '~/assets/img/pages/desafios-de-programacion.webp'
 import imgJsonTs from '~/assets/img/pages/convertir-json-a-typescript.webp'
 import imgDecodeJwt from '~/assets/img/pages/decodificarJWT.webp'
+import imgBase64 from '~/assets/img/pages/convertidor-base64.webp'
+import imgJsonCsv from '~/assets/img/pages/convertidor-json-a-csv.webp'
+import imgFormatter from '~/assets/img/pages/formateador-de-codigo.webp'
 
 useSeoMeta({
   title: "Laboratorio de código y programación | Droni.co",
