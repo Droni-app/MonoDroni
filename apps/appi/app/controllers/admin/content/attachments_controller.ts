@@ -38,7 +38,7 @@ export default class AttachmentsController {
    * @summary [Admin] Importar archivos del bucket a attachments del sitio
    * @paramQuery recursive - Listar archivos recursivamente (default true) - @type(boolean)
    * @paramQuery pagination_token - Token de paginación del provider - @type(string)
-   * @responseBody 200 - {"prefix": "site-id/", "paginationToken": null, "created": 2, "updated": 1, "data": [{"id": "uuid", "name": "file.jpg", "path": "site-id/user-id/file.jpg", "size": 100, "mime": "image/jpeg", "createdAt": "2026-01-01T00:00:00.000Z"}]}
+   * @responseBody 200 - {"prefix": "site-id/", "paginationToken": "string|null", "created": 2, "updated": 1, "data": [{"id": "uuid", "name": "file.jpg", "path": "site-id/user-id/file.jpg", "size": 100, "mime": "image/jpeg", "createdAt": "2026-01-01T00:00:00.000Z"}]}
    * @responseBody 401 - {"message": "Unauthorized"}
    * @responseBody 403 - {"message": "Forbidden"}
    */
