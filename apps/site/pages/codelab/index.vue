@@ -50,6 +50,20 @@
             Inspecciona el header, payload y signature de forma clara y sencilla.
           </p>
         </DuiCard>
+
+        <DuiCard
+          title="Base64 Codificar / Decodificar"
+          to="/codelab/base64"
+          size="l"
+        >
+          <div class="flex items-center justify-center h-32 text-indigo-500 dark:text-indigo-400">
+            <i class="mdi mdi-code-brackets text-8xl" />
+          </div>
+          <p>
+            Codifica y decodifica texto y archivos en Base64 directamente en tu navegador.
+            Sube un archivo para obtener su Base64 o pega un Base64 para descargarlo.
+          </p>
+        </DuiCard>
       </div>
     </div>
   </div>
