@@ -33,11 +33,11 @@
       <div class="ml-auto flex items-center gap-2">
         <!-- Options -->
         <label class="flex items-center gap-1.5 text-xs text-zinc-500 dark:text-zinc-400 cursor-pointer select-none">
-          <input v-model="useSingleQuotes" type="checkbox" class="rounded" />
+          <input v-model="useSingleQuotes" type="checkbox" class="rounded">
           Comillas simples
         </label>
         <label class="flex items-center gap-1.5 text-xs text-zinc-500 dark:text-zinc-400 cursor-pointer select-none">
-          <input v-model="useSemi" type="checkbox" class="rounded" />
+          <input v-model="useSemi" type="checkbox" class="rounded">
           Punto y coma
         </label>
         <div class="flex items-center gap-1.5 text-xs text-zinc-500 dark:text-zinc-400">
@@ -178,7 +178,6 @@ const editorOptions = computed(() => ({
 
 const formattedStats = computed(() => {
   if (!codeOutput.value || !codeInput.value) return ''
-  const inLines = codeInput.value.split('\n').length
   const outLines = codeOutput.value.split('\n').length
   return `${outLines} líneas`
 })

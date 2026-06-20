@@ -88,6 +88,20 @@
         </DuiCard>
 
         <DuiCard
+          title="Visor Swagger"
+          to="/codelab/swagger-viewer"
+          size="l"
+        >
+          <div class="flex items-center justify-center h-32 text-indigo-500 dark:text-indigo-400">
+            <i class="mdi mdi-api text-8xl" />
+          </div>
+          <p>
+            Visualiza y explora documentación Swagger y OpenAPI. Inspecciona rutas,
+            métodos, parámetros, esquemas y respuestas de forma clara e interactiva.
+          </p>
+        </DuiCard>
+
+        <DuiCard
           title="Utilidades y generadores"
           to="/codelab/mini-converters"
           size="l"
