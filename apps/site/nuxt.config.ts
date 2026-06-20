@@ -4,7 +4,13 @@ export default defineNuxtConfig({
   compatibilityDate: '2024-11-01',
   sourcemap: false,
   devtools: { enabled: process.env.NUXT_DEVTOOLS === '1' },
-  modules: ['@nuxt/eslint', '@nuxt/image', 'nuxt-gtag', '@nuxtjs/color-mode', 'nuxt-monaco-editor'],
+  modules: [
+    '@nuxt/image',
+    'nuxt-gtag',
+    '@nuxtjs/color-mode',
+    'nuxt-monaco-editor',
+    ...(process.env.NODE_ENV !== 'production' ? ['@nuxt/eslint'] : []),
+  ],
   gtag: {
     id: 'G-HB48CY1HBF'
   },
