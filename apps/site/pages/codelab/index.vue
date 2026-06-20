@@ -86,6 +86,20 @@
             y descarga el resultado en el formato que necesites.
           </p>
         </DuiCard>
+
+        <DuiCard
+          title="Utilidades y generadores"
+          to="/codelab/mini-converters"
+          size="l"
+        >
+          <div class="flex items-center justify-center h-32 text-violet-500 dark:text-violet-400">
+            <i class="mdi mdi-lightning-bolt text-8xl" />
+          </div>
+          <p>
+            URL encoder, case converter, epoch timestamp, unidades CSS,
+            generador de contraseñas seguras y UUIDs — todo en una sola página.
+          </p>
+        </DuiCard>
       </div>
     </div>
   </div>
