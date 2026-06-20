@@ -3,6 +3,7 @@ import { computed, reactive, ref } from 'vue'
 import { DuiInput, DuiTextarea, DuiButton, DuiLabel, DuiSelect, DuiCheckbox, DuiAlert, DuiTabs } from '@dronico/droni-kit'
 import MonacoEditor from './MonacoEditor.vue'
 import AttributeManager from './content/posts/AttributeManager.vue'
+import AttachmentInput from './AttachmentInput.vue'
 import type { PostFormData } from '../types/AppiService'
 
 const props = withDefaults(defineProps<{
@@ -134,6 +135,10 @@ const tabs = [
             item-value="value"
             block
           />
+        </DuiLabel>
+
+        <DuiLabel title="Imagen">
+          <AttachmentInput v-model="form.picture" placeholder="URL de la imagen" />
         </DuiLabel>
 
         <div>
