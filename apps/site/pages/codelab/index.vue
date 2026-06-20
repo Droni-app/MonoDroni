@@ -64,6 +64,20 @@
             Sube un archivo para obtener su Base64 o pega un Base64 para descargarlo.
           </p>
         </DuiCard>
+
+        <DuiCard
+          title="Formateador de código"
+          to="/codelab/formatter"
+          size="l"
+        >
+          <div class="flex items-center justify-center h-32 text-emerald-500 dark:text-emerald-400">
+            <i class="mdi mdi-code-braces text-8xl" />
+          </div>
+          <p>
+            Formatea y embellece código minificado o mal indentado. Soporta JSON, XML, HTML,
+            CSS, SCSS, JavaScript, TypeScript, GraphQL, YAML y Markdown.
+          </p>
+        </DuiCard>
       </div>
     </div>
   </div>
