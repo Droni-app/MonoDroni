@@ -73,7 +73,6 @@
     "@tuyau/core": "^1.2.2",
     "@vinejs/vine": "^4.3.1",
     "adonis-autoswagger": "^3.73.0",
-    "better-sqlite3": "^12.9.0",
     "edge.js": "^6.5.0",
     "luxon": "^3.7.2",
     "mime-types": "^3.0.2",
