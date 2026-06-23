@@ -15,9 +15,7 @@ export default class GenerateSwagger extends BaseCommand {
   async run() {
     const router = await this.app.container.make('router')
     router.commit()
-    let spec = await AutoSwagger.default.docs(router.toJSON(), swagger)
-    spec = spec.replace(/    BasicAuth:\n      type: "http"\n      scheme: "basic"\n/g, '')
-    spec = spec.replace(/    ApiKeyAuth:\n      type: "apiKey"\n      in: "header"\n      name: "X-API-Key"\n/g, '')
+    const spec = await AutoSwagger.default.docs(router.toJSON(), swagger)
     writeFileSync('./swagger.yml', spec)
     this.logger.success('swagger.yml generated successfully')
   }

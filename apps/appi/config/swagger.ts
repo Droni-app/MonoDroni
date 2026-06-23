@@ -27,10 +27,11 @@ export default {
     },
   },
   authMiddlewares: ['auth'],
-  defaultSecurityScheme: 'BearerAuth',
   persistAuthorization: true,
   securitySchemes: {
     BearerAuth: { type: 'http', scheme: 'bearer' },
+    BasicAuth: undefined, // Example of how to ignore a security scheme},
+    ApiKeyAuth: undefined, // Example of how to ignore a security scheme
   },
   showFullPath: false,
 }
