@@ -12,7 +12,7 @@ export default defineEventHandler(async (event) => {
     const challenges = []
     for (const file of jsonFiles) {
       const filePath = join(dataDir, file)
-      const content = await readFileSync(filePath, 'utf-8')
+      const content = readFileSync(filePath, 'utf-8')
       const challenge = JSON.parse(content)
       // Excluir tests del listado (solo metadata)
       const { tests, ...metadata } = challenge
@@ -24,7 +24,7 @@ export default defineEventHandler(async (event) => {
     const search = query.search ? String(query.search).toLowerCase() : ''
     const level = query.level ? Number(query.level) : null
     
-    let filteredChallenges = challenges.filter(challenge => {
+    const filteredChallenges = challenges.filter(challenge => {
       const matchesSearch = !search || 
         challenge.name.toLowerCase().includes(search) ||
         challenge.description.toLowerCase().includes(search)

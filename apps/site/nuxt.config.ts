@@ -2,6 +2,11 @@
 import tailwindcss from "@tailwindcss/vite";
 export default defineNuxtConfig({
   compatibilityDate: '2024-11-01',
+  nitro: {
+    serverAssets: [
+      { baseName: 'desafios', dir: './server/data/codelab/desafios' },
+    ],
+  },
   sourcemap: false,
   devtools: { enabled: process.env.NUXT_DEVTOOLS === '1' },
   modules: [
@@ -34,7 +39,6 @@ export default defineNuxtConfig({
   },
   image: {
     quality: 70,
-    density: 1,
     format: ['webp'],
     screens: {
       'xs': 320,
