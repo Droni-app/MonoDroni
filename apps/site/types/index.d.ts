@@ -135,6 +135,13 @@ declare global {
     id: number
   }
 
+  export interface TestResult {
+    test: string,
+    esperado: string,
+    obtenido: string,
+    check: boolean
+  }
+
   export interface Window {
     require: unknown
     monaco: unknown

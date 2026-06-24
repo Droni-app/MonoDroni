@@ -98,4 +98,36 @@ export const challenges: Challenge[] = [
       { id: 20, challenge_id: 5, input: '10', output: '55' },
     ],
   },
+  {
+    id: 6,
+    slug: 'tablero-piezas',
+    name: 'Tablero de Piezas',
+    description: 'Construye un tablero de 8×7 ubicando 7 piezas sin que compartan fila ni columna.',
+    content: '## Descripción del desafío\n\nImplementa una función que construya un tablero de **8 filas × 7 columnas** y ubique exactamente **7 piezas**, respetando las siguientes reglas:\n\n- Cada **columna** tiene exactamente una pieza.\n- Ninguna **fila** puede contener más de una pieza (una fila quedará siempre vacía).\n- Las piezas se representan con `1` y los espacios vacíos con `0`.\n\n### Parámetro\n\nLa función recibe `posiciones`: un array de **7 enteros** en el rango `0–7`, donde `posiciones[col]` indica la **fila** en que se coloca la pieza de la columna `col`.\n\n> Se garantiza que todos los valores de `posiciones` son distintos entre sí (no se repite ninguna fila).\n\n### Retorno\n\nUn array bidimensional `number[][]` de **8 filas × 7 columnas**, donde `tablero[fila][col]` es `1` si hay pieza y `0` si el espacio está vacío.\n\n### Ejemplo\n\n```ts\ngenerarTablero([0, 1, 2, 3, 4, 5, 6])\n```\n\nResultado (diagonal principal):\n\n```\n//  col: 0  1  2  3  4  5  6\n[ [1, 0, 0, 0, 0, 0, 0],  // fila 0\n  [0, 1, 0, 0, 0, 0, 0],  // fila 1\n  [0, 0, 1, 0, 0, 0, 0],  // fila 2\n  [0, 0, 0, 1, 0, 0, 0],  // fila 3\n  [0, 0, 0, 0, 1, 0, 0],  // fila 4\n  [0, 0, 0, 0, 0, 1, 0],  // fila 5\n  [0, 0, 0, 0, 0, 0, 1],  // fila 6\n  [0, 0, 0, 0, 0, 0, 0] ] // fila 7 (vacía)\n```\n\n### Restricciones\n\n- El tablero siempre tiene exactamente **8 filas y 7 columnas**.\n- Se ubican exactamente **7 piezas**, una por columna.\n- Como hay 7 piezas y 8 filas, exactamente **una fila quedará siempre vacía**.\n- Cada fila puede contener **a lo sumo una pieza**.\n\n### Reto adicional\n\nUna vez que tu función base funciona, implementa `generarTableroAleatorio(): number[][]` que genere posiciones válidas de forma aleatoria sin repetir filas, usando `generarTablero` internamente.\n\n**Pista:** Mezcla el array `[0,1,2,3,4,5,6,7]` con Fisher-Yates, elimina un elemento al azar (la fila que quedará vacía) y usa los 7 restantes como posiciones.',
+    scaffold: 'function generarTablero(posiciones: number[]): number[][] {\n  // posiciones[col] indica la fila donde va la pieza de esa columna\n  // El tablero tiene 8 filas y 7 columnas\n  // board[fila][col] = 1 si hay pieza, 0 si no\n  return [];\n}\n',
+    funcName: 'generarTablero',
+    level: 3,
+    tests: [
+      {
+        id: 21, challenge_id: 6,
+        input: '[0,1,2,3,4,5,6]',
+        output: '[[1,0,0,0,0,0,0],[0,1,0,0,0,0,0],[0,0,1,0,0,0,0],[0,0,0,1,0,0,0],[0,0,0,0,1,0,0],[0,0,0,0,0,1,0],[0,0,0,0,0,0,1],[0,0,0,0,0,0,0]]',
+      },
+      {
+        id: 22, challenge_id: 6,
+        input: '[7,6,5,4,3,2,1]',
+        output: '[[0,0,0,0,0,0,0],[0,0,0,0,0,0,1],[0,0,0,0,0,1,0],[0,0,0,0,1,0,0],[0,0,0,1,0,0,0],[0,0,1,0,0,0,0],[0,1,0,0,0,0,0],[1,0,0,0,0,0,0]]',
+      },
+      {
+        id: 23, challenge_id: 6,
+        input: '[2,5,0,7,1,6,3]',
+        output: '[[0,0,1,0,0,0,0],[0,0,0,0,1,0,0],[1,0,0,0,0,0,0],[0,0,0,0,0,0,1],[0,0,0,0,0,0,0],[0,1,0,0,0,0,0],[0,0,0,0,0,1,0],[0,0,0,1,0,0,0]]',
+      },
+      {
+        id: 24, challenge_id: 6,
+        input: '[4,0,6,2,7,3,5]',
+        output: '[[0,1,0,0,0,0,0],[0,0,0,0,0,0,0],[0,0,0,1,0,0,0],[0,0,0,0,0,1,0],[1,0,0,0,0,0,0],[0,0,0,0,0,0,1],[0,0,1,0,0,0,0],[0,0,0,0,1,0,0]]',
+      },
+    ],
+  },
 ]

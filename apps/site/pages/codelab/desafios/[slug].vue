@@ -140,16 +140,8 @@ const compileCode = async () => {
         check: (() => {
           const a = ${challenge.value?.funcName}(${test.input});
           const b = ${test.output};
-          if(a === b) { return true; }
-          if(typeof a !== typeof b) { return false; }
-          if(Array.isArray(a) && Array.isArray(b)) {
-            if(a.length !== b.length) { return false; }
-            for(let i = 0; i < a.length; i++) {
-              if(a[i] !== b[i]) { return false; }
-            }
-            return true;
-          }
-          return false;
+          if (a === b) return true;
+          return JSON.stringify(a) === JSON.stringify(b);
         })()
       }
     `;
