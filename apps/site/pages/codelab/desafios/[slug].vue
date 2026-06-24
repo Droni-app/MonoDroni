@@ -1,7 +1,15 @@
 <!-- eslint-disable vue/no-v-html -->
 <template>
-  <div v-if="challenge" class="md:flex h-screen">
-    <section class="md:w-1/2 h-full overflow-auto">
+  <div
+    v-if="challenge"
+    ref="containerRef"
+    class="md:flex h-screen"
+    :class="{ 'select-none cursor-col-resize': isDragging }"
+  >
+    <section
+      class="h-full overflow-auto md:flex-shrink-0"
+      :style="isDesktop ? { width: leftWidth + '%' } : {}"
+    >
       <UiHero>
         <div class="text-center md:text-start py-6">
           <h1 class="text-balance text-xl lg:text-4xl text-gray-800 drop-shadow-lg dark:text-gray-50">
@@ -19,7 +27,16 @@
         />
       </div>
     </section>
-    <section class="bg-zinc-50 dark:bg-zinc-900 md:w-1/2 flex flex-col h-full">
+
+    <!-- Divider arrastrable -->
+    <div
+      class="hidden md:flex items-center justify-center w-2 flex-shrink-0 bg-zinc-200 dark:bg-zinc-700 hover:bg-blue-400 dark:hover:bg-blue-500 cursor-col-resize transition-colors group"
+      @pointerdown.prevent="startDrag"
+    >
+      <div class="w-0.5 h-10 rounded-full bg-zinc-400 dark:bg-zinc-500 group-hover:bg-blue-200 pointer-events-none transition-colors" />
+    </div>
+
+    <section class="bg-zinc-50 dark:bg-zinc-900 flex flex-col h-full md:flex-1 md:min-w-0">
       <header class="flex items-center justify-between p-2 flex-shrink-0">
         <NuxtLink to="/codelab/desafios/">
           <DuiAction>
@@ -37,17 +54,13 @@
       <ClientOnly v-if="challenge.scaffold.length > 0" fallback-tag="div" fallback="Cargando editor...">
         <MonacoEditor v-model="code" lang="typescript" :class="{ 'flex-1': !isResultsPanelOpen, 'h-1/2': isResultsPanelOpen }" :options="{ theme: 'vs-dark' }" />
       </ClientOnly>
-      <!-- <textarea
-        v-model="code"
-        class="w-full h-full border-2 border-slate-500 rounded p-2 shadow-lg mb-1"
-        placeholder="Escribe tu código aquí..." /> -->
       <footer :class="{ 'flex-shrink-0 h-auto': !isResultsPanelOpen, 'h-1/2': isResultsPanelOpen, 'overflow-hidden': true }">
         <div class="flex justify-between items-center border border-slate-500 rounded p-2 shadow-lg mb-2">
           <div>
             <h2 class="font-bold">Resultado de los tests</h2>
             <p v-if="consoleTime > 0" class="text-sm">
               <i class="mdi mdi-clock-outline" />
-              {{ consoleTime }}ms 
+              {{ consoleTime }}ms
               <i class="mdi mdi-test-tube-empty" />
               {{ consoleResults.length }} tests
             </p>
@@ -112,6 +125,39 @@ const consoleTime = ref(0);
 const code = ref('');
 const isResultsPanelOpen = ref(false);
 
+// --- Split pane ---
+const containerRef = ref<HTMLElement | null>(null)
+const leftWidth = ref(50)
+const isDragging = ref(false)
+const isDesktop = ref(false)
+
+onMounted(() => {
+  const checkDesktop = () => { isDesktop.value = window.innerWidth >= 768 }
+  checkDesktop()
+  window.addEventListener('resize', checkDesktop)
+  onUnmounted(() => window.removeEventListener('resize', checkDesktop))
+})
+
+const onDrag = (e: PointerEvent) => {
+  if (!containerRef.value) return
+  const rect = containerRef.value.getBoundingClientRect()
+  const pct = ((e.clientX - rect.left) / rect.width) * 100
+  leftWidth.value = Math.min(Math.max(pct, 20), 80)
+}
+
+const stopDrag = () => {
+  isDragging.value = false
+  document.removeEventListener('pointermove', onDrag)
+  document.removeEventListener('pointerup', stopDrag)
+}
+
+const startDrag = () => {
+  isDragging.value = true
+  document.addEventListener('pointermove', onDrag)
+  document.addEventListener('pointerup', stopDrag, { once: true })
+}
+// --- fin split pane ---
+
 watch(challenge, (newChallenge) => {
   if (newChallenge && !code.value) {
     code.value = newChallenge.scaffold || ''
@@ -148,7 +194,7 @@ const compileCode = async () => {
     try {
       // Usando Function, para mas seguridad.
       const funcionEjecutable = new Function(codigoTest);
-      
+
       const resultado = await funcionEjecutable();
       if(resultado !== undefined){
         consoleResults.value.push(resultado);
