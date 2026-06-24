@@ -144,6 +144,12 @@ const routes = {
     tokens: [{"old":"/social/topics/:topic_id/replies","type":0,"val":"social","end":""},{"old":"/social/topics/:topic_id/replies","type":0,"val":"topics","end":""},{"old":"/social/topics/:topic_id/replies","type":1,"val":"topic_id","end":""},{"old":"/social/topics/:topic_id/replies","type":0,"val":"replies","end":""}],
     types: placeholder as Registry['social.replies.store']['types'],
   },
+  'admin.content.posts.import': {
+    methods: ["POST"],
+    pattern: '/admin/content/posts/import',
+    tokens: [{"old":"/admin/content/posts/import","type":0,"val":"admin","end":""},{"old":"/admin/content/posts/import","type":0,"val":"content","end":""},{"old":"/admin/content/posts/import","type":0,"val":"posts","end":""},{"old":"/admin/content/posts/import","type":0,"val":"import","end":""}],
+    types: placeholder as Registry['admin.content.posts.import']['types'],
+  },
   'admin.content.posts.index': {
     methods: ["GET","HEAD"],
     pattern: '/admin/content/posts',

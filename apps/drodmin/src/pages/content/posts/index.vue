@@ -16,6 +16,10 @@ const columns = [
 const rows = ref<Post[]>([])
 const loading = ref(false)
 const exportingId = ref<string | null>(null)
+const importing = ref(false)
+const importError = ref<string | null>(null)
+const importSuccess = ref(false)
+const fileInputRef = ref<HTMLInputElement | null>(null)
 const meta = ref<Pick<PaginationMeta, 'total' | 'perPage' | 'currentPage'>>({ total: 0, perPage: 10, currentPage: 1 })
 
 async function fetchPosts(page = 1) {
@@ -52,6 +56,35 @@ async function exportPost(id: string, fallbackSlug?: string) {
   }
 }
 
+function triggerImport() {
+  importError.value = null
+  importSuccess.value = false
+  fileInputRef.value?.click()
+}
+
+async function onFileSelected(event: Event) {
+  const file = (event.target as HTMLInputElement).files?.[0]
+  if (!file) return
+
+  importing.value = true
+  importError.value = null
+  importSuccess.value = false
+
+  try {
+    const text = await file.text()
+    const payload = JSON.parse(text)
+    await AppiService.post('/admin/content/posts/import', payload)
+    importSuccess.value = true
+    await fetchPosts(meta.value.currentPage)
+  } catch (err: any) {
+    const msg = err?.response?.data?.message ?? err?.message ?? 'Error al importar el post'
+    importError.value = msg
+  } finally {
+    importing.value = false
+    if (fileInputRef.value) fileInputRef.value.value = ''
+  }
+}
+
 onMounted(() => fetchPosts())
 </script>
 
@@ -59,11 +92,30 @@ onMounted(() => fetchPosts())
   <div class="p-6">
     <div class="flex items-center justify-between mb-6">
       <h1 class="text-2xl font-bold text-slate-800 dark:text-slate-100">Posts</h1>
-      <RouterLink to="/content/posts/create">
-        <DuiButton color="primary" size="sm">
-          <i class="mdi mdi-plus mr-1" /> Nuevo post
+      <div class="flex items-center gap-2">
+        <input
+          ref="fileInputRef"
+          type="file"
+          accept=".json"
+          class="hidden"
+          @change="onFileSelected"
+        />
+        <DuiButton color="secondary" size="sm" :disabled="importing" @click="triggerImport">
+          <i class="mdi mdi-upload mr-1" />
+          {{ importing ? 'Importando...' : 'Importar' }}
         </DuiButton>
-      </RouterLink>
+        <RouterLink to="/content/posts/create">
+          <DuiButton color="primary" size="sm">
+            <i class="mdi mdi-plus mr-1" /> Nuevo post
+          </DuiButton>
+        </RouterLink>
+      </div>
+    </div>
+    <div v-if="importSuccess" class="mb-4 px-4 py-3 rounded bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200 text-sm">
+      Post importado correctamente.
+    </div>
+    <div v-if="importError" class="mb-4 px-4 py-3 rounded bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200 text-sm">
+      {{ importError }}
     </div>
     <DuiTable
       :columns="columns"

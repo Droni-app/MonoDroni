@@ -283,6 +283,18 @@ export interface Registry {
       errorResponse: ExtractErrorResponse<Awaited<ReturnType<import('#controllers/social/replies_controller').default['store']>>> | { status: 422; response: { errors: SimpleError[] } }
     }
   }
+  'admin.content.posts.import': {
+    methods: ["POST"]
+    pattern: '/admin/content/posts/import'
+    types: {
+      body: {}
+      paramsTuple: []
+      params: {}
+      query: {}
+      response: ExtractResponse<Awaited<ReturnType<import('#controllers/admin/content/posts_controller').default['import']>>>
+      errorResponse: ExtractErrorResponse<Awaited<ReturnType<import('#controllers/admin/content/posts_controller').default['import']>>>
+    }
+  }
   'admin.content.posts.index': {
     methods: ["GET","HEAD"]
     pattern: '/admin/content/posts'

@@ -78,6 +78,7 @@ router
     // Content module
     router
       .group(() => {
+        router.post('posts/import', [controllers.admin.content.Posts, 'import'])
         router.resource('posts', controllers.admin.content.Posts).apiOnly()
         router
           .resource('posts.attributes', controllers.admin.content.PostAttributes)

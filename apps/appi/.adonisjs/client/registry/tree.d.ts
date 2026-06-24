@@ -46,6 +46,7 @@ export interface ApiDefinition {
   admin: {
     content: {
       posts: {
+        import: typeof routes['admin.content.posts.import']
         index: typeof routes['admin.content.posts.index']
         store: typeof routes['admin.content.posts.store']
         show: typeof routes['admin.content.posts.show']

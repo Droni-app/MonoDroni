@@ -1,7 +1,11 @@
 import type { HttpContext } from '@adonisjs/core/http'
 import ContentPost from '#models/content/post'
+import ContentPostAttribute from '#models/content/attribute'
 import { storePostValidator, updatePostValidator } from '#validators/admin/content/post'
 import string from '@adonisjs/core/helpers/string'
+import User from '#models/user'
+import Enrollment from '#models/enrollment'
+import { DateTime } from 'luxon'
 
 export default class PostsController {
   /**
@@ -98,6 +102,82 @@ export default class PostsController {
     })
     await post.save()
     return post
+  }
+
+  /**
+   * @import
+   * @summary [Admin] Importar un post desde JSON exportado
+   * @requestBody {"name": "string", "slug": "string", "description": "string|null", "content": "string|null", "format": "markdown", "tags": ["string"], "picture": "string|null", "active": true, "user": {"email": "string", "fullName": "string"}, "attributes": [{"name": "string", "value": "string", "type": "string"}]}
+   * @responseBody 201 - {"id": "uuid", "slug": "string", "name": "string", "imported": true}
+   * @responseBody 400 - {"message": "string"}
+   * @responseBody 401 - {"message": "Unauthorized"}
+   * @responseBody 403 - {"message": "Forbidden"}
+   * @responseBody 422 - {"errors": [{"message": "string", "field": "string"}]}
+   */
+  async import({ site, request, response }: HttpContext) {
+    const body = request.body() as Record<string, any>
+
+    if (!body?.name) {
+      return response.badRequest({ message: 'El campo "name" es requerido' })
+    }
+
+    const userEmail = body?.user?.email
+    if (!userEmail) {
+      return response.badRequest({ message: 'El campo "user.email" es requerido' })
+    }
+
+    let user = await User.findBy('email', userEmail)
+    if (!user) {
+      const randomPassword = Math.random().toString(36).slice(-12)
+      user = await User.create({
+        email: userEmail,
+        fullName: body.user?.fullName ?? userEmail.split('@')[0],
+        password: randomPassword,
+        emailVerifiedAt: DateTime.now(),
+      })
+    }
+
+    await Enrollment.firstOrCreate(
+      { siteId: site.id, userId: user.id },
+      { siteId: site.id, userId: user.id, role: 'user' }
+    )
+
+    const slugBase = string.slug(body.slug ?? body.name)
+    const existingPost = await ContentPost.query()
+      .where('site_id', site.id)
+      .where('slug', slugBase)
+      .first()
+    const slug = existingPost ? `${slugBase}-${string.generateRandom(6)}` : slugBase
+
+    const post = await ContentPost.create({
+      name: body.name,
+      slug,
+      description: body.description ?? null,
+      content: body.content ?? null,
+      format: ['markdown', 'html', 'plaintext'].includes(body.format) ? body.format : 'markdown',
+      tags: Array.isArray(body.tags) ? JSON.stringify(body.tags) : null,
+      picture: body.picture ?? null,
+      active: typeof body.active === 'boolean' ? body.active : false,
+      siteId: site.id,
+      userId: user.id,
+    })
+
+    const attributes = Array.isArray(body.attributes) ? body.attributes : []
+    for (const attr of attributes) {
+      if (attr?.name && attr?.value) {
+        await ContentPostAttribute.create({
+          contentPostId: post.id,
+          name: attr.name,
+          value: String(attr.value),
+          type: attr.type ?? 'string',
+        })
+      }
+    }
+
+    await post.load('user')
+    await post.load('attributes')
+
+    return response.created(post)
   }
 
   /**
