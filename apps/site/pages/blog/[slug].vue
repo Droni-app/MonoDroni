@@ -11,14 +11,15 @@
           <div class="flex">
             <UiPill>
               <div class="flex">
-                <NuxtImg :src="post.user.avatar ?? ''" :alt="post.user.name" class="w-4 h-4 rounded-full mr-1" />
-                <span>{{ post.user.name }}</span>
+                <NuxtImg v-if="post.user.avatar" :src="post.user.avatar" :alt="post.user.name" class="w-4 h-4 rounded-full mr-1" />
+                <i v-else class="mdi mdi-account-circle text-base mr-1" />
+                <span>{{ post.user.fullName }}</span>
               </div>
             </UiPill>
             <UiPill>
               <i class="mdi mdi-calendar" />
-              <time :datetime="post.created_at">
-                {{ new Date(post.created_at).toLocaleString() }}
+              <time :datetime="post.createdAt">
+                {{ new Date(post.createdAt).toLocaleString() }}
               </time>
             </UiPill>
           </div>
@@ -72,7 +73,7 @@ useSeoMeta({
   ogUrl: () => `https://droni.co/blog/${post.value?.slug}`
 })
 const getProp = (name: string) => {
-  return post.value?.attrs?.find(attr => attr.name === name)?.value ?? ''
+  return post.value?.attributes?.find(attr => attr.name === name)?.value ?? ''
 }
 const getVideoUrl = (video:string) => {
   let videoId = video.split('v=')[1]

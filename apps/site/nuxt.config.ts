@@ -34,6 +34,7 @@ export default defineNuxtConfig({
   },
   image: {
     quality: 70,
+    density: 1,
     format: ['webp'],
     screens: {
       'xs': 320,

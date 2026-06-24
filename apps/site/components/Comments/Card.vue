@@ -6,7 +6,8 @@
     <header class="flex flex-wrap gap-1">
       <UiPill>
         <div class="flex">
-          <NuxtImg :src="props.comment?.user?.avatar ?? ''" alt="User Image" class="w-4 h-4 rounded-full mr-1" />
+          <NuxtImg v-if="props.comment?.user?.avatar" :src="props.comment.user.avatar" alt="User Image" class="w-4 h-4 rounded-full mr-1" />
+          <i v-else class="mdi mdi-account-circle text-base mr-1" />
           <span>{{ props.comment?.user?.fullName }}</span>
         </div>
       </UiPill>

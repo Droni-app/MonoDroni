@@ -67,22 +67,20 @@ declare global {
 
   /* New */
   export interface Post {
-    id: number
-    user_id: string
-    site_id: string
-    category_id: number
+    id: string
+    userId: string
+    siteId: string
     slug: string
     name: string
-    description: string
-    picture: string
-    content: string
+    description: string | null
+    picture: string | null
+    content: string | null
     format: string
-    active: number
-    created_at: string
-    updated_at: string
-    category: Category
+    active: boolean
+    createdAt: string
+    updatedAt: string
     user: User
-    attrs?: Attr[]
+    attributes?: Attr[]
   }
 
   export interface Category {
@@ -108,8 +106,8 @@ declare global {
   }
 
   export interface Attr {
-    id: number
-    post_id: number
+    id: string
+    contentPostId: string
     name: string
     type: string
     value: string
