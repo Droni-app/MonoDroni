@@ -94,9 +94,6 @@ const route = useRoute();
 const { data: challenge } = useFetch<Challenge>(() => `/api/codelab/challenges/${route.params.slug}`, {
   watch: [() => route.params.slug],
 });
-const { data: tests } = useFetch<Test[]>(() => `/api/codelab/challenges/${route.params.slug}/tests`, {
-  watch: [() => route.params.slug],
-});
 
 useSeoMeta({
   title: () => challenge.value?.name,
@@ -129,10 +126,10 @@ const compileCode = async () => {
   consoleResults.value = [];
   const codigo = ts.transpileModule(code.value, { compilerOptions: { module: ts.ModuleKind.CommonJS }});
   const inicio = performance.now();
-  if(challenge.value === undefined || tests.value === undefined) {
+  if (!challenge.value?.tests?.length) {
     return;
   }
-  for (const test of tests.value || []) {
+  for (const test of challenge.value.tests) {
     let breakProccess = false;
     const codigoTest = `
       ${codigo.outputText}
