@@ -33,6 +33,9 @@ export default class CommentsController {
       .andWhere('commentable_id', data.commentable_id)
       .andWhereNull('parent_id')
       .preload('user')
+      .preload('children', (q) =>
+        q.where('active', true).preload('user').orderBy('created_at', 'asc')
+      )
       .orderBy('created_at', 'asc')
       .paginate(page, perPage)
   }

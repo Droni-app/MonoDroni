@@ -46,7 +46,7 @@
       <article class="prose lg:prose-xl max-w-full dark:prose-invert md:my-8" v-html="markdown.render(String(post.content))" />
     </div>
     <div class="container mx-auto">
-      <CommentsList commentable="content_post" :commentable-id="post.id" />
+      <CommentsList commentable="ContentPost" :commentable-id="String(post.id)" />
     </div>
   </article>
 </template>

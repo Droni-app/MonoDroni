@@ -1,69 +1,88 @@
 <!-- eslint-disable vue/no-v-html -->
 <template>
   <article
-    class="bg-slate-150 dark:bg-slate-800 shadow-xl rounded mb-2 p-2 border-l-2 border-l-purple-500"
-    :class="props.comment?.approved_at === null ? 'border-l-rose-500' : ''">
-    <header class="flex">
+    class="bg-slate-150 dark:bg-slate-800 shadow-xl rounded mb-2 p-2 border-l-2"
+    :class="props.comment._optimistic ? 'border-l-slate-400 opacity-70' : 'border-l-purple-500'">
+    <header class="flex flex-wrap gap-1">
       <UiPill>
         <div class="flex">
           <NuxtImg :src="props.comment?.user?.avatar ?? ''" alt="User Image" class="w-4 h-4 rounded-full mr-1" />
-          <span>{{ props.comment?.user?.name }}</span>
+          <span>{{ props.comment?.user?.fullName }}</span>
         </div>
       </UiPill>
 
       <UiPill>
         <i class="mdi mdi-clock-outline me-1" />
-        <time :datetime="props.comment.created_at">
-          {{ new Date(props.comment.created_at).toLocaleString() }}
+        <time :datetime="props.comment.createdAt">
+          {{ new Date(props.comment.createdAt).toLocaleString() }}
         </time>
       </UiPill>
 
-      <UiPill v-if="status === 'authenticated' && props.comment.parent_id === null" class="cursor-pointer" @click="responseBox = !responseBox">
-        <i class="mdi mdi-reply" />
-        Reponder
+      <UiPill v-if="props.comment._optimistic">
+        <i class="mdi mdi-clock-outline me-1" />
+        Enviando...
       </UiPill>
-      <UiPill v-if="status === 'authenticated' && props.comment.approved_at === null" class="cursor-pointer" @click="aprobar(props.comment.id)">
-        <i class="mdi mdi-check" />
-        Aprobar
+
+      <UiPill
+        v-if="status === 'authenticated' && props.comment.parentId === null && !props.comment._optimistic"
+        class="cursor-pointer"
+        @click="responseBox = !responseBox">
+        <i class="mdi mdi-reply" />
+        Responder
       </UiPill>
     </header>
+
     <div class="prose prose-sm max-w-full dark:prose-invert" v-html="markdown.render(props.comment.content)" />
+
     <CommentsCreate
       v-if="status === 'authenticated' && responseBox"
-      class="mb-2"
+      class="mt-2"
       :commentable="props.commentable"
       :commentable-id="props.commentableId"
-      :parent-id="props.comment.id" />
+      :parent-id="props.comment.id"
+      @created="addReply" />
+
     <CommentsCard
-      v-for="child in props.comment.children"
+      v-for="child in children"
       :key="child.id"
       :comment="child"
-      :parent-id="props.comment.id"
       :commentable="props.commentable"
       :commentable-id="props.commentableId" />
   </article>
 </template>
 <script setup lang="ts">
-import MarkdownIt from "markdown-it";
-const markdown = new MarkdownIt();
-const { status } = useSiteAuth()
-const props = defineProps<{
-  comment: Comment,
-  commentable: 'content_post' | 'codevs_challenge' | 'codevs_submission',
-  commentableId: number,
-}>()
-const responseBox = ref(false)
+import MarkdownIt from 'markdown-it'
 
-const aprobar = (id: number) => {
-  $fetch(`/api/appi/social/comments/${id}`, {
-    method: 'PUT',
-    body: {
-      approved: true,
-    },
-  }).then((comment) => {
-    console.log(comment)
-  }).catch((error) => {
-    console.error(error)
-  })
+const markdown = new MarkdownIt()
+const { status } = useSiteAuth()
+
+type CommentItem = {
+  id: string
+  parentId: string | null
+  content: string
+  isEdited: number
+  active: number
+  createdAt: string
+  user: { fullName: string; avatar: string | null }
+  children?: CommentItem[]
+  _optimistic?: boolean
+}
+
+const props = defineProps<{
+  comment: CommentItem
+  commentable: string
+  commentableId: string
+}>()
+
+const responseBox = ref(false)
+const children = ref<CommentItem[]>(props.comment.children ?? [])
+
+watch(() => props.comment.children, (val) => {
+  if (val) children.value = val
+})
+
+function addReply(comment: CommentItem) {
+  children.value.push(comment)
+  responseBox.value = false
 }
 </script>
