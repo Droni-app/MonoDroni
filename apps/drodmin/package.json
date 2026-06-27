@@ -9,7 +9,7 @@
     "preview": "vite preview"
   },
   "dependencies": {
-    "@dronico/droni-kit": "^1.18.1",
+    "@dronico/droni-kit": "^1.18.2",
     "@tailwindcss/vite": "^4.3.0",
     "axios": "^1.16.1",
     "monaco-editor": "^0.55.1",
