@@ -18,7 +18,7 @@ const corsConfig = defineConfig({
    * In production, keep an explicit allowlist (empty by default, so no
    * cross-origin browser access is allowed until configured).
    */
-  origin: app.inDev ? true : ['https://drodmin.droni.vip'],
+  origin: app.inDev ? true : ['https://drodmin.droni.co', 'https://drodmin.droni.vip'],
 
   /**
    * HTTP methods accepted for cross-origin requests.
