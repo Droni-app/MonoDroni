@@ -20,6 +20,7 @@ export default class PostsController {
     const query = ContentPost.query()
       .where('site_id', site.id)
       .where('active', true)
+      .whereRaw(`JSON_SEARCH(tags, 'one', 'Archivo') IS NULL`)
       .orderBy('created_at', 'desc')
       .preload('attributes')
       .preload('user')
