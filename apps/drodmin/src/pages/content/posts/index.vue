@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { ref, onMounted } from 'vue'
-import { DuiTable, DuiButton } from '@dronico/droni-kit'
+import { DuiTable, DuiButton, DuiInput } from '@dronico/droni-kit'
 import AppiService from '../../../services/AppiService'
 import type { Post, PaginatedResponse, PaginationMeta } from '../../../types/AppiService'
 
@@ -21,11 +21,14 @@ const importError = ref<string | null>(null)
 const importSuccess = ref(false)
 const fileInputRef = ref<HTMLInputElement | null>(null)
 const meta = ref<Pick<PaginationMeta, 'total' | 'perPage' | 'currentPage'>>({ total: 0, perPage: 10, currentPage: 1 })
+const searchQuery = ref('')
 
 async function fetchPosts(page = 1) {
   loading.value = true
   try {
-    const { data } = await AppiService.get<PaginatedResponse<Post>>('/admin/content/posts', { params: { page } })
+    const params: Record<string, unknown> = { page }
+    if (searchQuery.value.trim()) params.q = searchQuery.value.trim()
+    const { data } = await AppiService.get<PaginatedResponse<Post>>('/admin/content/posts', { params })
     rows.value = data.data
     meta.value = {
       total: data.meta.total,
@@ -35,6 +38,10 @@ async function fetchPosts(page = 1) {
   } finally {
     loading.value = false
   }
+}
+
+function onSearchKeydown(event: KeyboardEvent) {
+  if (event.key === 'Enter') fetchPosts(1)
 }
 
 async function exportPost(id: string, fallbackSlug?: string) {
@@ -116,6 +123,13 @@ onMounted(() => fetchPosts())
     </div>
     <div v-if="importError" class="mb-4 px-4 py-3 rounded bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200 text-sm">
       {{ importError }}
+    </div>
+    <div class="mb-4">
+      <DuiInput
+        v-model="searchQuery"
+        placeholder="Buscar posts... (Enter para buscar)"
+        @keydown="onSearchKeydown"
+      />
     </div>
     <DuiTable
       :columns="columns"
