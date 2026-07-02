@@ -535,4 +535,292 @@ export interface Registry {
       errorResponse: ExtractErrorResponse<Awaited<ReturnType<import('#controllers/admin/social/replies_controller').default['index']>>>
     }
   }
+  'admin.store.products.index': {
+    methods: ["GET","HEAD"]
+    pattern: '/admin/store/products'
+    types: {
+      body: {}
+      paramsTuple: []
+      params: {}
+      query: {}
+      response: ExtractResponse<Awaited<ReturnType<import('#controllers/admin/store/products_controller').default['index']>>>
+      errorResponse: ExtractErrorResponse<Awaited<ReturnType<import('#controllers/admin/store/products_controller').default['index']>>>
+    }
+  }
+  'admin.store.products.store': {
+    methods: ["POST"]
+    pattern: '/admin/store/products'
+    types: {
+      body: ExtractBody<InferInput<(typeof import('#validators/admin/store/product').storeProductValidator)>>
+      paramsTuple: []
+      params: {}
+      query: ExtractQuery<InferInput<(typeof import('#validators/admin/store/product').storeProductValidator)>>
+      response: ExtractResponse<Awaited<ReturnType<import('#controllers/admin/store/products_controller').default['store']>>>
+      errorResponse: ExtractErrorResponse<Awaited<ReturnType<import('#controllers/admin/store/products_controller').default['store']>>> | { status: 422; response: { errors: SimpleError[] } }
+    }
+  }
+  'admin.store.products.show': {
+    methods: ["GET","HEAD"]
+    pattern: '/admin/store/products/:id'
+    types: {
+      body: {}
+      paramsTuple: [ParamValue]
+      params: { id: ParamValue }
+      query: {}
+      response: ExtractResponse<Awaited<ReturnType<import('#controllers/admin/store/products_controller').default['show']>>>
+      errorResponse: ExtractErrorResponse<Awaited<ReturnType<import('#controllers/admin/store/products_controller').default['show']>>>
+    }
+  }
+  'admin.store.products.update': {
+    methods: ["PUT","PATCH"]
+    pattern: '/admin/store/products/:id'
+    types: {
+      body: ExtractBody<InferInput<(typeof import('#validators/admin/store/product').updateProductValidator)>>
+      paramsTuple: [ParamValue]
+      params: { id: ParamValue }
+      query: ExtractQuery<InferInput<(typeof import('#validators/admin/store/product').updateProductValidator)>>
+      response: ExtractResponse<Awaited<ReturnType<import('#controllers/admin/store/products_controller').default['update']>>>
+      errorResponse: ExtractErrorResponse<Awaited<ReturnType<import('#controllers/admin/store/products_controller').default['update']>>> | { status: 422; response: { errors: SimpleError[] } }
+    }
+  }
+  'admin.store.products.destroy': {
+    methods: ["DELETE"]
+    pattern: '/admin/store/products/:id'
+    types: {
+      body: {}
+      paramsTuple: [ParamValue]
+      params: { id: ParamValue }
+      query: {}
+      response: ExtractResponse<Awaited<ReturnType<import('#controllers/admin/store/products_controller').default['destroy']>>>
+      errorResponse: ExtractErrorResponse<Awaited<ReturnType<import('#controllers/admin/store/products_controller').default['destroy']>>>
+    }
+  }
+  'admin.store.products.attributes.index': {
+    methods: ["GET","HEAD"]
+    pattern: '/admin/store/products/:product_id/attributes'
+    types: {
+      body: {}
+      paramsTuple: [ParamValue]
+      params: { product_id: ParamValue }
+      query: {}
+      response: ExtractResponse<Awaited<ReturnType<import('#controllers/admin/store/product_attributes_controller').default['index']>>>
+      errorResponse: ExtractErrorResponse<Awaited<ReturnType<import('#controllers/admin/store/product_attributes_controller').default['index']>>>
+    }
+  }
+  'admin.store.products.attributes.store': {
+    methods: ["POST"]
+    pattern: '/admin/store/products/:product_id/attributes'
+    types: {
+      body: ExtractBody<InferInput<(typeof import('#validators/admin/store/product_attribute').storeProductAttributeValidator)>>
+      paramsTuple: [ParamValue]
+      params: { product_id: ParamValue }
+      query: ExtractQuery<InferInput<(typeof import('#validators/admin/store/product_attribute').storeProductAttributeValidator)>>
+      response: ExtractResponse<Awaited<ReturnType<import('#controllers/admin/store/product_attributes_controller').default['store']>>>
+      errorResponse: ExtractErrorResponse<Awaited<ReturnType<import('#controllers/admin/store/product_attributes_controller').default['store']>>> | { status: 422; response: { errors: SimpleError[] } }
+    }
+  }
+  'admin.store.products.attributes.destroy': {
+    methods: ["DELETE"]
+    pattern: '/admin/store/products/:product_id/attributes/:id'
+    types: {
+      body: {}
+      paramsTuple: [ParamValue, ParamValue]
+      params: { product_id: ParamValue; id: ParamValue }
+      query: {}
+      response: ExtractResponse<Awaited<ReturnType<import('#controllers/admin/store/product_attributes_controller').default['destroy']>>>
+      errorResponse: ExtractErrorResponse<Awaited<ReturnType<import('#controllers/admin/store/product_attributes_controller').default['destroy']>>>
+    }
+  }
+  'admin.store.orders.index': {
+    methods: ["GET","HEAD"]
+    pattern: '/admin/store/orders'
+    types: {
+      body: {}
+      paramsTuple: []
+      params: {}
+      query: {}
+      response: ExtractResponse<Awaited<ReturnType<import('#controllers/admin/store/orders_controller').default['index']>>>
+      errorResponse: ExtractErrorResponse<Awaited<ReturnType<import('#controllers/admin/store/orders_controller').default['index']>>>
+    }
+  }
+  'admin.store.orders.show': {
+    methods: ["GET","HEAD"]
+    pattern: '/admin/store/orders/:id'
+    types: {
+      body: {}
+      paramsTuple: [ParamValue]
+      params: { id: ParamValue }
+      query: {}
+      response: ExtractResponse<Awaited<ReturnType<import('#controllers/admin/store/orders_controller').default['show']>>>
+      errorResponse: ExtractErrorResponse<Awaited<ReturnType<import('#controllers/admin/store/orders_controller').default['show']>>>
+    }
+  }
+  'admin.store.orders.update': {
+    methods: ["PUT","PATCH"]
+    pattern: '/admin/store/orders/:id'
+    types: {
+      body: ExtractBody<InferInput<(typeof import('#validators/admin/store/order').updateOrderValidator)>>
+      paramsTuple: [ParamValue]
+      params: { id: ParamValue }
+      query: ExtractQuery<InferInput<(typeof import('#validators/admin/store/order').updateOrderValidator)>>
+      response: ExtractResponse<Awaited<ReturnType<import('#controllers/admin/store/orders_controller').default['update']>>>
+      errorResponse: ExtractErrorResponse<Awaited<ReturnType<import('#controllers/admin/store/orders_controller').default['update']>>> | { status: 422; response: { errors: SimpleError[] } }
+    }
+  }
+  'admin.store.payments.index': {
+    methods: ["GET","HEAD"]
+    pattern: '/admin/store/payments'
+    types: {
+      body: {}
+      paramsTuple: []
+      params: {}
+      query: {}
+      response: ExtractResponse<Awaited<ReturnType<import('#controllers/admin/store/payments_controller').default['index']>>>
+      errorResponse: ExtractErrorResponse<Awaited<ReturnType<import('#controllers/admin/store/payments_controller').default['index']>>>
+    }
+  }
+  'admin.store.payments.show': {
+    methods: ["GET","HEAD"]
+    pattern: '/admin/store/payments/:id'
+    types: {
+      body: {}
+      paramsTuple: [ParamValue]
+      params: { id: ParamValue }
+      query: {}
+      response: ExtractResponse<Awaited<ReturnType<import('#controllers/admin/store/payments_controller').default['show']>>>
+      errorResponse: ExtractErrorResponse<Awaited<ReturnType<import('#controllers/admin/store/payments_controller').default['show']>>>
+    }
+  }
+  'admin.store.payments.update': {
+    methods: ["PUT","PATCH"]
+    pattern: '/admin/store/payments/:id'
+    types: {
+      body: ExtractBody<InferInput<(typeof import('#validators/admin/store/payment').updatePaymentValidator)>>
+      paramsTuple: [ParamValue]
+      params: { id: ParamValue }
+      query: ExtractQuery<InferInput<(typeof import('#validators/admin/store/payment').updatePaymentValidator)>>
+      response: ExtractResponse<Awaited<ReturnType<import('#controllers/admin/store/payments_controller').default['update']>>>
+      errorResponse: ExtractErrorResponse<Awaited<ReturnType<import('#controllers/admin/store/payments_controller').default['update']>>> | { status: 422; response: { errors: SimpleError[] } }
+    }
+  }
+  'admin.store.coupons.index': {
+    methods: ["GET","HEAD"]
+    pattern: '/admin/store/coupons'
+    types: {
+      body: {}
+      paramsTuple: []
+      params: {}
+      query: {}
+      response: ExtractResponse<Awaited<ReturnType<import('#controllers/admin/store/coupons_controller').default['index']>>>
+      errorResponse: ExtractErrorResponse<Awaited<ReturnType<import('#controllers/admin/store/coupons_controller').default['index']>>>
+    }
+  }
+  'admin.store.coupons.store': {
+    methods: ["POST"]
+    pattern: '/admin/store/coupons'
+    types: {
+      body: ExtractBody<InferInput<(typeof import('#validators/admin/store/coupon').storeCouponValidator)>>
+      paramsTuple: []
+      params: {}
+      query: ExtractQuery<InferInput<(typeof import('#validators/admin/store/coupon').storeCouponValidator)>>
+      response: ExtractResponse<Awaited<ReturnType<import('#controllers/admin/store/coupons_controller').default['store']>>>
+      errorResponse: ExtractErrorResponse<Awaited<ReturnType<import('#controllers/admin/store/coupons_controller').default['store']>>> | { status: 422; response: { errors: SimpleError[] } }
+    }
+  }
+  'admin.store.coupons.show': {
+    methods: ["GET","HEAD"]
+    pattern: '/admin/store/coupons/:id'
+    types: {
+      body: {}
+      paramsTuple: [ParamValue]
+      params: { id: ParamValue }
+      query: {}
+      response: ExtractResponse<Awaited<ReturnType<import('#controllers/admin/store/coupons_controller').default['show']>>>
+      errorResponse: ExtractErrorResponse<Awaited<ReturnType<import('#controllers/admin/store/coupons_controller').default['show']>>>
+    }
+  }
+  'admin.store.coupons.update': {
+    methods: ["PUT","PATCH"]
+    pattern: '/admin/store/coupons/:id'
+    types: {
+      body: ExtractBody<InferInput<(typeof import('#validators/admin/store/coupon').updateCouponValidator)>>
+      paramsTuple: [ParamValue]
+      params: { id: ParamValue }
+      query: ExtractQuery<InferInput<(typeof import('#validators/admin/store/coupon').updateCouponValidator)>>
+      response: ExtractResponse<Awaited<ReturnType<import('#controllers/admin/store/coupons_controller').default['update']>>>
+      errorResponse: ExtractErrorResponse<Awaited<ReturnType<import('#controllers/admin/store/coupons_controller').default['update']>>> | { status: 422; response: { errors: SimpleError[] } }
+    }
+  }
+  'admin.store.coupons.destroy': {
+    methods: ["DELETE"]
+    pattern: '/admin/store/coupons/:id'
+    types: {
+      body: {}
+      paramsTuple: [ParamValue]
+      params: { id: ParamValue }
+      query: {}
+      response: ExtractResponse<Awaited<ReturnType<import('#controllers/admin/store/coupons_controller').default['destroy']>>>
+      errorResponse: ExtractErrorResponse<Awaited<ReturnType<import('#controllers/admin/store/coupons_controller').default['destroy']>>>
+    }
+  }
+  'admin.store.shipping_rules.index': {
+    methods: ["GET","HEAD"]
+    pattern: '/admin/store/shipping-rules'
+    types: {
+      body: {}
+      paramsTuple: []
+      params: {}
+      query: {}
+      response: ExtractResponse<Awaited<ReturnType<import('#controllers/admin/store/shipping_rules_controller').default['index']>>>
+      errorResponse: ExtractErrorResponse<Awaited<ReturnType<import('#controllers/admin/store/shipping_rules_controller').default['index']>>>
+    }
+  }
+  'admin.store.shipping_rules.store': {
+    methods: ["POST"]
+    pattern: '/admin/store/shipping-rules'
+    types: {
+      body: ExtractBody<InferInput<(typeof import('#validators/admin/store/shipping_rule').storeShippingRuleValidator)>>
+      paramsTuple: []
+      params: {}
+      query: ExtractQuery<InferInput<(typeof import('#validators/admin/store/shipping_rule').storeShippingRuleValidator)>>
+      response: ExtractResponse<Awaited<ReturnType<import('#controllers/admin/store/shipping_rules_controller').default['store']>>>
+      errorResponse: ExtractErrorResponse<Awaited<ReturnType<import('#controllers/admin/store/shipping_rules_controller').default['store']>>> | { status: 422; response: { errors: SimpleError[] } }
+    }
+  }
+  'admin.store.shipping_rules.show': {
+    methods: ["GET","HEAD"]
+    pattern: '/admin/store/shipping-rules/:id'
+    types: {
+      body: {}
+      paramsTuple: [ParamValue]
+      params: { id: ParamValue }
+      query: {}
+      response: ExtractResponse<Awaited<ReturnType<import('#controllers/admin/store/shipping_rules_controller').default['show']>>>
+      errorResponse: ExtractErrorResponse<Awaited<ReturnType<import('#controllers/admin/store/shipping_rules_controller').default['show']>>>
+    }
+  }
+  'admin.store.shipping_rules.update': {
+    methods: ["PUT","PATCH"]
+    pattern: '/admin/store/shipping-rules/:id'
+    types: {
+      body: ExtractBody<InferInput<(typeof import('#validators/admin/store/shipping_rule').updateShippingRuleValidator)>>
+      paramsTuple: [ParamValue]
+      params: { id: ParamValue }
+      query: ExtractQuery<InferInput<(typeof import('#validators/admin/store/shipping_rule').updateShippingRuleValidator)>>
+      response: ExtractResponse<Awaited<ReturnType<import('#controllers/admin/store/shipping_rules_controller').default['update']>>>
+      errorResponse: ExtractErrorResponse<Awaited<ReturnType<import('#controllers/admin/store/shipping_rules_controller').default['update']>>> | { status: 422; response: { errors: SimpleError[] } }
+    }
+  }
+  'admin.store.shipping_rules.destroy': {
+    methods: ["DELETE"]
+    pattern: '/admin/store/shipping-rules/:id'
+    types: {
+      body: {}
+      paramsTuple: [ParamValue]
+      params: { id: ParamValue }
+      query: {}
+      response: ExtractResponse<Awaited<ReturnType<import('#controllers/admin/store/shipping_rules_controller').default['destroy']>>>
+      errorResponse: ExtractErrorResponse<Awaited<ReturnType<import('#controllers/admin/store/shipping_rules_controller').default['destroy']>>>
+    }
+  }
 }

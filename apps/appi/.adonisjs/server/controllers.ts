@@ -15,6 +15,14 @@ export const controllers = {
       Replies: () => import('#controllers/admin/social/replies_controller'),
       Topics: () => import('#controllers/admin/social/topics_controller'),
     },
+    store: {
+      Coupons: () => import('#controllers/admin/store/coupons_controller'),
+      Orders: () => import('#controllers/admin/store/orders_controller'),
+      Payments: () => import('#controllers/admin/store/payments_controller'),
+      Products: () => import('#controllers/admin/store/products_controller'),
+      ShippingRules: () => import('#controllers/admin/store/shipping_rules_controller'),
+      ProductAttributes: () => import('#controllers/admin/store/product_attributes_controller'),
+    },
   },
   Auth: () => import('#controllers/auth_controller'),
   content: {

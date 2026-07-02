@@ -102,6 +102,25 @@ router
       })
       .prefix('social')
       .as('social')
+
+    // Store module
+    router
+      .group(() => {
+        router.resource('products', controllers.admin.store.Products).apiOnly()
+        router
+          .resource('products.attributes', controllers.admin.store.ProductAttributes)
+          .only(['index', 'store', 'destroy'])
+        router
+          .resource('orders', controllers.admin.store.Orders)
+          .only(['index', 'show', 'update'])
+        router
+          .resource('payments', controllers.admin.store.Payments)
+          .only(['index', 'show', 'update'])
+        router.resource('coupons', controllers.admin.store.Coupons).apiOnly()
+        router.resource('shipping-rules', controllers.admin.store.ShippingRules).apiOnly()
+      })
+      .prefix('store')
+      .as('store')
   })
   .use(middleware.auth())
   .use(middleware.adminSite())

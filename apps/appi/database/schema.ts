@@ -8,18 +8,7 @@ import { BaseModel, column } from '@adonisjs/lucid/orm'
 import { DateTime } from 'luxon'
 
 export class AuthAccessTokenSchema extends BaseModel {
-  static $columns = [
-    'abilities',
-    'createdAt',
-    'expiresAt',
-    'hash',
-    'id',
-    'lastUsedAt',
-    'name',
-    'tokenableId',
-    'type',
-    'updatedAt',
-  ] as const
+  static $columns = ['abilities', 'createdAt', 'expiresAt', 'hash', 'id', 'lastUsedAt', 'name', 'tokenableId', 'type', 'updatedAt'] as const
   $columns = AuthAccessTokenSchema.$columns
   @column()
   declare abilities: string
@@ -80,21 +69,7 @@ export class ContentAttributeSchema extends BaseModel {
 }
 
 export class ContentPostSchema extends BaseModel {
-  static $columns = [
-    'active',
-    'content',
-    'createdAt',
-    'description',
-    'format',
-    'id',
-    'name',
-    'picture',
-    'siteId',
-    'slug',
-    'tags',
-    'updatedAt',
-    'userId',
-  ] as const
+  static $columns = ['active', 'content', 'createdAt', 'description', 'format', 'id', 'name', 'picture', 'siteId', 'slug', 'tags', 'updatedAt', 'userId'] as const
   $columns = ContentPostSchema.$columns
   @column()
   declare active: boolean
@@ -142,16 +117,7 @@ export class EnrollmentSchema extends BaseModel {
 }
 
 export class SiteSchema extends BaseModel {
-  static $columns = [
-    'createdAt',
-    'description',
-    'expiresAt',
-    'id',
-    'logo',
-    'name',
-    'updatedAt',
-    'url',
-  ] as const
+  static $columns = ['createdAt', 'description', 'expiresAt', 'id', 'logo', 'name', 'updatedAt', 'url'] as const
   $columns = SiteSchema.$columns
   @column.dateTime({ autoCreate: true })
   declare createdAt: DateTime | null
@@ -172,19 +138,7 @@ export class SiteSchema extends BaseModel {
 }
 
 export class SocialCommentSchema extends BaseModel {
-  static $columns = [
-    'active',
-    'commentableId',
-    'commentableType',
-    'content',
-    'createdAt',
-    'id',
-    'isEdited',
-    'parentId',
-    'siteId',
-    'updatedAt',
-    'userId',
-  ] as const
+  static $columns = ['active', 'commentableId', 'commentableType', 'content', 'createdAt', 'id', 'isEdited', 'parentId', 'siteId', 'updatedAt', 'userId'] as const
   $columns = SocialCommentSchema.$columns
   @column()
   declare active: boolean | null
@@ -228,18 +182,7 @@ export class SocialReplySchema extends BaseModel {
 }
 
 export class SocialTopicSchema extends BaseModel {
-  static $columns = [
-    'active',
-    'content',
-    'createdAt',
-    'group',
-    'id',
-    'name',
-    'siteId',
-    'slug',
-    'updatedAt',
-    'userId',
-  ] as const
+  static $columns = ['active', 'content', 'createdAt', 'group', 'id', 'name', 'siteId', 'slug', 'updatedAt', 'userId'] as const
   $columns = SocialTopicSchema.$columns
   @column()
   declare active: boolean
@@ -263,17 +206,236 @@ export class SocialTopicSchema extends BaseModel {
   declare userId: string
 }
 
+export class StoreAddressSchema extends BaseModel {
+  static $columns = ['addressLine1', 'addressLine2', 'cityId', 'comments', 'createdAt', 'id', 'phone', 'postalCode', 'siteId', 'updatedAt', 'userId'] as const
+  $columns = StoreAddressSchema.$columns
+  @column()
+  declare addressLine1: string
+  @column()
+  declare addressLine2: string | null
+  @column()
+  declare cityId: number | null
+  @column()
+  declare comments: string | null
+  @column.dateTime({ autoCreate: true })
+  declare createdAt: DateTime | null
+  @column({ isPrimary: true })
+  declare id: string
+  @column()
+  declare phone: string | null
+  @column()
+  declare postalCode: string | null
+  @column()
+  declare siteId: string
+  @column.dateTime({ autoCreate: true, autoUpdate: true })
+  declare updatedAt: DateTime | null
+  @column()
+  declare userId: string
+}
+
+export class StoreCitySchema extends BaseModel {
+  static $columns = ['createdAt', 'id', 'name', 'stateId', 'updatedAt'] as const
+  $columns = StoreCitySchema.$columns
+  @column.dateTime({ autoCreate: true })
+  declare createdAt: DateTime | null
+  @column({ isPrimary: true })
+  declare id: number
+  @column()
+  declare name: string
+  @column()
+  declare stateId: number
+  @column.dateTime({ autoCreate: true, autoUpdate: true })
+  declare updatedAt: DateTime | null
+}
+
+export class StoreCouponSchema extends BaseModel {
+  static $columns = ['active', 'code', 'createdAt', 'discount', 'discountType', 'expirationDate', 'id', 'minimumOrderValue', 'siteId', 'updatedAt'] as const
+  $columns = StoreCouponSchema.$columns
+  @column()
+  declare active: boolean
+  @column()
+  declare code: string
+  @column.dateTime({ autoCreate: true })
+  declare createdAt: DateTime | null
+  @column()
+  declare discount: string
+  @column()
+  declare discountType: string
+  @column.dateTime()
+  declare expirationDate: DateTime | null
+  @column({ isPrimary: true })
+  declare id: string
+  @column()
+  declare minimumOrderValue: string | null
+  @column()
+  declare siteId: string
+  @column.dateTime({ autoCreate: true, autoUpdate: true })
+  declare updatedAt: DateTime | null
+}
+
+export class StoreOrderItemSchema extends BaseModel {
+  static $columns = ['createdAt', 'id', 'orderId', 'price', 'productId', 'quantity', 'updatedAt'] as const
+  $columns = StoreOrderItemSchema.$columns
+  @column.dateTime({ autoCreate: true })
+  declare createdAt: DateTime | null
+  @column({ isPrimary: true })
+  declare id: string
+  @column()
+  declare orderId: string
+  @column()
+  declare price: string
+  @column()
+  declare productId: string | null
+  @column()
+  declare quantity: number
+  @column.dateTime({ autoCreate: true, autoUpdate: true })
+  declare updatedAt: DateTime | null
+}
+
+export class StoreOrderSchema extends BaseModel {
+  static $columns = ['billingAddress', 'createdAt', 'id', 'shippingAddress', 'siteId', 'status', 'total', 'updatedAt', 'userId'] as const
+  $columns = StoreOrderSchema.$columns
+  @column()
+  declare billingAddress: any | null
+  @column.dateTime({ autoCreate: true })
+  declare createdAt: DateTime | null
+  @column({ isPrimary: true })
+  declare id: string
+  @column()
+  declare shippingAddress: any | null
+  @column()
+  declare siteId: string
+  @column()
+  declare status: string
+  @column()
+  declare total: string
+  @column.dateTime({ autoCreate: true, autoUpdate: true })
+  declare updatedAt: DateTime | null
+  @column()
+  declare userId: string | null
+}
+
+export class StorePaymentSchema extends BaseModel {
+  static $columns = ['amount', 'createdAt', 'currency', 'id', 'orderId', 'paymentMethod', 'paymentStatus', 'transactionId', 'updatedAt'] as const
+  $columns = StorePaymentSchema.$columns
+  @column()
+  declare amount: string
+  @column.dateTime({ autoCreate: true })
+  declare createdAt: DateTime | null
+  @column()
+  declare currency: string
+  @column({ isPrimary: true })
+  declare id: string
+  @column()
+  declare orderId: string
+  @column()
+  declare paymentMethod: string
+  @column()
+  declare paymentStatus: string
+  @column()
+  declare transactionId: string | null
+  @column.dateTime({ autoCreate: true, autoUpdate: true })
+  declare updatedAt: DateTime | null
+}
+
+export class StoreProductAttributeSchema extends BaseModel {
+  static $columns = ['id', 'name', 'productId', 'value'] as const
+  $columns = StoreProductAttributeSchema.$columns
+  @column({ isPrimary: true })
+  declare id: string
+  @column()
+  declare name: string
+  @column()
+  declare productId: string
+  @column()
+  declare value: string
+}
+
+export class StoreProductSchema extends BaseModel {
+  static $columns = ['active', 'content', 'createdAt', 'description', 'id', 'name', 'picture', 'price', 'siteId', 'sizeD', 'sizeH', 'sizeW', 'slug', 'stock', 'tags', 'updatedAt', 'weight'] as const
+  $columns = StoreProductSchema.$columns
+  @column()
+  declare active: boolean
+  @column()
+  declare content: string | null
+  @column.dateTime({ autoCreate: true })
+  declare createdAt: DateTime | null
+  @column()
+  declare description: string | null
+  @column({ isPrimary: true })
+  declare id: string
+  @column()
+  declare name: string
+  @column()
+  declare picture: string | null
+  @column()
+  declare price: string
+  @column()
+  declare siteId: string
+  @column()
+  declare sizeD: string | null
+  @column()
+  declare sizeH: string | null
+  @column()
+  declare sizeW: string | null
+  @column()
+  declare slug: string
+  @column()
+  declare stock: number
+  @column()
+  declare tags: any | null
+  @column.dateTime({ autoCreate: true, autoUpdate: true })
+  declare updatedAt: DateTime | null
+  @column()
+  declare weight: string | null
+}
+
+export class StoreShippingRuleSchema extends BaseModel {
+  static $columns = ['active', 'cityId', 'createdAt', 'id', 'name', 'price', 'pricePerCm3', 'pricePerKg', 'siteId', 'stateId', 'updatedAt'] as const
+  $columns = StoreShippingRuleSchema.$columns
+  @column()
+  declare active: boolean
+  @column()
+  declare cityId: number | null
+  @column.dateTime({ autoCreate: true })
+  declare createdAt: DateTime | null
+  @column({ isPrimary: true })
+  declare id: string
+  @column()
+  declare name: string
+  @column()
+  declare price: string
+  @column()
+  declare pricePerCm3: string | null
+  @column()
+  declare pricePerKg: string | null
+  @column()
+  declare siteId: string
+  @column()
+  declare stateId: number | null
+  @column.dateTime({ autoCreate: true, autoUpdate: true })
+  declare updatedAt: DateTime | null
+}
+
+export class StoreStateSchema extends BaseModel {
+  static $columns = ['code', 'country', 'createdAt', 'id', 'name', 'updatedAt'] as const
+  $columns = StoreStateSchema.$columns
+  @column()
+  declare code: string
+  @column()
+  declare country: string
+  @column.dateTime({ autoCreate: true })
+  declare createdAt: DateTime | null
+  @column({ isPrimary: true })
+  declare id: number
+  @column()
+  declare name: string
+  @column.dateTime({ autoCreate: true, autoUpdate: true })
+  declare updatedAt: DateTime | null
+}
+
 export class UserSchema extends BaseModel {
-  static $columns = [
-    'avatar',
-    'createdAt',
-    'email',
-    'emailVerifiedAt',
-    'fullName',
-    'id',
-    'password',
-    'updatedAt',
-  ] as const
+  static $columns = ['avatar', 'createdAt', 'email', 'emailVerifiedAt', 'fullName', 'id', 'password', 'updatedAt'] as const
   $columns = UserSchema.$columns
   @column()
   declare avatar: string | null

@@ -28,6 +28,16 @@ const items = [
       { label: 'Topics', to: '/social/topics' },
     ],
   },
+  {
+    label: 'Store',
+    children: [
+      { label: 'Productos', to: '/store/products' },
+      { label: 'Pedidos', to: '/store/orders' },
+      { label: 'Pagos', to: '/store/payments' },
+      { label: 'Cupones', to: '/store/coupons' },
+      { label: 'Reglas de envío', to: '/store/shipping-rules' },
+    ],
+  },
 ]
 
 function handleLogout() {

@@ -81,5 +81,43 @@ export interface ApiDefinition {
         }
       }
     }
+    store: {
+      products: {
+        index: typeof routes['admin.store.products.index']
+        store: typeof routes['admin.store.products.store']
+        show: typeof routes['admin.store.products.show']
+        update: typeof routes['admin.store.products.update']
+        destroy: typeof routes['admin.store.products.destroy']
+        attributes: {
+          index: typeof routes['admin.store.products.attributes.index']
+          store: typeof routes['admin.store.products.attributes.store']
+          destroy: typeof routes['admin.store.products.attributes.destroy']
+        }
+      }
+      orders: {
+        index: typeof routes['admin.store.orders.index']
+        show: typeof routes['admin.store.orders.show']
+        update: typeof routes['admin.store.orders.update']
+      }
+      payments: {
+        index: typeof routes['admin.store.payments.index']
+        show: typeof routes['admin.store.payments.show']
+        update: typeof routes['admin.store.payments.update']
+      }
+      coupons: {
+        index: typeof routes['admin.store.coupons.index']
+        store: typeof routes['admin.store.coupons.store']
+        show: typeof routes['admin.store.coupons.show']
+        update: typeof routes['admin.store.coupons.update']
+        destroy: typeof routes['admin.store.coupons.destroy']
+      }
+      shippingRules: {
+        index: typeof routes['admin.store.shipping_rules.index']
+        store: typeof routes['admin.store.shipping_rules.store']
+        show: typeof routes['admin.store.shipping_rules.show']
+        update: typeof routes['admin.store.shipping_rules.update']
+        destroy: typeof routes['admin.store.shipping_rules.destroy']
+      }
+    }
   }
 }

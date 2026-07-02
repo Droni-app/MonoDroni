@@ -134,3 +134,129 @@ export interface PostFormData {
   format: string
   active: boolean
 }
+
+// Store module types
+
+export interface StoreProductAttribute {
+  id: string
+  productId: string
+  name: string
+  value: string
+}
+
+export interface StoreProduct {
+  id: string
+  siteId?: string
+  slug: string
+  name: string
+  description: string | null
+  content: string | null
+  picture: string | null
+  price: number
+  stock: number
+  tags: string[] | null
+  sizeW: number | null
+  sizeH: number | null
+  sizeD: number | null
+  weight: number | null
+  active: boolean
+  createdAt: string
+  updatedAt: string
+  attributes?: StoreProductAttribute[]
+}
+
+export interface StoreProductFormData {
+  name: string
+  description: string | null
+  content: string | null
+  picture: string | null
+  price: number
+  stock: number
+  tags: string[]
+  size_w: number | null
+  size_h: number | null
+  size_d: number | null
+  weight: number | null
+  active: boolean
+}
+
+export interface StoreOrderItem {
+  id: string
+  orderId: string
+  productId: string | null
+  quantity: number
+  price: number
+  createdAt: string
+  updatedAt: string
+  product?: Pick<StoreProduct, 'id' | 'name' | 'slug' | 'picture'>
+}
+
+export interface StorePayment {
+  id: string
+  orderId: string
+  paymentMethod: string
+  paymentStatus: 'pending' | 'completed' | 'failed'
+  transactionId: string | null
+  amount: number
+  currency: string
+  createdAt: string
+  updatedAt: string
+}
+
+export interface StoreOrder {
+  id: string
+  siteId?: string
+  userId: string | null
+  status: 'pending' | 'paid' | 'shipped' | 'completed' | 'canceled'
+  total: number
+  shippingAddress: Record<string, any> | null
+  billingAddress: Record<string, any> | null
+  createdAt: string
+  updatedAt: string
+  user?: EmbeddedUser | null
+  items?: StoreOrderItem[]
+  payment?: StorePayment | null
+}
+
+export interface StoreCoupon {
+  id: string
+  siteId?: string
+  code: string
+  discount: number
+  discountType: 'percentage' | 'fixed'
+  minimumOrderValue: number | null
+  expirationDate: string | null
+  active: boolean
+  createdAt: string
+  updatedAt: string
+}
+
+export interface StoreState {
+  id: number
+  name: string
+  code: string
+  country: string
+}
+
+export interface StoreCity {
+  id: number
+  name: string
+  stateId: number
+  state?: StoreState
+}
+
+export interface StoreShippingRule {
+  id: string
+  siteId?: string
+  name: string
+  stateId: number | null
+  cityId: number | null
+  price: number
+  pricePerKg: number | null
+  pricePerCm3: number | null
+  active: boolean
+  createdAt: string
+  updatedAt: string
+  state?: StoreState | null
+  city?: StoreCity | null
+}
