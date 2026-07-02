@@ -72,6 +72,29 @@ router
   .prefix('social')
   .as('social')
 
+// Store public + user routes
+router
+  .group(() => {
+    // Public: product catalog
+    router.resource('products', controllers.store.Products).only(['index', 'show'])
+
+    // Authenticated: user's own addresses, orders, payments
+    router
+      .resource('addresses', controllers.store.Addresses)
+      .apiOnly()
+      .use('*', middleware.auth())
+    router
+      .resource('orders', controllers.store.Orders)
+      .only(['index', 'store', 'show'])
+      .use('*', middleware.auth())
+    router
+      .resource('payments', controllers.store.Payments)
+      .only(['index', 'store', 'show'])
+      .use('*', middleware.auth())
+  })
+  .prefix('store')
+  .as('store')
+
 // Admin routes
 router
   .group(() => {

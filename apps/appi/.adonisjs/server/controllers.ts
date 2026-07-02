@@ -35,4 +35,10 @@ export const controllers = {
     Replies: () => import('#controllers/social/replies_controller'),
     Topics: () => import('#controllers/social/topics_controller'),
   },
+  store: {
+    Addresses: () => import('#controllers/store/addresses_controller'),
+    Orders: () => import('#controllers/store/orders_controller'),
+    Payments: () => import('#controllers/store/payments_controller'),
+    Products: () => import('#controllers/store/products_controller'),
+  },
 }
