@@ -5,6 +5,10 @@ import LearnLesson from '#models/learn/lesson'
 import LearnEnrollment from '#models/learn/enrollment'
 
 export default class LearnLessonQuestionsQuiz extends LearnLessonQuestionsQuizzSchema {
+  // Lucid's naming strategy pluralizes "Quiz" as "Quizs" (missing the
+  // irregular double-z plural), so the table name must be set explicitly.
+  static table = 'learn_lesson_questions_quizzes'
+
   @belongsTo(() => LearnLesson, { foreignKey: 'lessonId' })
   declare lesson: BelongsTo<typeof LearnLesson>
 

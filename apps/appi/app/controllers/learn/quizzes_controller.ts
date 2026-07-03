@@ -17,18 +17,23 @@ async function isCourseManager(courseId: string, userId: string) {
   return !!enrollment
 }
 
+function resolveLesson(courseId: string, lessonSlug: string) {
+  return LearnLesson.query().where('course_id', courseId).where('slug', lessonSlug).firstOrFail()
+}
+
 export default class QuizzesController {
   /**
    * @index
    * @summary [Teacher/Admin] Listar intentos de cuestionario de una lección
-   * @paramPath course_id - ID del curso - @type(string) @required
-   * @paramPath lesson_id - ID de la lección - @type(string) @required
+   * @paramPath course_id - ID del curso (ya resuelto desde el slug por el middleware) - @type(string) @required
+   * @paramPath lesson_id - Slug de la lección - @type(string) @required
    */
   async index({ params, request }: HttpContext) {
+    const lesson = await resolveLesson(params.course_id, params.lesson_id)
     const page = request.input('page', 1)
     const perPage = request.input('per_page', 10)
     return LearnLessonQuestionsQuiz.query()
-      .where('lesson_id', params.lesson_id)
+      .where('lesson_id', lesson.id)
       .preload('enrollment', (query) => query.preload('user'))
       .orderBy('created_at', 'desc')
       .paginate(page, perPage)
@@ -37,14 +42,15 @@ export default class QuizzesController {
   /**
    * @show
    * @summary Ver un intento de cuestionario (el estudiante solo ve los propios)
-   * @paramPath course_id - ID del curso - @type(string) @required
-   * @paramPath lesson_id - ID de la lección - @type(string) @required
+   * @paramPath course_id - ID del curso (ya resuelto desde el slug por el middleware) - @type(string) @required
+   * @paramPath lesson_id - Slug de la lección - @type(string) @required
    * @paramPath id - ID del intento - @type(string) @required
    */
   async show({ auth, params }: HttpContext) {
     const manager = await isCourseManager(params.course_id, auth.user!.id)
+    const lesson = await resolveLesson(params.course_id, params.lesson_id)
     return LearnLessonQuestionsQuiz.query()
-      .where('lesson_id', params.lesson_id)
+      .where('lesson_id', lesson.id)
       .where('id', params.id)
       .preload('enrollment', (query) => query.preload('user'))
       .if(!manager, (query) =>
@@ -58,12 +64,12 @@ export default class QuizzesController {
   /**
    * @store
    * @summary [Student] Enviar un intento de cuestionario con todas las preguntas vinculadas a la lección
-   * @paramPath course_id - ID del curso - @type(string) @required
-   * @paramPath lesson_id - ID de la lección - @type(string) @required
+   * @paramPath course_id - ID del curso (ya resuelto desde el slug por el middleware) - @type(string) @required
+   * @paramPath lesson_id - Slug de la lección - @type(string) @required
    * @requestBody {"answers": [{"question_id": "uuid", "selected": 1}]}
    */
   async store({ auth, params, request, response }: HttpContext) {
-    const lesson = await LearnLesson.query().where('id', params.lesson_id).firstOrFail()
+    const lesson = await resolveLesson(params.course_id, params.lesson_id)
 
     if (lesson.limitDate && DateTime.now() > lesson.limitDate) {
       return response.badRequest({ message: 'La fecha límite para este cuestionario ya pasó.' })
@@ -147,14 +153,15 @@ export default class QuizzesController {
   /**
    * @update
    * @summary [Teacher/Admin] Corregir el estado/resultado de un intento
-   * @paramPath course_id - ID del curso - @type(string) @required
-   * @paramPath lesson_id - ID de la lección - @type(string) @required
+   * @paramPath course_id - ID del curso (ya resuelto desde el slug por el middleware) - @type(string) @required
+   * @paramPath lesson_id - Slug de la lección - @type(string) @required
    * @paramPath id - ID del intento - @type(string) @required
    */
   async update({ params, request }: HttpContext) {
     const data = await request.validateUsing(updateQuizValidator)
+    const lesson = await resolveLesson(params.course_id, params.lesson_id)
     const quiz = await LearnLessonQuestionsQuiz.query()
-      .where('lesson_id', params.lesson_id)
+      .where('lesson_id', lesson.id)
       .where('id', params.id)
       .firstOrFail()
     quiz.merge({
@@ -169,13 +176,14 @@ export default class QuizzesController {
   /**
    * @destroy
    * @summary [Admin] Eliminar un intento de cuestionario
-   * @paramPath course_id - ID del curso - @type(string) @required
-   * @paramPath lesson_id - ID de la lección - @type(string) @required
+   * @paramPath course_id - ID del curso (ya resuelto desde el slug por el middleware) - @type(string) @required
+   * @paramPath lesson_id - Slug de la lección - @type(string) @required
    * @paramPath id - ID del intento - @type(string) @required
    */
   async destroy({ params }: HttpContext) {
+    const lesson = await resolveLesson(params.course_id, params.lesson_id)
     const quiz = await LearnLessonQuestionsQuiz.query()
-      .where('lesson_id', params.lesson_id)
+      .where('lesson_id', lesson.id)
       .where('id', params.id)
       .firstOrFail()
     await quiz.delete()
