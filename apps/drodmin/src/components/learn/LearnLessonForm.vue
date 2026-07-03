@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref, watch } from 'vue'
+import { computed, ref, watch } from 'vue'
 import { DuiButton, DuiInput, DuiLabel, DuiTextarea, DuiCheckbox, DuiAlert, DuiSelect, DuiTabs } from '@dronico/droni-kit'
 import LearnLessonQuestionsManager from './LearnLessonQuestionsManager.vue'
 import LearnLessonAnswersManager from './LearnLessonAnswersManager.vue'
@@ -68,6 +68,39 @@ function handleSubmit() {
   emit('submit', { ...form.value })
 }
 
+// DuiInput/DuiTextarea don't accept `null`, but the wire format does (to clear a field) —
+// these bridge the two only at the template binding, the underlying form stays `| null`.
+const descriptionModel = computed({
+  get: () => form.value.description ?? undefined,
+  set: (value: string | undefined) => {
+    form.value.description = value ?? null
+  },
+})
+const contentModel = computed({
+  get: () => form.value.content ?? undefined,
+  set: (value: string | undefined) => {
+    form.value.content = value ?? null
+  },
+})
+const activityModel = computed({
+  get: () => form.value.activity ?? undefined,
+  set: (value: string | undefined) => {
+    form.value.activity = value ?? null
+  },
+})
+const videoModel = computed({
+  get: () => form.value.video ?? undefined,
+  set: (value: string | undefined) => {
+    form.value.video = value ?? null
+  },
+})
+const limitDateModel = computed({
+  get: () => form.value.limit_date ?? undefined,
+  set: (value: string | undefined) => {
+    form.value.limit_date = value ?? null
+  },
+})
+
 const activeTab = ref<'general' | 'preguntas' | 'respuestas' | 'quizzes'>('general')
 const tabs = [
   { value: 'general', label: 'General' },
@@ -85,16 +118,16 @@ const tabs = [
       </DuiLabel>
 
       <DuiLabel title="Descripción">
-        <DuiTextarea v-model="form.description" block :autoheight="true" placeholder="Descripción breve" />
+        <DuiTextarea v-model="descriptionModel" block :autoheight="true" placeholder="Descripción breve" />
       </DuiLabel>
 
       <DuiLabel title="Contenido">
-        <DuiTextarea v-model="form.content" block rows="14" placeholder="Contenido de la lección" />
+        <DuiTextarea v-model="contentModel" block rows="14" placeholder="Contenido de la lección" />
       </DuiLabel>
 
       <DuiLabel title="Actividad (opcional)">
         <DuiTextarea
-          v-model="form.activity"
+          v-model="activityModel"
           block
           rows="6"
           placeholder="Consigna de la actividad que el estudiante debe responder. Déjalo vacío si la lección no tiene actividad."
@@ -117,12 +150,12 @@ const tabs = [
             <DuiInput v-model.number="form.order" block type="number" min="0" />
           </DuiLabel>
           <DuiLabel title="Fecha límite">
-            <DuiInput v-model="form.limit_date" block type="datetime-local" />
+            <DuiInput v-model="limitDateModel" block type="datetime-local" />
           </DuiLabel>
         </div>
 
         <DuiLabel title="Video">
-          <DuiInput v-model="form.video" block placeholder="URL del video de la lección" />
+          <DuiInput v-model="videoModel" block placeholder="URL del video de la lección" />
         </DuiLabel>
 
         <div>

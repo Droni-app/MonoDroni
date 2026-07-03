@@ -29,6 +29,7 @@ export default class CouponsController {
     const coupon = await StoreCoupon.create({
       ...data,
       siteId: site.id,
+      discount: String(data.discount),
       expirationDate: data.expiration_date ? DateTime.fromISO(data.expiration_date) : null,
     })
     return response.created(coupon)
@@ -40,10 +41,7 @@ export default class CouponsController {
    * @paramPath id - ID del cupón - @type(string) @required
    */
   async show({ site, params }: HttpContext) {
-    return StoreCoupon.query()
-      .where('site_id', site.id)
-      .where('id', params.id)
-      .firstOrFail()
+    return StoreCoupon.query().where('site_id', site.id).where('id', params.id).firstOrFail()
   }
 
   /**
@@ -59,6 +57,7 @@ export default class CouponsController {
       .firstOrFail()
     coupon.merge({
       ...data,
+      discount: data.discount !== undefined ? String(data.discount) : undefined,
       expirationDate:
         data.expiration_date !== undefined
           ? data.expiration_date

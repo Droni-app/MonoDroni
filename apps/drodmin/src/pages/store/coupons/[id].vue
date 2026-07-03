@@ -19,7 +19,7 @@ const form = ref({
   code: '',
   discount: 0,
   discount_type: 'percentage' as 'percentage' | 'fixed',
-  minimum_order_value: null as number | null,
+  minimum_order_value: undefined as number | undefined,
   expiration_date: '',
   active: true,
 })
@@ -32,7 +32,7 @@ onMounted(async () => {
       code: data.code,
       discount: data.discount,
       discount_type: data.discountType,
-      minimum_order_value: data.minimumOrderValue,
+      minimum_order_value: data.minimumOrderValue ?? undefined,
       expiration_date: data.expirationDate ? data.expirationDate.slice(0, 16) : '',
       active: data.active,
     }

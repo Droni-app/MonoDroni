@@ -41,6 +41,11 @@ export default class ProductsController {
       ...data,
       slug,
       siteId: site.id,
+      price: String(data.price),
+      sizeW: data.size_w !== null && data.size_w !== undefined ? String(data.size_w) : null,
+      sizeH: data.size_h !== null && data.size_h !== undefined ? String(data.size_h) : null,
+      sizeD: data.size_d !== null && data.size_d !== undefined ? String(data.size_d) : null,
+      weight: data.weight !== null && data.weight !== undefined ? String(data.weight) : null,
       tags: data.tags ? JSON.stringify(data.tags) : null,
     })
     return response.created(product)
@@ -72,6 +77,15 @@ export default class ProductsController {
       .firstOrFail()
     product.merge({
       ...data,
+      price: data.price !== undefined ? String(data.price) : undefined,
+      sizeW:
+        data.size_w !== undefined ? (data.size_w !== null ? String(data.size_w) : null) : undefined,
+      sizeH:
+        data.size_h !== undefined ? (data.size_h !== null ? String(data.size_h) : null) : undefined,
+      sizeD:
+        data.size_d !== undefined ? (data.size_d !== null ? String(data.size_d) : null) : undefined,
+      weight:
+        data.weight !== undefined ? (data.weight !== null ? String(data.weight) : null) : undefined,
       tags: data.tags !== undefined ? (data.tags ? JSON.stringify(data.tags) : null) : undefined,
     })
     await product.save()

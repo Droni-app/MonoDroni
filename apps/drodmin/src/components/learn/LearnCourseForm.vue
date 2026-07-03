@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref, watch } from 'vue'
+import { computed, ref, watch } from 'vue'
 import { DuiButton, DuiInput, DuiLabel, DuiTextarea, DuiCheckbox, DuiAlert } from '@dronico/droni-kit'
 import AttachmentInput from '../AttachmentInput.vue'
 import type { LearnCourseFormData } from '../../types/AppiService'
@@ -53,6 +53,27 @@ watch(
 function handleSubmit() {
   emit('submit', { ...form.value })
 }
+
+// DuiInput/DuiTextarea don't accept `null`, but the wire format does (to clear a field) —
+// these bridge the two only at the template binding, the underlying form stays `| null`.
+const groupModel = computed({
+  get: () => form.value.group ?? undefined,
+  set: (value: string | undefined) => {
+    form.value.group = value ?? null
+  },
+})
+const descriptionModel = computed({
+  get: () => form.value.description ?? undefined,
+  set: (value: string | undefined) => {
+    form.value.description = value ?? null
+  },
+})
+const videoModel = computed({
+  get: () => form.value.video ?? undefined,
+  set: (value: string | undefined) => {
+    form.value.video = value ?? null
+  },
+})
 </script>
 
 <template>
@@ -64,11 +85,11 @@ function handleSubmit() {
     </DuiLabel>
 
     <DuiLabel title="Grupo">
-      <DuiInput v-model="form.group" block placeholder="Grupo (para filtrar en inscripciones masivas)" />
+      <DuiInput v-model="groupModel" block placeholder="Grupo (para filtrar en inscripciones masivas)" />
     </DuiLabel>
 
     <DuiLabel title="Descripción">
-      <DuiTextarea v-model="form.description" block :autoheight="true" placeholder="Descripción del curso" />
+      <DuiTextarea v-model="descriptionModel" block :autoheight="true" placeholder="Descripción del curso" />
     </DuiLabel>
 
     <DuiLabel title="Imagen">
@@ -76,7 +97,7 @@ function handleSubmit() {
     </DuiLabel>
 
     <DuiLabel title="Video">
-      <DuiInput v-model="form.video" block placeholder="URL del video de presentación" />
+      <DuiInput v-model="videoModel" block placeholder="URL del video de presentación" />
     </DuiLabel>
 
     <div class="flex flex-col gap-2">

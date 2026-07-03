@@ -33,10 +33,17 @@ export default class ShippingRulesController {
     const rule = await StoreShippingRule.create({
       ...data,
       siteId: site.id,
+      price: String(data.price),
       stateId: data.state_id ?? null,
       cityId: data.city_id ?? null,
-      pricePerKg: data.price_per_kg ?? null,
-      pricePerCm3: data.price_per_cm3 ?? null,
+      pricePerKg:
+        data.price_per_kg !== null && data.price_per_kg !== undefined
+          ? String(data.price_per_kg)
+          : null,
+      pricePerCm3:
+        data.price_per_cm3 !== null && data.price_per_cm3 !== undefined
+          ? String(data.price_per_cm3)
+          : null,
     })
     return response.created(rule)
   }
@@ -68,10 +75,21 @@ export default class ShippingRulesController {
       .firstOrFail()
     rule.merge({
       ...data,
+      price: data.price !== undefined ? String(data.price) : undefined,
       stateId: data.state_id !== undefined ? (data.state_id ?? null) : undefined,
       cityId: data.city_id !== undefined ? (data.city_id ?? null) : undefined,
-      pricePerKg: data.price_per_kg !== undefined ? (data.price_per_kg ?? null) : undefined,
-      pricePerCm3: data.price_per_cm3 !== undefined ? (data.price_per_cm3 ?? null) : undefined,
+      pricePerKg:
+        data.price_per_kg !== undefined
+          ? data.price_per_kg !== null
+            ? String(data.price_per_kg)
+            : null
+          : undefined,
+      pricePerCm3:
+        data.price_per_cm3 !== undefined
+          ? data.price_per_cm3 !== null
+            ? String(data.price_per_cm3)
+            : null
+          : undefined,
     })
     await rule.save()
     return rule

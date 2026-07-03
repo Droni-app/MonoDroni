@@ -17,11 +17,11 @@ const deleting = ref(false)
 
 const form = ref({
   name: '',
-  state_id: null as number | null,
-  city_id: null as number | null,
+  state_id: undefined as number | undefined,
+  city_id: undefined as number | undefined,
   price: 0,
-  price_per_kg: null as number | null,
-  price_per_cm3: null as number | null,
+  price_per_kg: undefined as number | undefined,
+  price_per_cm3: undefined as number | undefined,
   active: true,
 })
 
@@ -31,11 +31,11 @@ onMounted(async () => {
     rule.value = data
     form.value = {
       name: data.name,
-      state_id: data.stateId,
-      city_id: data.cityId,
+      state_id: data.stateId ?? undefined,
+      city_id: data.cityId ?? undefined,
       price: data.price,
-      price_per_kg: data.pricePerKg,
-      price_per_cm3: data.pricePerCm3,
+      price_per_kg: data.pricePerKg ?? undefined,
+      price_per_cm3: data.pricePerCm3 ?? undefined,
       active: data.active,
     }
   } catch {
@@ -49,7 +49,14 @@ async function handleSubmit() {
   loading.value = true
   error.value = null
   try {
-    await AppiService.patch(`/admin/store/shipping-rules/${route.params.id}`, form.value)
+    const payload = {
+      ...form.value,
+      state_id: form.value.state_id ?? null,
+      city_id: form.value.city_id ?? null,
+      price_per_kg: form.value.price_per_kg ?? null,
+      price_per_cm3: form.value.price_per_cm3 ?? null,
+    }
+    await AppiService.patch(`/admin/store/shipping-rules/${route.params.id}`, payload)
     router.push('/store/shipping-rules')
   } catch (e: any) {
     error.value = e?.response?.data?.message ?? 'Error al actualizar la regla de envío.'

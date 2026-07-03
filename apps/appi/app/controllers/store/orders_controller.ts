@@ -45,7 +45,9 @@ export default class OrdersController {
       .whereIn('id', productIds)
 
     if (products.length !== productIds.length) {
-      return response.badRequest({ message: 'Uno o más productos no existen o no están disponibles.' })
+      return response.badRequest({
+        message: 'Uno o más productos no existen o no están disponibles.',
+      })
     }
 
     const productMap = new Map(products.map((p) => [p.id, p]))
@@ -91,7 +93,7 @@ export default class OrdersController {
       siteId: site.id,
       userId: auth.user!.id,
       status: 'pending',
-      total,
+      total: String(total),
       shippingAddress: data.shipping_address ?? null,
       billingAddress: data.billing_address ?? null,
     })

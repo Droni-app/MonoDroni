@@ -11,7 +11,7 @@ const courseQuestions = ref<LearnQuestion[]>([])
 const loading = ref(false)
 const linking = ref(false)
 const unlinkingId = ref<string | null>(null)
-const selectedQuestionId = ref<string | null>(null)
+const selectedQuestionId = ref<string | undefined>(undefined)
 const error = ref<string | null>(null)
 
 const availableQuestions = computed(() => {
@@ -49,7 +49,7 @@ async function linkQuestion() {
       { question_id: selectedQuestionId.value }
     )
     linked.value.push({ ...data, question: courseQuestions.value.find((q) => q.id === selectedQuestionId.value) })
-    selectedQuestionId.value = null
+    selectedQuestionId.value = undefined
   } catch (e: any) {
     error.value = e?.response?.data?.message ?? 'Error al vincular la pregunta.'
   } finally {

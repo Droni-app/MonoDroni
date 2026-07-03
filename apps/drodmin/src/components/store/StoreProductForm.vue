@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref, watch } from 'vue'
+import { computed, ref, watch } from 'vue'
 import {
   DuiButton,
   DuiInput,
@@ -96,6 +96,45 @@ function handleSubmit() {
   emit('submit', { ...form.value, tags: [...form.value.tags] })
 }
 
+// DuiInput/DuiTextarea don't accept `null`, but the wire format does (to clear a field) —
+// these bridge the two only at the template binding, the underlying form stays `| null`.
+const descriptionModel = computed({
+  get: () => form.value.description ?? undefined,
+  set: (value: string | undefined) => {
+    form.value.description = value ?? null
+  },
+})
+const contentModel = computed({
+  get: () => form.value.content ?? undefined,
+  set: (value: string | undefined) => {
+    form.value.content = value ?? null
+  },
+})
+const sizeWModel = computed({
+  get: () => form.value.size_w ?? undefined,
+  set: (value: number | undefined) => {
+    form.value.size_w = value ?? null
+  },
+})
+const sizeHModel = computed({
+  get: () => form.value.size_h ?? undefined,
+  set: (value: number | undefined) => {
+    form.value.size_h = value ?? null
+  },
+})
+const sizeDModel = computed({
+  get: () => form.value.size_d ?? undefined,
+  set: (value: number | undefined) => {
+    form.value.size_d = value ?? null
+  },
+})
+const weightModel = computed({
+  get: () => form.value.weight ?? undefined,
+  set: (value: number | undefined) => {
+    form.value.weight = value ?? null
+  },
+})
+
 const activeTab = ref<'general' | 'atributos'>('general')
 const tabs = [
   { value: 'general', label: 'General' },
@@ -114,7 +153,7 @@ const tabs = [
 
       <DuiLabel title="Descripción">
         <DuiTextarea
-          v-model="form.description"
+          v-model="descriptionModel"
           block
           :autoheight="true"
           placeholder="Descripción breve del producto"
@@ -123,7 +162,7 @@ const tabs = [
 
       <DuiLabel title="Contenido / Detalle">
         <DuiTextarea
-          v-model="form.content"
+          v-model="contentModel"
           block
           rows="10"
           placeholder="Descripción extendida, especificaciones, etc."
@@ -180,19 +219,19 @@ const tabs = [
           <p class="text-xs font-medium text-slate-600 dark:text-slate-400 mb-2">Dimensiones (cm)</p>
           <div class="grid grid-cols-3 gap-2">
             <DuiLabel title="Ancho">
-              <DuiInput v-model.number="form.size_w" block type="number" min="0" step="0.01" />
+              <DuiInput v-model.number="sizeWModel" block type="number" min="0" step="0.01" />
             </DuiLabel>
             <DuiLabel title="Alto">
-              <DuiInput v-model.number="form.size_h" block type="number" min="0" step="0.01" />
+              <DuiInput v-model.number="sizeHModel" block type="number" min="0" step="0.01" />
             </DuiLabel>
             <DuiLabel title="Prof.">
-              <DuiInput v-model.number="form.size_d" block type="number" min="0" step="0.01" />
+              <DuiInput v-model.number="sizeDModel" block type="number" min="0" step="0.01" />
             </DuiLabel>
           </div>
         </div>
 
         <DuiLabel title="Peso (kg)">
-          <DuiInput v-model.number="form.weight" block type="number" min="0" step="0.001" />
+          <DuiInput v-model.number="weightModel" block type="number" min="0" step="0.001" />
         </DuiLabel>
 
         <div>

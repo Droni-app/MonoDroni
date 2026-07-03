@@ -16,9 +16,7 @@ export default class PaymentsController {
     const page = request.input('page', 1)
     const perPage = request.input('per_page', 10)
     return StorePayment.query()
-      .whereHas('order', (q) =>
-        q.where('site_id', site.id).where('user_id', auth.user!.id)
-      )
+      .whereHas('order', (q) => q.where('site_id', site.id).where('user_id', auth.user!.id))
       .preload('order')
       .orderBy('created_at', 'desc')
       .paginate(page, perPage)
@@ -47,7 +45,7 @@ export default class PaymentsController {
       orderId: order.id,
       paymentMethod: data.payment_method,
       paymentStatus: 'pending',
-      amount: data.amount,
+      amount: String(data.amount),
       currency: data.currency ?? 'USD',
       transactionId: data.transaction_id ?? null,
     })
@@ -65,9 +63,7 @@ export default class PaymentsController {
    */
   async show({ site, auth, params }: HttpContext) {
     return StorePayment.query()
-      .whereHas('order', (q) =>
-        q.where('site_id', site.id).where('user_id', auth.user!.id)
-      )
+      .whereHas('order', (q) => q.where('site_id', site.id).where('user_id', auth.user!.id))
       .where('id', params.id)
       .preload('order')
       .firstOrFail()

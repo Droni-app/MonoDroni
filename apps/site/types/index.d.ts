@@ -147,6 +147,93 @@ declare global {
     monaco: unknown
   }
 
+  /* Learn module */
+  export interface LearnEnrollmentSummary {
+    id: string
+    role: 'student' | 'teacher' | 'admin'
+    status: 'pending' | 'active' | 'completed' | 'canceled'
+    progress: number
+  }
+
+  export interface LearnCourse {
+    id: string
+    siteId?: string
+    slug: string
+    name: string
+    group: string | null
+    description: string | null
+    picture: string | null
+    video: string | null
+    autoEnroll: boolean
+    active: boolean
+    createdAt: string
+    updatedAt: string
+    enrollment?: LearnEnrollmentSummary | null
+  }
+
+  export interface LearnMyAnswer {
+    id: string
+    answer: string
+    attachment: string | null
+    feedback: string | null
+    result: number | null
+  }
+
+  export interface LearnQuizGradedAnswer {
+    question_id: string
+    selected: number
+    correct: boolean
+  }
+
+  export interface LearnMyQuiz {
+    id: string
+    status: 'pending' | 'completed'
+    results: number | null
+    answers: LearnQuizGradedAnswer[]
+  }
+
+  export interface LearnQuizQuestion {
+    id: string
+    name: string
+    description: string | null
+    picture: string | null
+    response_1: string
+    response_2: string
+    response_3: string | null
+    response_4: string | null
+    response_5: string | null
+  }
+
+  export interface LearnLesson {
+    id: string
+    courseId: string
+    slug: string
+    name: string
+    description: string | null
+    format: 'text' | 'html' | 'markdown'
+    content: string | null
+    activity: string | null
+    video: string | null
+    order: number
+    active: boolean
+    limitDate: string | null
+    createdAt: string
+    updatedAt: string
+    myAnswer?: LearnMyAnswer | null
+    myQuiz?: LearnMyQuiz | null
+    quizQuestions?: LearnQuizQuestion[]
+  }
+
+  export interface LearnPagination<T> {
+    meta: {
+      total: number
+      perPage: number
+      currentPage: number
+      lastPage: number
+    }
+    data: T[]
+  }
+
   export interface Toast {
     show: boolean
     message: string

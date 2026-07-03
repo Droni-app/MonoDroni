@@ -34,7 +34,7 @@ export default class OrdersController {
       .where('id', params.id)
       .preload('user')
       .preload('items', (q) => q.preload('product'))
-      .preload('payment')
+      .preload('payments')
       .firstOrFail()
   }
 

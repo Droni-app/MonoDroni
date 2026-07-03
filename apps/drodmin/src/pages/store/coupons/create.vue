@@ -13,7 +13,7 @@ const form = ref({
   code: '',
   discount: 0,
   discount_type: 'percentage' as 'percentage' | 'fixed',
-  minimum_order_value: null as number | null,
+  minimum_order_value: undefined as number | undefined,
   expiration_date: '' as string,
   active: true,
 })

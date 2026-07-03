@@ -11,11 +11,11 @@ const error = ref<string | null>(null)
 
 const form = ref({
   name: '',
-  state_id: null as number | null,
-  city_id: null as number | null,
+  state_id: undefined as number | undefined,
+  city_id: undefined as number | undefined,
   price: 0,
-  price_per_kg: null as number | null,
-  price_per_cm3: null as number | null,
+  price_per_kg: undefined as number | undefined,
+  price_per_cm3: undefined as number | undefined,
   active: true,
 })
 
@@ -23,7 +23,14 @@ async function handleSubmit() {
   loading.value = true
   error.value = null
   try {
-    const { data } = await AppiService.post<StoreShippingRule>('/admin/store/shipping-rules', form.value)
+    const payload = {
+      ...form.value,
+      state_id: form.value.state_id ?? null,
+      city_id: form.value.city_id ?? null,
+      price_per_kg: form.value.price_per_kg ?? null,
+      price_per_cm3: form.value.price_per_cm3 ?? null,
+    }
+    const { data } = await AppiService.post<StoreShippingRule>('/admin/store/shipping-rules', payload)
     router.push(`/store/shipping-rules/${data.id}`)
   } catch (e: any) {
     error.value = e?.response?.data?.message ?? 'Error al crear la regla de envío.'

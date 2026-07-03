@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref, watch } from 'vue'
+import { computed, ref, watch } from 'vue'
 import { DuiButton, DuiInput, DuiLabel, DuiTextarea, DuiAlert } from '@dronico/droni-kit'
 import AttachmentInput from '../AttachmentInput.vue'
 import type { LearnQuestionFormData } from '../../types/AppiService'
@@ -60,6 +60,33 @@ watch(
 function handleSubmit() {
   emit('submit', { ...form.value })
 }
+
+// DuiInput/DuiTextarea don't accept `null`, but the wire format does (to clear a field) —
+// these bridge the two only at the template binding, the underlying form stays `| null`.
+const descriptionModel = computed({
+  get: () => form.value.description ?? undefined,
+  set: (value: string | undefined) => {
+    form.value.description = value ?? null
+  },
+})
+const response3Model = computed({
+  get: () => form.value.response_3 ?? undefined,
+  set: (value: string | undefined) => {
+    form.value.response_3 = value ?? null
+  },
+})
+const response4Model = computed({
+  get: () => form.value.response_4 ?? undefined,
+  set: (value: string | undefined) => {
+    form.value.response_4 = value ?? null
+  },
+})
+const response5Model = computed({
+  get: () => form.value.response_5 ?? undefined,
+  set: (value: string | undefined) => {
+    form.value.response_5 = value ?? null
+  },
+})
 </script>
 
 <template>
@@ -71,7 +98,7 @@ function handleSubmit() {
     </DuiLabel>
 
     <DuiLabel title="Descripción">
-      <DuiTextarea v-model="form.description" block :autoheight="true" placeholder="Contexto adicional (opcional)" />
+      <DuiTextarea v-model="descriptionModel" block :autoheight="true" placeholder="Contexto adicional (opcional)" />
     </DuiLabel>
 
     <DuiLabel title="Imagen">
@@ -101,19 +128,19 @@ function handleSubmit() {
     <DuiLabel title="Respuesta 3">
       <div class="flex items-center gap-2">
         <input type="radio" :checked="form.response_correct === 3" name="response_correct" @change="form.response_correct = 3" />
-        <DuiInput v-model="form.response_3" block placeholder="Opción 3" />
+        <DuiInput v-model="response3Model" block placeholder="Opción 3" />
       </div>
     </DuiLabel>
     <DuiLabel title="Respuesta 4">
       <div class="flex items-center gap-2">
         <input type="radio" :checked="form.response_correct === 4" name="response_correct" @change="form.response_correct = 4" />
-        <DuiInput v-model="form.response_4" block placeholder="Opción 4" />
+        <DuiInput v-model="response4Model" block placeholder="Opción 4" />
       </div>
     </DuiLabel>
     <DuiLabel title="Respuesta 5">
       <div class="flex items-center gap-2">
         <input type="radio" :checked="form.response_correct === 5" name="response_correct" @change="form.response_correct = 5" />
-        <DuiInput v-model="form.response_5" block placeholder="Opción 5" />
+        <DuiInput v-model="response5Model" block placeholder="Opción 5" />
       </div>
     </DuiLabel>
 
