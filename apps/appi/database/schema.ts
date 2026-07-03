@@ -116,6 +116,204 @@ export class EnrollmentSchema extends BaseModel {
   declare userId: string
 }
 
+export class LearnCourseSchema extends BaseModel {
+  static $columns = ['active', 'autoEnroll', 'createdAt', 'description', 'group', 'id', 'name', 'picture', 'siteId', 'slug', 'updatedAt', 'video'] as const
+  $columns = LearnCourseSchema.$columns
+  @column()
+  declare active: boolean
+  @column()
+  declare autoEnroll: boolean
+  @column.dateTime({ autoCreate: true })
+  declare createdAt: DateTime | null
+  @column()
+  declare description: string | null
+  @column()
+  declare group: string | null
+  @column({ isPrimary: true })
+  declare id: string
+  @column()
+  declare name: string
+  @column()
+  declare picture: string | null
+  @column()
+  declare siteId: string
+  @column()
+  declare slug: string
+  @column.dateTime({ autoCreate: true, autoUpdate: true })
+  declare updatedAt: DateTime | null
+  @column()
+  declare video: string | null
+}
+
+export class LearnEnrollmentSchema extends BaseModel {
+  static $columns = ['courseId', 'createdAt', 'id', 'progress', 'role', 'status', 'updatedAt', 'userId'] as const
+  $columns = LearnEnrollmentSchema.$columns
+  @column()
+  declare courseId: string
+  @column.dateTime({ autoCreate: true })
+  declare createdAt: DateTime | null
+  @column({ isPrimary: true })
+  declare id: string
+  @column()
+  declare progress: string
+  @column()
+  declare role: string
+  @column()
+  declare status: string
+  @column.dateTime({ autoCreate: true, autoUpdate: true })
+  declare updatedAt: DateTime | null
+  @column()
+  declare userId: string
+}
+
+export class LearnLessonAnswerSchema extends BaseModel {
+  static $columns = ['answer', 'attachment', 'createdAt', 'feedback', 'id', 'learnEnrollmentId', 'lessonId', 'result', 'updatedAt'] as const
+  $columns = LearnLessonAnswerSchema.$columns
+  @column()
+  declare answer: string
+  @column()
+  declare attachment: string | null
+  @column.dateTime({ autoCreate: true })
+  declare createdAt: DateTime | null
+  @column()
+  declare feedback: string | null
+  @column({ isPrimary: true })
+  declare id: string
+  @column()
+  declare learnEnrollmentId: string
+  @column()
+  declare lessonId: string
+  @column()
+  declare result: string | null
+  @column.dateTime({ autoCreate: true, autoUpdate: true })
+  declare updatedAt: DateTime | null
+}
+
+export class LearnLessonQuestionSchema extends BaseModel {
+  static $columns = ['createdAt', 'id', 'lessonId', 'questionId', 'updatedAt'] as const
+  $columns = LearnLessonQuestionSchema.$columns
+  @column.dateTime({ autoCreate: true })
+  declare createdAt: DateTime | null
+  @column({ isPrimary: true })
+  declare id: string
+  @column()
+  declare lessonId: string
+  @column()
+  declare questionId: string
+  @column.dateTime({ autoCreate: true, autoUpdate: true })
+  declare updatedAt: DateTime | null
+}
+
+export class LearnLessonQuestionsQuizzSchema extends BaseModel {
+  static $columns = ['answers', 'createdAt', 'id', 'learnEnrollmentId', 'lessonId', 'questions', 'results', 'status', 'updatedAt'] as const
+  $columns = LearnLessonQuestionsQuizzSchema.$columns
+  @column()
+  declare answers: any
+  @column.dateTime({ autoCreate: true })
+  declare createdAt: DateTime | null
+  @column({ isPrimary: true })
+  declare id: string
+  @column()
+  declare learnEnrollmentId: string
+  @column()
+  declare lessonId: string
+  @column()
+  declare questions: any
+  @column()
+  declare results: string | null
+  @column()
+  declare status: string
+  @column.dateTime({ autoCreate: true, autoUpdate: true })
+  declare updatedAt: DateTime | null
+}
+
+export class LearnLessonViewSchema extends BaseModel {
+  static $columns = ['createdAt', 'id', 'learnEnrollmentId', 'lessonId', 'updatedAt'] as const
+  $columns = LearnLessonViewSchema.$columns
+  @column.dateTime({ autoCreate: true })
+  declare createdAt: DateTime | null
+  @column({ isPrimary: true })
+  declare id: string
+  @column()
+  declare learnEnrollmentId: string
+  @column()
+  declare lessonId: string
+  @column.dateTime({ autoCreate: true, autoUpdate: true })
+  declare updatedAt: DateTime | null
+}
+
+export class LearnLessonSchema extends BaseModel {
+  static $columns = ['active', 'activity', 'content', 'courseId', 'createdAt', 'description', 'format', 'id', 'limitDate', 'name', 'order', 'slug', 'updatedAt', 'video'] as const
+  $columns = LearnLessonSchema.$columns
+  @column()
+  declare active: boolean
+  @column()
+  declare activity: string | null
+  @column()
+  declare content: string | null
+  @column()
+  declare courseId: string
+  @column.dateTime({ autoCreate: true })
+  declare createdAt: DateTime | null
+  @column()
+  declare description: string | null
+  @column()
+  declare format: string
+  @column({ isPrimary: true })
+  declare id: string
+  @column.dateTime()
+  declare limitDate: DateTime | null
+  @column()
+  declare name: string
+  @column()
+  declare order: number
+  @column()
+  declare slug: string
+  @column.dateTime({ autoCreate: true, autoUpdate: true })
+  declare updatedAt: DateTime | null
+  @column()
+  declare video: string | null
+}
+
+export class LearnQuestionSchema extends BaseModel {
+  static $columns = ['attachment', 'courseId', 'createdAt', 'description', 'difficulty', 'id', 'losses', 'name', 'picture', 'response1', 'response2', 'response3', 'response4', 'response5', 'responseCorrect', 'updatedAt', 'wons'] as const
+  $columns = LearnQuestionSchema.$columns
+  @column()
+  declare attachment: string | null
+  @column()
+  declare courseId: string
+  @column.dateTime({ autoCreate: true })
+  declare createdAt: DateTime | null
+  @column()
+  declare description: string | null
+  @column()
+  declare difficulty: string
+  @column({ isPrimary: true })
+  declare id: string
+  @column()
+  declare losses: number
+  @column()
+  declare name: string
+  @column()
+  declare picture: string | null
+  @column()
+  declare response1: string
+  @column()
+  declare response2: string
+  @column()
+  declare response3: string | null
+  @column()
+  declare response4: string | null
+  @column()
+  declare response5: string | null
+  @column()
+  declare responseCorrect: number
+  @column.dateTime({ autoCreate: true, autoUpdate: true })
+  declare updatedAt: DateTime | null
+  @column()
+  declare wons: number
+}
+
 export class SiteSchema extends BaseModel {
   static $columns = ['createdAt', 'description', 'expiresAt', 'id', 'logo', 'name', 'updatedAt', 'url'] as const
   $columns = SiteSchema.$columns

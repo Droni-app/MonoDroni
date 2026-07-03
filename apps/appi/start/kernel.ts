@@ -49,4 +49,5 @@ export const middleware = router.named({
   auth: () => import('#middleware/auth_middleware'),
   adminSite: () => import('#middleware/admin_site_middleware'),
   enrolledUser: () => import('#middleware/enrolled_user_middleware'),
+  courseRole: () => import('#middleware/course_role_middleware'),
 })

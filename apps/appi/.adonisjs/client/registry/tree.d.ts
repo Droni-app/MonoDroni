@@ -43,6 +43,68 @@ export interface ApiDefinition {
       store: typeof routes['social.replies.store']
     }
   }
+  store: {
+    products: {
+      index: typeof routes['store.products.index']
+      show: typeof routes['store.products.show']
+    }
+    addresses: {
+      index: typeof routes['store.addresses.index']
+      store: typeof routes['store.addresses.store']
+      show: typeof routes['store.addresses.show']
+      update: typeof routes['store.addresses.update']
+      destroy: typeof routes['store.addresses.destroy']
+    }
+    orders: {
+      index: typeof routes['store.orders.index']
+      store: typeof routes['store.orders.store']
+      show: typeof routes['store.orders.show']
+    }
+    payments: {
+      index: typeof routes['store.payments.index']
+      store: typeof routes['store.payments.store']
+      show: typeof routes['store.payments.show']
+    }
+  }
+  learn: {
+    courses: {
+      index: typeof routes['learn.courses.index']
+      show: typeof routes['learn.courses.show']
+      lessons: {
+        index: typeof routes['learn.courses.lessons.index']
+        show: typeof routes['learn.courses.lessons.show']
+        store: typeof routes['learn.courses.lessons.store']
+        update: typeof routes['learn.courses.lessons.update']
+        destroy: typeof routes['learn.courses.lessons.destroy']
+        answers: {
+          store: typeof routes['learn.courses.lessons.answers.store']
+          show: typeof routes['learn.courses.lessons.answers.show']
+          index: typeof routes['learn.courses.lessons.answers.index']
+          update: typeof routes['learn.courses.lessons.answers.update']
+          destroy: typeof routes['learn.courses.lessons.answers.destroy']
+        }
+        quizzes: {
+          store: typeof routes['learn.courses.lessons.quizzes.store']
+          show: typeof routes['learn.courses.lessons.quizzes.show']
+          index: typeof routes['learn.courses.lessons.quizzes.index']
+          update: typeof routes['learn.courses.lessons.quizzes.update']
+          destroy: typeof routes['learn.courses.lessons.quizzes.destroy']
+        }
+      }
+      questions: {
+        index: typeof routes['learn.courses.questions.index']
+        show: typeof routes['learn.courses.questions.show']
+        update: typeof routes['learn.courses.questions.update']
+        store: typeof routes['learn.courses.questions.store']
+        destroy: typeof routes['learn.courses.questions.destroy']
+      }
+      enrollments: {
+        store: typeof routes['learn.courses.enrollments.store']
+        index: typeof routes['learn.courses.enrollments.index']
+        show: typeof routes['learn.courses.enrollments.show']
+      }
+    }
+  }
   admin: {
     content: {
       posts: {
@@ -117,6 +179,57 @@ export interface ApiDefinition {
         show: typeof routes['admin.store.shipping_rules.show']
         update: typeof routes['admin.store.shipping_rules.update']
         destroy: typeof routes['admin.store.shipping_rules.destroy']
+      }
+    }
+    learn: {
+      courses: {
+        index: typeof routes['admin.learn.courses.index']
+        store: typeof routes['admin.learn.courses.store']
+        show: typeof routes['admin.learn.courses.show']
+        update: typeof routes['admin.learn.courses.update']
+        destroy: typeof routes['admin.learn.courses.destroy']
+        lessons: {
+          index: typeof routes['admin.learn.courses.lessons.index']
+          store: typeof routes['admin.learn.courses.lessons.store']
+          show: typeof routes['admin.learn.courses.lessons.show']
+          update: typeof routes['admin.learn.courses.lessons.update']
+          destroy: typeof routes['admin.learn.courses.lessons.destroy']
+          examQuestions: {
+            index: typeof routes['admin.learn.courses.lessons.exam_questions.index']
+            store: typeof routes['admin.learn.courses.lessons.exam_questions.store']
+            destroy: typeof routes['admin.learn.courses.lessons.exam_questions.destroy']
+          }
+          answers: {
+            index: typeof routes['admin.learn.courses.lessons.answers.index']
+            store: typeof routes['admin.learn.courses.lessons.answers.store']
+            show: typeof routes['admin.learn.courses.lessons.answers.show']
+            update: typeof routes['admin.learn.courses.lessons.answers.update']
+            destroy: typeof routes['admin.learn.courses.lessons.answers.destroy']
+          }
+          quizzes: {
+            index: typeof routes['admin.learn.courses.lessons.quizzes.index']
+            show: typeof routes['admin.learn.courses.lessons.quizzes.show']
+            update: typeof routes['admin.learn.courses.lessons.quizzes.update']
+            destroy: typeof routes['admin.learn.courses.lessons.quizzes.destroy']
+          }
+        }
+        questions: {
+          index: typeof routes['admin.learn.courses.questions.index']
+          store: typeof routes['admin.learn.courses.questions.store']
+          show: typeof routes['admin.learn.courses.questions.show']
+          update: typeof routes['admin.learn.courses.questions.update']
+          destroy: typeof routes['admin.learn.courses.questions.destroy']
+        }
+      }
+      enrollments: {
+        index: typeof routes['admin.learn.enrollments.index']
+        store: typeof routes['admin.learn.enrollments.store']
+        show: typeof routes['admin.learn.enrollments.show']
+        update: typeof routes['admin.learn.enrollments.update']
+        destroy: typeof routes['admin.learn.enrollments.destroy']
+      }
+      siteUsers: {
+        index: typeof routes['admin.learn.site_users.index']
       }
     }
   }

@@ -283,6 +283,462 @@ export interface Registry {
       errorResponse: ExtractErrorResponse<Awaited<ReturnType<import('#controllers/social/replies_controller').default['store']>>> | { status: 422; response: { errors: SimpleError[] } }
     }
   }
+  'store.products.index': {
+    methods: ["GET","HEAD"]
+    pattern: '/store/products'
+    types: {
+      body: {}
+      paramsTuple: []
+      params: {}
+      query: {}
+      response: ExtractResponse<Awaited<ReturnType<import('#controllers/store/products_controller').default['index']>>>
+      errorResponse: ExtractErrorResponse<Awaited<ReturnType<import('#controllers/store/products_controller').default['index']>>>
+    }
+  }
+  'store.products.show': {
+    methods: ["GET","HEAD"]
+    pattern: '/store/products/:id'
+    types: {
+      body: {}
+      paramsTuple: [ParamValue]
+      params: { id: ParamValue }
+      query: {}
+      response: ExtractResponse<Awaited<ReturnType<import('#controllers/store/products_controller').default['show']>>>
+      errorResponse: ExtractErrorResponse<Awaited<ReturnType<import('#controllers/store/products_controller').default['show']>>>
+    }
+  }
+  'store.addresses.index': {
+    methods: ["GET","HEAD"]
+    pattern: '/store/addresses'
+    types: {
+      body: {}
+      paramsTuple: []
+      params: {}
+      query: {}
+      response: ExtractResponse<Awaited<ReturnType<import('#controllers/store/addresses_controller').default['index']>>>
+      errorResponse: ExtractErrorResponse<Awaited<ReturnType<import('#controllers/store/addresses_controller').default['index']>>>
+    }
+  }
+  'store.addresses.store': {
+    methods: ["POST"]
+    pattern: '/store/addresses'
+    types: {
+      body: ExtractBody<InferInput<(typeof import('#validators/store/address').storeAddressValidator)>>
+      paramsTuple: []
+      params: {}
+      query: ExtractQuery<InferInput<(typeof import('#validators/store/address').storeAddressValidator)>>
+      response: ExtractResponse<Awaited<ReturnType<import('#controllers/store/addresses_controller').default['store']>>>
+      errorResponse: ExtractErrorResponse<Awaited<ReturnType<import('#controllers/store/addresses_controller').default['store']>>> | { status: 422; response: { errors: SimpleError[] } }
+    }
+  }
+  'store.addresses.show': {
+    methods: ["GET","HEAD"]
+    pattern: '/store/addresses/:id'
+    types: {
+      body: {}
+      paramsTuple: [ParamValue]
+      params: { id: ParamValue }
+      query: {}
+      response: ExtractResponse<Awaited<ReturnType<import('#controllers/store/addresses_controller').default['show']>>>
+      errorResponse: ExtractErrorResponse<Awaited<ReturnType<import('#controllers/store/addresses_controller').default['show']>>>
+    }
+  }
+  'store.addresses.update': {
+    methods: ["PUT","PATCH"]
+    pattern: '/store/addresses/:id'
+    types: {
+      body: ExtractBody<InferInput<(typeof import('#validators/store/address').updateAddressValidator)>>
+      paramsTuple: [ParamValue]
+      params: { id: ParamValue }
+      query: ExtractQuery<InferInput<(typeof import('#validators/store/address').updateAddressValidator)>>
+      response: ExtractResponse<Awaited<ReturnType<import('#controllers/store/addresses_controller').default['update']>>>
+      errorResponse: ExtractErrorResponse<Awaited<ReturnType<import('#controllers/store/addresses_controller').default['update']>>> | { status: 422; response: { errors: SimpleError[] } }
+    }
+  }
+  'store.addresses.destroy': {
+    methods: ["DELETE"]
+    pattern: '/store/addresses/:id'
+    types: {
+      body: {}
+      paramsTuple: [ParamValue]
+      params: { id: ParamValue }
+      query: {}
+      response: ExtractResponse<Awaited<ReturnType<import('#controllers/store/addresses_controller').default['destroy']>>>
+      errorResponse: ExtractErrorResponse<Awaited<ReturnType<import('#controllers/store/addresses_controller').default['destroy']>>>
+    }
+  }
+  'store.orders.index': {
+    methods: ["GET","HEAD"]
+    pattern: '/store/orders'
+    types: {
+      body: {}
+      paramsTuple: []
+      params: {}
+      query: {}
+      response: ExtractResponse<Awaited<ReturnType<import('#controllers/store/orders_controller').default['index']>>>
+      errorResponse: ExtractErrorResponse<Awaited<ReturnType<import('#controllers/store/orders_controller').default['index']>>>
+    }
+  }
+  'store.orders.store': {
+    methods: ["POST"]
+    pattern: '/store/orders'
+    types: {
+      body: ExtractBody<InferInput<(typeof import('#validators/store/order').storeOrderValidator)>>
+      paramsTuple: []
+      params: {}
+      query: ExtractQuery<InferInput<(typeof import('#validators/store/order').storeOrderValidator)>>
+      response: ExtractResponse<Awaited<ReturnType<import('#controllers/store/orders_controller').default['store']>>>
+      errorResponse: ExtractErrorResponse<Awaited<ReturnType<import('#controllers/store/orders_controller').default['store']>>> | { status: 422; response: { errors: SimpleError[] } }
+    }
+  }
+  'store.orders.show': {
+    methods: ["GET","HEAD"]
+    pattern: '/store/orders/:id'
+    types: {
+      body: {}
+      paramsTuple: [ParamValue]
+      params: { id: ParamValue }
+      query: {}
+      response: ExtractResponse<Awaited<ReturnType<import('#controllers/store/orders_controller').default['show']>>>
+      errorResponse: ExtractErrorResponse<Awaited<ReturnType<import('#controllers/store/orders_controller').default['show']>>>
+    }
+  }
+  'store.payments.index': {
+    methods: ["GET","HEAD"]
+    pattern: '/store/payments'
+    types: {
+      body: {}
+      paramsTuple: []
+      params: {}
+      query: {}
+      response: ExtractResponse<Awaited<ReturnType<import('#controllers/store/payments_controller').default['index']>>>
+      errorResponse: ExtractErrorResponse<Awaited<ReturnType<import('#controllers/store/payments_controller').default['index']>>>
+    }
+  }
+  'store.payments.store': {
+    methods: ["POST"]
+    pattern: '/store/payments'
+    types: {
+      body: ExtractBody<InferInput<(typeof import('#validators/store/payment').storePaymentValidator)>>
+      paramsTuple: []
+      params: {}
+      query: ExtractQuery<InferInput<(typeof import('#validators/store/payment').storePaymentValidator)>>
+      response: ExtractResponse<Awaited<ReturnType<import('#controllers/store/payments_controller').default['store']>>>
+      errorResponse: ExtractErrorResponse<Awaited<ReturnType<import('#controllers/store/payments_controller').default['store']>>> | { status: 422; response: { errors: SimpleError[] } }
+    }
+  }
+  'store.payments.show': {
+    methods: ["GET","HEAD"]
+    pattern: '/store/payments/:id'
+    types: {
+      body: {}
+      paramsTuple: [ParamValue]
+      params: { id: ParamValue }
+      query: {}
+      response: ExtractResponse<Awaited<ReturnType<import('#controllers/store/payments_controller').default['show']>>>
+      errorResponse: ExtractErrorResponse<Awaited<ReturnType<import('#controllers/store/payments_controller').default['show']>>>
+    }
+  }
+  'learn.courses.index': {
+    methods: ["GET","HEAD"]
+    pattern: '/learn/courses'
+    types: {
+      body: {}
+      paramsTuple: []
+      params: {}
+      query: {}
+      response: ExtractResponse<Awaited<ReturnType<import('#controllers/learn/courses_controller').default['index']>>>
+      errorResponse: ExtractErrorResponse<Awaited<ReturnType<import('#controllers/learn/courses_controller').default['index']>>>
+    }
+  }
+  'learn.courses.show': {
+    methods: ["GET","HEAD"]
+    pattern: '/learn/courses/:id'
+    types: {
+      body: {}
+      paramsTuple: [ParamValue]
+      params: { id: ParamValue }
+      query: {}
+      response: ExtractResponse<Awaited<ReturnType<import('#controllers/learn/courses_controller').default['show']>>>
+      errorResponse: ExtractErrorResponse<Awaited<ReturnType<import('#controllers/learn/courses_controller').default['show']>>>
+    }
+  }
+  'learn.courses.lessons.index': {
+    methods: ["GET","HEAD"]
+    pattern: '/learn/courses/:course_id/lessons'
+    types: {
+      body: {}
+      paramsTuple: [ParamValue]
+      params: { course_id: ParamValue }
+      query: {}
+      response: ExtractResponse<Awaited<ReturnType<import('#controllers/learn/lessons_controller').default['index']>>>
+      errorResponse: ExtractErrorResponse<Awaited<ReturnType<import('#controllers/learn/lessons_controller').default['index']>>>
+    }
+  }
+  'learn.courses.lessons.show': {
+    methods: ["GET","HEAD"]
+    pattern: '/learn/courses/:course_id/lessons/:id'
+    types: {
+      body: {}
+      paramsTuple: [ParamValue, ParamValue]
+      params: { course_id: ParamValue; id: ParamValue }
+      query: {}
+      response: ExtractResponse<Awaited<ReturnType<import('#controllers/learn/lessons_controller').default['show']>>>
+      errorResponse: ExtractErrorResponse<Awaited<ReturnType<import('#controllers/learn/lessons_controller').default['show']>>>
+    }
+  }
+  'learn.courses.lessons.store': {
+    methods: ["POST"]
+    pattern: '/learn/courses/:course_id/lessons'
+    types: {
+      body: ExtractBody<InferInput<(typeof import('#validators/admin/learn/lesson').storeLessonValidator)>>
+      paramsTuple: [ParamValue]
+      params: { course_id: ParamValue }
+      query: ExtractQuery<InferInput<(typeof import('#validators/admin/learn/lesson').storeLessonValidator)>>
+      response: ExtractResponse<Awaited<ReturnType<import('#controllers/learn/lessons_controller').default['store']>>>
+      errorResponse: ExtractErrorResponse<Awaited<ReturnType<import('#controllers/learn/lessons_controller').default['store']>>> | { status: 422; response: { errors: SimpleError[] } }
+    }
+  }
+  'learn.courses.lessons.update': {
+    methods: ["PUT","PATCH"]
+    pattern: '/learn/courses/:course_id/lessons/:id'
+    types: {
+      body: ExtractBody<InferInput<(typeof import('#validators/admin/learn/lesson').updateLessonValidator)>>
+      paramsTuple: [ParamValue, ParamValue]
+      params: { course_id: ParamValue; id: ParamValue }
+      query: ExtractQuery<InferInput<(typeof import('#validators/admin/learn/lesson').updateLessonValidator)>>
+      response: ExtractResponse<Awaited<ReturnType<import('#controllers/learn/lessons_controller').default['update']>>>
+      errorResponse: ExtractErrorResponse<Awaited<ReturnType<import('#controllers/learn/lessons_controller').default['update']>>> | { status: 422; response: { errors: SimpleError[] } }
+    }
+  }
+  'learn.courses.lessons.destroy': {
+    methods: ["DELETE"]
+    pattern: '/learn/courses/:course_id/lessons/:id'
+    types: {
+      body: {}
+      paramsTuple: [ParamValue, ParamValue]
+      params: { course_id: ParamValue; id: ParamValue }
+      query: {}
+      response: ExtractResponse<Awaited<ReturnType<import('#controllers/learn/lessons_controller').default['destroy']>>>
+      errorResponse: ExtractErrorResponse<Awaited<ReturnType<import('#controllers/learn/lessons_controller').default['destroy']>>>
+    }
+  }
+  'learn.courses.questions.index': {
+    methods: ["GET","HEAD"]
+    pattern: '/learn/courses/:course_id/questions'
+    types: {
+      body: {}
+      paramsTuple: [ParamValue]
+      params: { course_id: ParamValue }
+      query: {}
+      response: ExtractResponse<Awaited<ReturnType<import('#controllers/learn/questions_controller').default['index']>>>
+      errorResponse: ExtractErrorResponse<Awaited<ReturnType<import('#controllers/learn/questions_controller').default['index']>>>
+    }
+  }
+  'learn.courses.questions.show': {
+    methods: ["GET","HEAD"]
+    pattern: '/learn/courses/:course_id/questions/:id'
+    types: {
+      body: {}
+      paramsTuple: [ParamValue, ParamValue]
+      params: { course_id: ParamValue; id: ParamValue }
+      query: {}
+      response: ExtractResponse<Awaited<ReturnType<import('#controllers/learn/questions_controller').default['show']>>>
+      errorResponse: ExtractErrorResponse<Awaited<ReturnType<import('#controllers/learn/questions_controller').default['show']>>>
+    }
+  }
+  'learn.courses.questions.update': {
+    methods: ["PUT","PATCH"]
+    pattern: '/learn/courses/:course_id/questions/:id'
+    types: {
+      body: ExtractBody<InferInput<(typeof import('#validators/admin/learn/question').updateQuestionValidator)>>
+      paramsTuple: [ParamValue, ParamValue]
+      params: { course_id: ParamValue; id: ParamValue }
+      query: ExtractQuery<InferInput<(typeof import('#validators/admin/learn/question').updateQuestionValidator)>>
+      response: ExtractResponse<Awaited<ReturnType<import('#controllers/learn/questions_controller').default['update']>>>
+      errorResponse: ExtractErrorResponse<Awaited<ReturnType<import('#controllers/learn/questions_controller').default['update']>>> | { status: 422; response: { errors: SimpleError[] } }
+    }
+  }
+  'learn.courses.questions.store': {
+    methods: ["POST"]
+    pattern: '/learn/courses/:course_id/questions'
+    types: {
+      body: ExtractBody<InferInput<(typeof import('#validators/admin/learn/question').storeQuestionValidator)>>
+      paramsTuple: [ParamValue]
+      params: { course_id: ParamValue }
+      query: ExtractQuery<InferInput<(typeof import('#validators/admin/learn/question').storeQuestionValidator)>>
+      response: ExtractResponse<Awaited<ReturnType<import('#controllers/learn/questions_controller').default['store']>>>
+      errorResponse: ExtractErrorResponse<Awaited<ReturnType<import('#controllers/learn/questions_controller').default['store']>>> | { status: 422; response: { errors: SimpleError[] } }
+    }
+  }
+  'learn.courses.questions.destroy': {
+    methods: ["DELETE"]
+    pattern: '/learn/courses/:course_id/questions/:id'
+    types: {
+      body: {}
+      paramsTuple: [ParamValue, ParamValue]
+      params: { course_id: ParamValue; id: ParamValue }
+      query: {}
+      response: ExtractResponse<Awaited<ReturnType<import('#controllers/learn/questions_controller').default['destroy']>>>
+      errorResponse: ExtractErrorResponse<Awaited<ReturnType<import('#controllers/learn/questions_controller').default['destroy']>>>
+    }
+  }
+  'learn.courses.enrollments.store': {
+    methods: ["POST"]
+    pattern: '/learn/courses/:course_id/enrollments'
+    types: {
+      body: {}
+      paramsTuple: [ParamValue]
+      params: { course_id: ParamValue }
+      query: {}
+      response: ExtractResponse<Awaited<ReturnType<import('#controllers/learn/enrollments_controller').default['store']>>>
+      errorResponse: ExtractErrorResponse<Awaited<ReturnType<import('#controllers/learn/enrollments_controller').default['store']>>>
+    }
+  }
+  'learn.courses.enrollments.index': {
+    methods: ["GET","HEAD"]
+    pattern: '/learn/courses/:course_id/enrollments'
+    types: {
+      body: {}
+      paramsTuple: [ParamValue]
+      params: { course_id: ParamValue }
+      query: {}
+      response: ExtractResponse<Awaited<ReturnType<import('#controllers/learn/enrollments_controller').default['index']>>>
+      errorResponse: ExtractErrorResponse<Awaited<ReturnType<import('#controllers/learn/enrollments_controller').default['index']>>>
+    }
+  }
+  'learn.courses.enrollments.show': {
+    methods: ["GET","HEAD"]
+    pattern: '/learn/courses/:course_id/enrollments/:id'
+    types: {
+      body: {}
+      paramsTuple: [ParamValue, ParamValue]
+      params: { course_id: ParamValue; id: ParamValue }
+      query: {}
+      response: ExtractResponse<Awaited<ReturnType<import('#controllers/learn/enrollments_controller').default['show']>>>
+      errorResponse: ExtractErrorResponse<Awaited<ReturnType<import('#controllers/learn/enrollments_controller').default['show']>>>
+    }
+  }
+  'learn.courses.lessons.answers.store': {
+    methods: ["POST"]
+    pattern: '/learn/courses/:course_id/lessons/:lesson_id/answers'
+    types: {
+      body: ExtractBody<InferInput<(typeof import('#validators/learn/answer').storeAnswerValidator)>>
+      paramsTuple: [ParamValue, ParamValue]
+      params: { course_id: ParamValue; lesson_id: ParamValue }
+      query: ExtractQuery<InferInput<(typeof import('#validators/learn/answer').storeAnswerValidator)>>
+      response: ExtractResponse<Awaited<ReturnType<import('#controllers/learn/answers_controller').default['store']>>>
+      errorResponse: ExtractErrorResponse<Awaited<ReturnType<import('#controllers/learn/answers_controller').default['store']>>> | { status: 422; response: { errors: SimpleError[] } }
+    }
+  }
+  'learn.courses.lessons.answers.show': {
+    methods: ["GET","HEAD"]
+    pattern: '/learn/courses/:course_id/lessons/:lesson_id/answers/:id'
+    types: {
+      body: {}
+      paramsTuple: [ParamValue, ParamValue, ParamValue]
+      params: { course_id: ParamValue; lesson_id: ParamValue; id: ParamValue }
+      query: {}
+      response: ExtractResponse<Awaited<ReturnType<import('#controllers/learn/answers_controller').default['show']>>>
+      errorResponse: ExtractErrorResponse<Awaited<ReturnType<import('#controllers/learn/answers_controller').default['show']>>>
+    }
+  }
+  'learn.courses.lessons.answers.index': {
+    methods: ["GET","HEAD"]
+    pattern: '/learn/courses/:course_id/lessons/:lesson_id/answers'
+    types: {
+      body: {}
+      paramsTuple: [ParamValue, ParamValue]
+      params: { course_id: ParamValue; lesson_id: ParamValue }
+      query: {}
+      response: ExtractResponse<Awaited<ReturnType<import('#controllers/learn/answers_controller').default['index']>>>
+      errorResponse: ExtractErrorResponse<Awaited<ReturnType<import('#controllers/learn/answers_controller').default['index']>>>
+    }
+  }
+  'learn.courses.lessons.answers.update': {
+    methods: ["PUT","PATCH"]
+    pattern: '/learn/courses/:course_id/lessons/:lesson_id/answers/:id'
+    types: {
+      body: ExtractBody<InferInput<(typeof import('#validators/admin/learn/answer').updateAnswerValidator)>>
+      paramsTuple: [ParamValue, ParamValue, ParamValue]
+      params: { course_id: ParamValue; lesson_id: ParamValue; id: ParamValue }
+      query: ExtractQuery<InferInput<(typeof import('#validators/admin/learn/answer').updateAnswerValidator)>>
+      response: ExtractResponse<Awaited<ReturnType<import('#controllers/learn/answers_controller').default['update']>>>
+      errorResponse: ExtractErrorResponse<Awaited<ReturnType<import('#controllers/learn/answers_controller').default['update']>>> | { status: 422; response: { errors: SimpleError[] } }
+    }
+  }
+  'learn.courses.lessons.answers.destroy': {
+    methods: ["DELETE"]
+    pattern: '/learn/courses/:course_id/lessons/:lesson_id/answers/:id'
+    types: {
+      body: {}
+      paramsTuple: [ParamValue, ParamValue, ParamValue]
+      params: { course_id: ParamValue; lesson_id: ParamValue; id: ParamValue }
+      query: {}
+      response: ExtractResponse<Awaited<ReturnType<import('#controllers/learn/answers_controller').default['destroy']>>>
+      errorResponse: ExtractErrorResponse<Awaited<ReturnType<import('#controllers/learn/answers_controller').default['destroy']>>>
+    }
+  }
+  'learn.courses.lessons.quizzes.store': {
+    methods: ["POST"]
+    pattern: '/learn/courses/:course_id/lessons/:lesson_id/quizzes'
+    types: {
+      body: ExtractBody<InferInput<(typeof import('#validators/learn/quiz').storeQuizValidator)>>
+      paramsTuple: [ParamValue, ParamValue]
+      params: { course_id: ParamValue; lesson_id: ParamValue }
+      query: ExtractQuery<InferInput<(typeof import('#validators/learn/quiz').storeQuizValidator)>>
+      response: ExtractResponse<Awaited<ReturnType<import('#controllers/learn/quizzes_controller').default['store']>>>
+      errorResponse: ExtractErrorResponse<Awaited<ReturnType<import('#controllers/learn/quizzes_controller').default['store']>>> | { status: 422; response: { errors: SimpleError[] } }
+    }
+  }
+  'learn.courses.lessons.quizzes.show': {
+    methods: ["GET","HEAD"]
+    pattern: '/learn/courses/:course_id/lessons/:lesson_id/quizzes/:id'
+    types: {
+      body: {}
+      paramsTuple: [ParamValue, ParamValue, ParamValue]
+      params: { course_id: ParamValue; lesson_id: ParamValue; id: ParamValue }
+      query: {}
+      response: ExtractResponse<Awaited<ReturnType<import('#controllers/learn/quizzes_controller').default['show']>>>
+      errorResponse: ExtractErrorResponse<Awaited<ReturnType<import('#controllers/learn/quizzes_controller').default['show']>>>
+    }
+  }
+  'learn.courses.lessons.quizzes.index': {
+    methods: ["GET","HEAD"]
+    pattern: '/learn/courses/:course_id/lessons/:lesson_id/quizzes'
+    types: {
+      body: {}
+      paramsTuple: [ParamValue, ParamValue]
+      params: { course_id: ParamValue; lesson_id: ParamValue }
+      query: {}
+      response: ExtractResponse<Awaited<ReturnType<import('#controllers/learn/quizzes_controller').default['index']>>>
+      errorResponse: ExtractErrorResponse<Awaited<ReturnType<import('#controllers/learn/quizzes_controller').default['index']>>>
+    }
+  }
+  'learn.courses.lessons.quizzes.update': {
+    methods: ["PUT","PATCH"]
+    pattern: '/learn/courses/:course_id/lessons/:lesson_id/quizzes/:id'
+    types: {
+      body: ExtractBody<InferInput<(typeof import('#validators/admin/learn/quiz').updateQuizValidator)>>
+      paramsTuple: [ParamValue, ParamValue, ParamValue]
+      params: { course_id: ParamValue; lesson_id: ParamValue; id: ParamValue }
+      query: ExtractQuery<InferInput<(typeof import('#validators/admin/learn/quiz').updateQuizValidator)>>
+      response: ExtractResponse<Awaited<ReturnType<import('#controllers/learn/quizzes_controller').default['update']>>>
+      errorResponse: ExtractErrorResponse<Awaited<ReturnType<import('#controllers/learn/quizzes_controller').default['update']>>> | { status: 422; response: { errors: SimpleError[] } }
+    }
+  }
+  'learn.courses.lessons.quizzes.destroy': {
+    methods: ["DELETE"]
+    pattern: '/learn/courses/:course_id/lessons/:lesson_id/quizzes/:id'
+    types: {
+      body: {}
+      paramsTuple: [ParamValue, ParamValue, ParamValue]
+      params: { course_id: ParamValue; lesson_id: ParamValue; id: ParamValue }
+      query: {}
+      response: ExtractResponse<Awaited<ReturnType<import('#controllers/learn/quizzes_controller').default['destroy']>>>
+      errorResponse: ExtractErrorResponse<Awaited<ReturnType<import('#controllers/learn/quizzes_controller').default['destroy']>>>
+    }
+  }
   'admin.content.posts.import': {
     methods: ["POST"]
     pattern: '/admin/content/posts/import'
@@ -821,6 +1277,402 @@ export interface Registry {
       query: {}
       response: ExtractResponse<Awaited<ReturnType<import('#controllers/admin/store/shipping_rules_controller').default['destroy']>>>
       errorResponse: ExtractErrorResponse<Awaited<ReturnType<import('#controllers/admin/store/shipping_rules_controller').default['destroy']>>>
+    }
+  }
+  'admin.learn.courses.index': {
+    methods: ["GET","HEAD"]
+    pattern: '/admin/learn/courses'
+    types: {
+      body: {}
+      paramsTuple: []
+      params: {}
+      query: {}
+      response: ExtractResponse<Awaited<ReturnType<import('#controllers/admin/learn/courses_controller').default['index']>>>
+      errorResponse: ExtractErrorResponse<Awaited<ReturnType<import('#controllers/admin/learn/courses_controller').default['index']>>>
+    }
+  }
+  'admin.learn.courses.store': {
+    methods: ["POST"]
+    pattern: '/admin/learn/courses'
+    types: {
+      body: ExtractBody<InferInput<(typeof import('#validators/admin/learn/course').storeCourseValidator)>>
+      paramsTuple: []
+      params: {}
+      query: ExtractQuery<InferInput<(typeof import('#validators/admin/learn/course').storeCourseValidator)>>
+      response: ExtractResponse<Awaited<ReturnType<import('#controllers/admin/learn/courses_controller').default['store']>>>
+      errorResponse: ExtractErrorResponse<Awaited<ReturnType<import('#controllers/admin/learn/courses_controller').default['store']>>> | { status: 422; response: { errors: SimpleError[] } }
+    }
+  }
+  'admin.learn.courses.show': {
+    methods: ["GET","HEAD"]
+    pattern: '/admin/learn/courses/:id'
+    types: {
+      body: {}
+      paramsTuple: [ParamValue]
+      params: { id: ParamValue }
+      query: {}
+      response: ExtractResponse<Awaited<ReturnType<import('#controllers/admin/learn/courses_controller').default['show']>>>
+      errorResponse: ExtractErrorResponse<Awaited<ReturnType<import('#controllers/admin/learn/courses_controller').default['show']>>>
+    }
+  }
+  'admin.learn.courses.update': {
+    methods: ["PUT","PATCH"]
+    pattern: '/admin/learn/courses/:id'
+    types: {
+      body: ExtractBody<InferInput<(typeof import('#validators/admin/learn/course').updateCourseValidator)>>
+      paramsTuple: [ParamValue]
+      params: { id: ParamValue }
+      query: ExtractQuery<InferInput<(typeof import('#validators/admin/learn/course').updateCourseValidator)>>
+      response: ExtractResponse<Awaited<ReturnType<import('#controllers/admin/learn/courses_controller').default['update']>>>
+      errorResponse: ExtractErrorResponse<Awaited<ReturnType<import('#controllers/admin/learn/courses_controller').default['update']>>> | { status: 422; response: { errors: SimpleError[] } }
+    }
+  }
+  'admin.learn.courses.destroy': {
+    methods: ["DELETE"]
+    pattern: '/admin/learn/courses/:id'
+    types: {
+      body: {}
+      paramsTuple: [ParamValue]
+      params: { id: ParamValue }
+      query: {}
+      response: ExtractResponse<Awaited<ReturnType<import('#controllers/admin/learn/courses_controller').default['destroy']>>>
+      errorResponse: ExtractErrorResponse<Awaited<ReturnType<import('#controllers/admin/learn/courses_controller').default['destroy']>>>
+    }
+  }
+  'admin.learn.courses.lessons.index': {
+    methods: ["GET","HEAD"]
+    pattern: '/admin/learn/courses/:course_id/lessons'
+    types: {
+      body: {}
+      paramsTuple: [ParamValue]
+      params: { course_id: ParamValue }
+      query: {}
+      response: ExtractResponse<Awaited<ReturnType<import('#controllers/admin/learn/lessons_controller').default['index']>>>
+      errorResponse: ExtractErrorResponse<Awaited<ReturnType<import('#controllers/admin/learn/lessons_controller').default['index']>>>
+    }
+  }
+  'admin.learn.courses.lessons.store': {
+    methods: ["POST"]
+    pattern: '/admin/learn/courses/:course_id/lessons'
+    types: {
+      body: ExtractBody<InferInput<(typeof import('#validators/admin/learn/lesson').storeLessonValidator)>>
+      paramsTuple: [ParamValue]
+      params: { course_id: ParamValue }
+      query: ExtractQuery<InferInput<(typeof import('#validators/admin/learn/lesson').storeLessonValidator)>>
+      response: ExtractResponse<Awaited<ReturnType<import('#controllers/admin/learn/lessons_controller').default['store']>>>
+      errorResponse: ExtractErrorResponse<Awaited<ReturnType<import('#controllers/admin/learn/lessons_controller').default['store']>>> | { status: 422; response: { errors: SimpleError[] } }
+    }
+  }
+  'admin.learn.courses.lessons.show': {
+    methods: ["GET","HEAD"]
+    pattern: '/admin/learn/courses/:course_id/lessons/:id'
+    types: {
+      body: {}
+      paramsTuple: [ParamValue, ParamValue]
+      params: { course_id: ParamValue; id: ParamValue }
+      query: {}
+      response: ExtractResponse<Awaited<ReturnType<import('#controllers/admin/learn/lessons_controller').default['show']>>>
+      errorResponse: ExtractErrorResponse<Awaited<ReturnType<import('#controllers/admin/learn/lessons_controller').default['show']>>>
+    }
+  }
+  'admin.learn.courses.lessons.update': {
+    methods: ["PUT","PATCH"]
+    pattern: '/admin/learn/courses/:course_id/lessons/:id'
+    types: {
+      body: ExtractBody<InferInput<(typeof import('#validators/admin/learn/lesson').updateLessonValidator)>>
+      paramsTuple: [ParamValue, ParamValue]
+      params: { course_id: ParamValue; id: ParamValue }
+      query: ExtractQuery<InferInput<(typeof import('#validators/admin/learn/lesson').updateLessonValidator)>>
+      response: ExtractResponse<Awaited<ReturnType<import('#controllers/admin/learn/lessons_controller').default['update']>>>
+      errorResponse: ExtractErrorResponse<Awaited<ReturnType<import('#controllers/admin/learn/lessons_controller').default['update']>>> | { status: 422; response: { errors: SimpleError[] } }
+    }
+  }
+  'admin.learn.courses.lessons.destroy': {
+    methods: ["DELETE"]
+    pattern: '/admin/learn/courses/:course_id/lessons/:id'
+    types: {
+      body: {}
+      paramsTuple: [ParamValue, ParamValue]
+      params: { course_id: ParamValue; id: ParamValue }
+      query: {}
+      response: ExtractResponse<Awaited<ReturnType<import('#controllers/admin/learn/lessons_controller').default['destroy']>>>
+      errorResponse: ExtractErrorResponse<Awaited<ReturnType<import('#controllers/admin/learn/lessons_controller').default['destroy']>>>
+    }
+  }
+  'admin.learn.courses.questions.index': {
+    methods: ["GET","HEAD"]
+    pattern: '/admin/learn/courses/:course_id/questions'
+    types: {
+      body: {}
+      paramsTuple: [ParamValue]
+      params: { course_id: ParamValue }
+      query: {}
+      response: ExtractResponse<Awaited<ReturnType<import('#controllers/admin/learn/questions_controller').default['index']>>>
+      errorResponse: ExtractErrorResponse<Awaited<ReturnType<import('#controllers/admin/learn/questions_controller').default['index']>>>
+    }
+  }
+  'admin.learn.courses.questions.store': {
+    methods: ["POST"]
+    pattern: '/admin/learn/courses/:course_id/questions'
+    types: {
+      body: ExtractBody<InferInput<(typeof import('#validators/admin/learn/question').storeQuestionValidator)>>
+      paramsTuple: [ParamValue]
+      params: { course_id: ParamValue }
+      query: ExtractQuery<InferInput<(typeof import('#validators/admin/learn/question').storeQuestionValidator)>>
+      response: ExtractResponse<Awaited<ReturnType<import('#controllers/admin/learn/questions_controller').default['store']>>>
+      errorResponse: ExtractErrorResponse<Awaited<ReturnType<import('#controllers/admin/learn/questions_controller').default['store']>>> | { status: 422; response: { errors: SimpleError[] } }
+    }
+  }
+  'admin.learn.courses.questions.show': {
+    methods: ["GET","HEAD"]
+    pattern: '/admin/learn/courses/:course_id/questions/:id'
+    types: {
+      body: {}
+      paramsTuple: [ParamValue, ParamValue]
+      params: { course_id: ParamValue; id: ParamValue }
+      query: {}
+      response: ExtractResponse<Awaited<ReturnType<import('#controllers/admin/learn/questions_controller').default['show']>>>
+      errorResponse: ExtractErrorResponse<Awaited<ReturnType<import('#controllers/admin/learn/questions_controller').default['show']>>>
+    }
+  }
+  'admin.learn.courses.questions.update': {
+    methods: ["PUT","PATCH"]
+    pattern: '/admin/learn/courses/:course_id/questions/:id'
+    types: {
+      body: ExtractBody<InferInput<(typeof import('#validators/admin/learn/question').updateQuestionValidator)>>
+      paramsTuple: [ParamValue, ParamValue]
+      params: { course_id: ParamValue; id: ParamValue }
+      query: ExtractQuery<InferInput<(typeof import('#validators/admin/learn/question').updateQuestionValidator)>>
+      response: ExtractResponse<Awaited<ReturnType<import('#controllers/admin/learn/questions_controller').default['update']>>>
+      errorResponse: ExtractErrorResponse<Awaited<ReturnType<import('#controllers/admin/learn/questions_controller').default['update']>>> | { status: 422; response: { errors: SimpleError[] } }
+    }
+  }
+  'admin.learn.courses.questions.destroy': {
+    methods: ["DELETE"]
+    pattern: '/admin/learn/courses/:course_id/questions/:id'
+    types: {
+      body: {}
+      paramsTuple: [ParamValue, ParamValue]
+      params: { course_id: ParamValue; id: ParamValue }
+      query: {}
+      response: ExtractResponse<Awaited<ReturnType<import('#controllers/admin/learn/questions_controller').default['destroy']>>>
+      errorResponse: ExtractErrorResponse<Awaited<ReturnType<import('#controllers/admin/learn/questions_controller').default['destroy']>>>
+    }
+  }
+  'admin.learn.courses.lessons.exam_questions.index': {
+    methods: ["GET","HEAD"]
+    pattern: '/admin/learn/courses/:course_id/lessons/:lesson_id/exam-questions'
+    types: {
+      body: {}
+      paramsTuple: [ParamValue, ParamValue]
+      params: { course_id: ParamValue; lesson_id: ParamValue }
+      query: {}
+      response: ExtractResponse<Awaited<ReturnType<import('#controllers/admin/learn/lesson_exam_questions_controller').default['index']>>>
+      errorResponse: ExtractErrorResponse<Awaited<ReturnType<import('#controllers/admin/learn/lesson_exam_questions_controller').default['index']>>>
+    }
+  }
+  'admin.learn.courses.lessons.exam_questions.store': {
+    methods: ["POST"]
+    pattern: '/admin/learn/courses/:course_id/lessons/:lesson_id/exam-questions'
+    types: {
+      body: ExtractBody<InferInput<(typeof import('#validators/admin/learn/lesson_question').storeLessonQuestionValidator)>>
+      paramsTuple: [ParamValue, ParamValue]
+      params: { course_id: ParamValue; lesson_id: ParamValue }
+      query: ExtractQuery<InferInput<(typeof import('#validators/admin/learn/lesson_question').storeLessonQuestionValidator)>>
+      response: ExtractResponse<Awaited<ReturnType<import('#controllers/admin/learn/lesson_exam_questions_controller').default['store']>>>
+      errorResponse: ExtractErrorResponse<Awaited<ReturnType<import('#controllers/admin/learn/lesson_exam_questions_controller').default['store']>>> | { status: 422; response: { errors: SimpleError[] } }
+    }
+  }
+  'admin.learn.courses.lessons.exam_questions.destroy': {
+    methods: ["DELETE"]
+    pattern: '/admin/learn/courses/:course_id/lessons/:lesson_id/exam-questions/:id'
+    types: {
+      body: {}
+      paramsTuple: [ParamValue, ParamValue, ParamValue]
+      params: { course_id: ParamValue; lesson_id: ParamValue; id: ParamValue }
+      query: {}
+      response: ExtractResponse<Awaited<ReturnType<import('#controllers/admin/learn/lesson_exam_questions_controller').default['destroy']>>>
+      errorResponse: ExtractErrorResponse<Awaited<ReturnType<import('#controllers/admin/learn/lesson_exam_questions_controller').default['destroy']>>>
+    }
+  }
+  'admin.learn.courses.lessons.answers.index': {
+    methods: ["GET","HEAD"]
+    pattern: '/admin/learn/courses/:course_id/lessons/:lesson_id/answers'
+    types: {
+      body: {}
+      paramsTuple: [ParamValue, ParamValue]
+      params: { course_id: ParamValue; lesson_id: ParamValue }
+      query: {}
+      response: ExtractResponse<Awaited<ReturnType<import('#controllers/admin/learn/answers_controller').default['index']>>>
+      errorResponse: ExtractErrorResponse<Awaited<ReturnType<import('#controllers/admin/learn/answers_controller').default['index']>>>
+    }
+  }
+  'admin.learn.courses.lessons.answers.store': {
+    methods: ["POST"]
+    pattern: '/admin/learn/courses/:course_id/lessons/:lesson_id/answers'
+    types: {
+      body: ExtractBody<InferInput<(typeof import('#validators/admin/learn/answer').storeAnswerValidator)>>
+      paramsTuple: [ParamValue, ParamValue]
+      params: { course_id: ParamValue; lesson_id: ParamValue }
+      query: ExtractQuery<InferInput<(typeof import('#validators/admin/learn/answer').storeAnswerValidator)>>
+      response: ExtractResponse<Awaited<ReturnType<import('#controllers/admin/learn/answers_controller').default['store']>>>
+      errorResponse: ExtractErrorResponse<Awaited<ReturnType<import('#controllers/admin/learn/answers_controller').default['store']>>> | { status: 422; response: { errors: SimpleError[] } }
+    }
+  }
+  'admin.learn.courses.lessons.answers.show': {
+    methods: ["GET","HEAD"]
+    pattern: '/admin/learn/courses/:course_id/lessons/:lesson_id/answers/:id'
+    types: {
+      body: {}
+      paramsTuple: [ParamValue, ParamValue, ParamValue]
+      params: { course_id: ParamValue; lesson_id: ParamValue; id: ParamValue }
+      query: {}
+      response: ExtractResponse<Awaited<ReturnType<import('#controllers/admin/learn/answers_controller').default['show']>>>
+      errorResponse: ExtractErrorResponse<Awaited<ReturnType<import('#controllers/admin/learn/answers_controller').default['show']>>>
+    }
+  }
+  'admin.learn.courses.lessons.answers.update': {
+    methods: ["PUT","PATCH"]
+    pattern: '/admin/learn/courses/:course_id/lessons/:lesson_id/answers/:id'
+    types: {
+      body: ExtractBody<InferInput<(typeof import('#validators/admin/learn/answer').updateAnswerValidator)>>
+      paramsTuple: [ParamValue, ParamValue, ParamValue]
+      params: { course_id: ParamValue; lesson_id: ParamValue; id: ParamValue }
+      query: ExtractQuery<InferInput<(typeof import('#validators/admin/learn/answer').updateAnswerValidator)>>
+      response: ExtractResponse<Awaited<ReturnType<import('#controllers/admin/learn/answers_controller').default['update']>>>
+      errorResponse: ExtractErrorResponse<Awaited<ReturnType<import('#controllers/admin/learn/answers_controller').default['update']>>> | { status: 422; response: { errors: SimpleError[] } }
+    }
+  }
+  'admin.learn.courses.lessons.answers.destroy': {
+    methods: ["DELETE"]
+    pattern: '/admin/learn/courses/:course_id/lessons/:lesson_id/answers/:id'
+    types: {
+      body: {}
+      paramsTuple: [ParamValue, ParamValue, ParamValue]
+      params: { course_id: ParamValue; lesson_id: ParamValue; id: ParamValue }
+      query: {}
+      response: ExtractResponse<Awaited<ReturnType<import('#controllers/admin/learn/answers_controller').default['destroy']>>>
+      errorResponse: ExtractErrorResponse<Awaited<ReturnType<import('#controllers/admin/learn/answers_controller').default['destroy']>>>
+    }
+  }
+  'admin.learn.courses.lessons.quizzes.index': {
+    methods: ["GET","HEAD"]
+    pattern: '/admin/learn/courses/:course_id/lessons/:lesson_id/quizzes'
+    types: {
+      body: {}
+      paramsTuple: [ParamValue, ParamValue]
+      params: { course_id: ParamValue; lesson_id: ParamValue }
+      query: {}
+      response: ExtractResponse<Awaited<ReturnType<import('#controllers/admin/learn/quizzes_controller').default['index']>>>
+      errorResponse: ExtractErrorResponse<Awaited<ReturnType<import('#controllers/admin/learn/quizzes_controller').default['index']>>>
+    }
+  }
+  'admin.learn.courses.lessons.quizzes.show': {
+    methods: ["GET","HEAD"]
+    pattern: '/admin/learn/courses/:course_id/lessons/:lesson_id/quizzes/:id'
+    types: {
+      body: {}
+      paramsTuple: [ParamValue, ParamValue, ParamValue]
+      params: { course_id: ParamValue; lesson_id: ParamValue; id: ParamValue }
+      query: {}
+      response: ExtractResponse<Awaited<ReturnType<import('#controllers/admin/learn/quizzes_controller').default['show']>>>
+      errorResponse: ExtractErrorResponse<Awaited<ReturnType<import('#controllers/admin/learn/quizzes_controller').default['show']>>>
+    }
+  }
+  'admin.learn.courses.lessons.quizzes.update': {
+    methods: ["PUT","PATCH"]
+    pattern: '/admin/learn/courses/:course_id/lessons/:lesson_id/quizzes/:id'
+    types: {
+      body: ExtractBody<InferInput<(typeof import('#validators/admin/learn/quiz').updateQuizValidator)>>
+      paramsTuple: [ParamValue, ParamValue, ParamValue]
+      params: { course_id: ParamValue; lesson_id: ParamValue; id: ParamValue }
+      query: ExtractQuery<InferInput<(typeof import('#validators/admin/learn/quiz').updateQuizValidator)>>
+      response: ExtractResponse<Awaited<ReturnType<import('#controllers/admin/learn/quizzes_controller').default['update']>>>
+      errorResponse: ExtractErrorResponse<Awaited<ReturnType<import('#controllers/admin/learn/quizzes_controller').default['update']>>> | { status: 422; response: { errors: SimpleError[] } }
+    }
+  }
+  'admin.learn.courses.lessons.quizzes.destroy': {
+    methods: ["DELETE"]
+    pattern: '/admin/learn/courses/:course_id/lessons/:lesson_id/quizzes/:id'
+    types: {
+      body: {}
+      paramsTuple: [ParamValue, ParamValue, ParamValue]
+      params: { course_id: ParamValue; lesson_id: ParamValue; id: ParamValue }
+      query: {}
+      response: ExtractResponse<Awaited<ReturnType<import('#controllers/admin/learn/quizzes_controller').default['destroy']>>>
+      errorResponse: ExtractErrorResponse<Awaited<ReturnType<import('#controllers/admin/learn/quizzes_controller').default['destroy']>>>
+    }
+  }
+  'admin.learn.enrollments.index': {
+    methods: ["GET","HEAD"]
+    pattern: '/admin/learn/enrollments'
+    types: {
+      body: {}
+      paramsTuple: []
+      params: {}
+      query: {}
+      response: ExtractResponse<Awaited<ReturnType<import('#controllers/admin/learn/enrollments_controller').default['index']>>>
+      errorResponse: ExtractErrorResponse<Awaited<ReturnType<import('#controllers/admin/learn/enrollments_controller').default['index']>>>
+    }
+  }
+  'admin.learn.enrollments.store': {
+    methods: ["POST"]
+    pattern: '/admin/learn/enrollments'
+    types: {
+      body: ExtractBody<InferInput<(typeof import('#validators/admin/learn/enrollment').storeEnrollmentValidator)>>
+      paramsTuple: []
+      params: {}
+      query: ExtractQuery<InferInput<(typeof import('#validators/admin/learn/enrollment').storeEnrollmentValidator)>>
+      response: ExtractResponse<Awaited<ReturnType<import('#controllers/admin/learn/enrollments_controller').default['store']>>>
+      errorResponse: ExtractErrorResponse<Awaited<ReturnType<import('#controllers/admin/learn/enrollments_controller').default['store']>>> | { status: 422; response: { errors: SimpleError[] } }
+    }
+  }
+  'admin.learn.enrollments.show': {
+    methods: ["GET","HEAD"]
+    pattern: '/admin/learn/enrollments/:id'
+    types: {
+      body: {}
+      paramsTuple: [ParamValue]
+      params: { id: ParamValue }
+      query: {}
+      response: ExtractResponse<Awaited<ReturnType<import('#controllers/admin/learn/enrollments_controller').default['show']>>>
+      errorResponse: ExtractErrorResponse<Awaited<ReturnType<import('#controllers/admin/learn/enrollments_controller').default['show']>>>
+    }
+  }
+  'admin.learn.enrollments.update': {
+    methods: ["PUT","PATCH"]
+    pattern: '/admin/learn/enrollments/:id'
+    types: {
+      body: ExtractBody<InferInput<(typeof import('#validators/admin/learn/enrollment').updateEnrollmentValidator)>>
+      paramsTuple: [ParamValue]
+      params: { id: ParamValue }
+      query: ExtractQuery<InferInput<(typeof import('#validators/admin/learn/enrollment').updateEnrollmentValidator)>>
+      response: ExtractResponse<Awaited<ReturnType<import('#controllers/admin/learn/enrollments_controller').default['update']>>>
+      errorResponse: ExtractErrorResponse<Awaited<ReturnType<import('#controllers/admin/learn/enrollments_controller').default['update']>>> | { status: 422; response: { errors: SimpleError[] } }
+    }
+  }
+  'admin.learn.enrollments.destroy': {
+    methods: ["DELETE"]
+    pattern: '/admin/learn/enrollments/:id'
+    types: {
+      body: {}
+      paramsTuple: [ParamValue]
+      params: { id: ParamValue }
+      query: {}
+      response: ExtractResponse<Awaited<ReturnType<import('#controllers/admin/learn/enrollments_controller').default['destroy']>>>
+      errorResponse: ExtractErrorResponse<Awaited<ReturnType<import('#controllers/admin/learn/enrollments_controller').default['destroy']>>>
+    }
+  }
+  'admin.learn.site_users.index': {
+    methods: ["GET","HEAD"]
+    pattern: '/admin/learn/site-users'
+    types: {
+      body: {}
+      paramsTuple: []
+      params: {}
+      query: {}
+      response: ExtractResponse<Awaited<ReturnType<import('#controllers/admin/learn/site_users_controller').default['index']>>>
+      errorResponse: ExtractErrorResponse<Awaited<ReturnType<import('#controllers/admin/learn/site_users_controller').default['index']>>>
     }
   }
 }

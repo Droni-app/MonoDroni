@@ -79,10 +79,7 @@ router
     router.resource('products', controllers.store.Products).only(['index', 'show'])
 
     // Authenticated: user's own addresses, orders, payments
-    router
-      .resource('addresses', controllers.store.Addresses)
-      .apiOnly()
-      .use('*', middleware.auth())
+    router.resource('addresses', controllers.store.Addresses).apiOnly().use('*', middleware.auth())
     router
       .resource('orders', controllers.store.Orders)
       .only(['index', 'store', 'show'])
@@ -94,6 +91,96 @@ router
   })
   .prefix('store')
   .as('store')
+
+// Learn public + course-role routes
+router
+  .group(() => {
+    // Public: course catalog (active only)
+    router.resource('courses', controllers.learn.Courses).only(['index', 'show'])
+
+    // Lessons: public sees active lessons; teachers/admins (course role) see all and can manage
+    router.resource('courses.lessons', controllers.learn.Lessons).only(['index', 'show'])
+    router
+      .resource('courses.lessons', controllers.learn.Lessons)
+      .only(['store', 'update'])
+      .use('*', middleware.auth())
+      .use('*', middleware.courseRole({ roles: ['teacher', 'admin'] }))
+    router
+      .resource('courses.lessons', controllers.learn.Lessons)
+      .only(['destroy'])
+      .use('*', middleware.auth())
+      .use('*', middleware.courseRole({ roles: ['admin'] }))
+
+    // Question bank: teacher/admin only, no public access
+    router
+      .resource('courses.questions', controllers.learn.Questions)
+      .only(['index', 'show', 'update'])
+      .use('*', middleware.auth())
+      .use('*', middleware.courseRole({ roles: ['teacher', 'admin'] }))
+    router
+      .resource('courses.questions', controllers.learn.Questions)
+      .only(['store', 'destroy'])
+      .use('*', middleware.auth())
+      .use('*', middleware.courseRole({ roles: ['admin'] }))
+
+    // Enrollments: any authenticated user can self-enroll when auto_enroll is on;
+    // roster visibility is restricted to the course's teachers/admins
+    router
+      .resource('courses.enrollments', controllers.learn.Enrollments)
+      .only(['store'])
+      .use('*', middleware.auth())
+    router
+      .resource('courses.enrollments', controllers.learn.Enrollments)
+      .only(['index', 'show'])
+      .use('*', middleware.auth())
+      .use('*', middleware.courseRole({ roles: ['teacher', 'admin'] }))
+
+    // Lesson activity answers: students submit/see their own, teachers/admins review & grade
+    router
+      .resource('courses.lessons.answers', controllers.learn.Answers)
+      .only(['store'])
+      .use('*', middleware.auth())
+      .use('*', middleware.courseRole({ roles: ['student'] }))
+    router
+      .resource('courses.lessons.answers', controllers.learn.Answers)
+      .only(['show'])
+      .use('*', middleware.auth())
+      .use('*', middleware.courseRole({ roles: ['student', 'teacher', 'admin'] }))
+    router
+      .resource('courses.lessons.answers', controllers.learn.Answers)
+      .only(['index', 'update'])
+      .use('*', middleware.auth())
+      .use('*', middleware.courseRole({ roles: ['teacher', 'admin'] }))
+    router
+      .resource('courses.lessons.answers', controllers.learn.Answers)
+      .only(['destroy'])
+      .use('*', middleware.auth())
+      .use('*', middleware.courseRole({ roles: ['admin'] }))
+
+    // Lesson quizzes: students submit/see their own attempts, teachers/admins review & grade
+    router
+      .resource('courses.lessons.quizzes', controllers.learn.Quizzes)
+      .only(['store'])
+      .use('*', middleware.auth())
+      .use('*', middleware.courseRole({ roles: ['student'] }))
+    router
+      .resource('courses.lessons.quizzes', controllers.learn.Quizzes)
+      .only(['show'])
+      .use('*', middleware.auth())
+      .use('*', middleware.courseRole({ roles: ['student', 'teacher', 'admin'] }))
+    router
+      .resource('courses.lessons.quizzes', controllers.learn.Quizzes)
+      .only(['index', 'update'])
+      .use('*', middleware.auth())
+      .use('*', middleware.courseRole({ roles: ['teacher', 'admin'] }))
+    router
+      .resource('courses.lessons.quizzes', controllers.learn.Quizzes)
+      .only(['destroy'])
+      .use('*', middleware.auth())
+      .use('*', middleware.courseRole({ roles: ['admin'] }))
+  })
+  .prefix('learn')
+  .as('learn')
 
 // Admin routes
 router
@@ -133,9 +220,7 @@ router
         router
           .resource('products.attributes', controllers.admin.store.ProductAttributes)
           .only(['index', 'store', 'destroy'])
-        router
-          .resource('orders', controllers.admin.store.Orders)
-          .only(['index', 'show', 'update'])
+        router.resource('orders', controllers.admin.store.Orders).only(['index', 'show', 'update'])
         router
           .resource('payments', controllers.admin.store.Payments)
           .only(['index', 'show', 'update'])
@@ -144,6 +229,25 @@ router
       })
       .prefix('store')
       .as('store')
+
+    // Learn module
+    router
+      .group(() => {
+        router.resource('courses', controllers.admin.learn.Courses).apiOnly()
+        router.resource('courses.lessons', controllers.admin.learn.Lessons).apiOnly()
+        router.resource('courses.questions', controllers.admin.learn.Questions).apiOnly()
+        router
+          .resource('courses.lessons.exam-questions', controllers.admin.learn.LessonExamQuestions)
+          .only(['index', 'store', 'destroy'])
+        router.resource('courses.lessons.answers', controllers.admin.learn.Answers).apiOnly()
+        router
+          .resource('courses.lessons.quizzes', controllers.admin.learn.Quizzes)
+          .only(['index', 'show', 'update', 'destroy'])
+        router.resource('enrollments', controllers.admin.learn.Enrollments).apiOnly()
+        router.get('site-users', [controllers.admin.learn.SiteUsers, 'index'])
+      })
+      .prefix('learn')
+      .as('learn')
   })
   .use(middleware.auth())
   .use(middleware.adminSite())

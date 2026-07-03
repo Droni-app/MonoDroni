@@ -38,6 +38,13 @@ const items = [
       { label: 'Reglas de envío', to: '/store/shipping-rules' },
     ],
   },
+  {
+    label: 'Learn',
+    children: [
+      { label: 'Cursos', to: '/learn/courses' },
+      { label: 'Inscripciones', to: '/learn/enrollments' },
+    ],
+  },
 ]
 
 function handleLogout() {

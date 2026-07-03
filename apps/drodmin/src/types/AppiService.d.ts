@@ -260,3 +260,151 @@ export interface StoreShippingRule {
   state?: StoreState | null
   city?: StoreCity | null
 }
+
+// Learn module types
+
+export interface LearnCourse {
+  id: string
+  siteId?: string
+  slug: string
+  name: string
+  group: string | null
+  description: string | null
+  picture: string | null
+  video: string | null
+  autoEnroll: boolean
+  active: boolean
+  createdAt: string
+  updatedAt: string
+}
+
+export interface LearnCourseFormData {
+  name: string
+  group: string | null
+  description: string | null
+  picture: string | null
+  video: string | null
+  auto_enroll: boolean
+  active: boolean
+}
+
+export interface LearnLesson {
+  id: string
+  courseId: string
+  slug: string
+  name: string
+  description: string | null
+  format: 'text' | 'html' | 'markdown'
+  content: string | null
+  activity: string | null
+  video: string | null
+  order: number
+  active: boolean
+  limitDate: string | null
+  createdAt: string
+  updatedAt: string
+}
+
+export interface LearnLessonFormData {
+  name: string
+  description: string | null
+  format: 'text' | 'html' | 'markdown'
+  content: string | null
+  activity: string | null
+  video: string | null
+  order: number
+  active: boolean
+  limit_date: string | null
+}
+
+export interface LearnQuestion {
+  id: string
+  courseId: string
+  name: string
+  description: string | null
+  picture: string | null
+  attachment: string | null
+  response1: string
+  response2: string
+  response3: string | null
+  response4: string | null
+  response5: string | null
+  responseCorrect: number
+  wons: number
+  losses: number
+  difficulty: number
+  createdAt: string
+  updatedAt: string
+}
+
+export interface LearnQuestionFormData {
+  name: string
+  description: string | null
+  picture: string | null
+  attachment: string | null
+  response_1: string
+  response_2: string
+  response_3: string | null
+  response_4: string | null
+  response_5: string | null
+  response_correct: number
+}
+
+export interface LearnLessonQuestion {
+  id: string
+  lessonId: string
+  questionId: string
+  question?: LearnQuestion
+}
+
+export interface LearnLessonAnswer {
+  id: string
+  lessonId: string
+  learnEnrollmentId: string
+  answer: string
+  attachment: string | null
+  feedback: string | null
+  result: number | null
+  createdAt: string
+  updatedAt: string
+  enrollment?: Pick<LearnEnrollment, 'id' | 'userId'> & { user?: EmbeddedUser }
+}
+
+export interface LearnLessonQuestionsQuiz {
+  id: string
+  lessonId: string
+  learnEnrollmentId: string
+  questions: { id: string; name: string; response_correct: number }[]
+  answers: { question_id: string; selected: number; correct: boolean }[]
+  status: 'pending' | 'completed'
+  results: number | null
+  createdAt: string
+  updatedAt: string
+  enrollment?: Pick<LearnEnrollment, 'id' | 'userId'> & { user?: EmbeddedUser }
+}
+
+export interface LearnEnrollment {
+  id: string
+  courseId: string
+  userId: string
+  role: 'student' | 'teacher' | 'admin'
+  status: 'pending' | 'active' | 'completed' | 'canceled'
+  progress: number
+  createdAt: string
+  updatedAt: string
+  user?: EmbeddedUser
+  course?: Pick<LearnCourse, 'id' | 'name' | 'slug' | 'group'>
+}
+
+export interface LearnEnrollmentFormData {
+  course_id: string
+  user_id: string
+  role: 'student' | 'teacher' | 'admin'
+  status: 'pending' | 'active' | 'completed' | 'canceled'
+}
+
+export interface SiteUser {
+  id: string
+  fullName: string | null
+  email: string
+}

@@ -1,0 +1,33 @@
+import { BaseSchema } from '@adonisjs/lucid/schema'
+
+export default class extends BaseSchema {
+  protected tableName = 'learn_lesson_questions_quizzes'
+
+  async up() {
+    this.schema.createTable(this.tableName, (table) => {
+      table.uuid('id').primary()
+      table
+        .uuid('lesson_id')
+        .notNullable()
+        .references('id')
+        .inTable('learn_lessons')
+        .onDelete('CASCADE')
+      table
+        .uuid('learn_enrollment_id')
+        .notNullable()
+        .references('id')
+        .inTable('learn_enrollments')
+        .onDelete('CASCADE')
+      table.json('questions').notNullable()
+      table.json('answers').notNullable()
+      table.enum('status', ['pending', 'completed']).notNullable().defaultTo('pending')
+      table.decimal('results', 5, 2).nullable()
+      table.timestamp('created_at')
+      table.timestamp('updated_at')
+    })
+  }
+
+  async down() {
+    this.schema.dropTable(this.tableName)
+  }
+}
