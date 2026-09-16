@@ -23,7 +23,7 @@
           to="/"
           class="flex items-center gap-1 text-sm text-slate-700 dark:text-slate-300 border border-slate-300 dark:border-slate-600 rounded-full px-2 py-0.5 hover:text-pink-600 transition"
         >
-          <img :src="user?.avatar ?? ''" alt="" class="w-5 h-5 rounded-full">
+          <img v-if="user?.avatar" :src="user.avatar" alt="" class="w-5 h-5 rounded-full">
           <span>{{ displayName }}</span>
         </NuxtLink>
         <NuxtLink
