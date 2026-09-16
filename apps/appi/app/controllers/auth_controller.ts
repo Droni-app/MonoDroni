@@ -28,6 +28,25 @@ export default class AuthController {
       }
     )
 
+    const verificationUrl = signedUrlFor(
+      'auth.validate',
+      {
+        enrollmentId: enrollment.id,
+      },
+      {
+        expiresIn: '1 days',
+        prefixUrl: process.env.APP_URL,
+      }
+    )
+
+    await mail.send((message) => {
+      message
+        .to(user.email)
+        .from('noreply@droni.co', site.name)
+        .subject(`Bienvenido a ${site.name}`)
+        .htmlView('emails/welcome', { user, site, verificationUrl })
+    })
+
     return {
       user: user,
       enrollment: enrollment,
