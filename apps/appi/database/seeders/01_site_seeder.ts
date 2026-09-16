@@ -21,6 +21,15 @@ export default class SiteSeeder extends BaseSeeder {
       }
     )
 
+    const student = await User.firstOrCreate(
+      { email: 'student@droni.co' },
+      {
+        fullName: 'Gustavo Barragan',
+        email: 'student@droni.co',
+        password: 'password',
+      }
+    )
+
     await Enrollment.updateOrCreate(
       { siteId: site.id, userId: user.id },
       {
@@ -28,6 +37,16 @@ export default class SiteSeeder extends BaseSeeder {
         siteId: site.id,
         userId: user.id,
         role: 'owner',
+      }
+    )
+
+    await Enrollment.updateOrCreate(
+      { siteId: site.id, userId: user.id },
+      {
+        id: '4ebaccf5-b863-4f12-aa49-9bbe0e1844e2',
+        siteId: site.id,
+        userId: student.id,
+        role: 'user',
       }
     )
   }

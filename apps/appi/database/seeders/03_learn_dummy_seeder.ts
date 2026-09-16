@@ -1,14 +1,19 @@
 import { BaseSeeder } from '@adonisjs/lucid/seeders'
-import db from '@adonisjs/lucid/services/db'
 import string from '@adonisjs/core/helpers/string'
+import { DateTime } from 'luxon'
+import User from '#models/user'
+import LearnCourse from '#models/learn/course'
+import LearnLesson from '#models/learn/lesson'
+import LearnQuestion from '#models/learn/question'
+import LearnLessonQuestion from '#models/learn/lesson_question'
+import LearnEnrollment from '#models/learn/enrollment'
+import LearnLessonView from '#models/learn/lesson_view'
+import LearnLessonAnswer from '#models/learn/lesson_answer'
+import LearnLessonQuestionsQuiz from '#models/learn/lesson_questions_quiz'
 
 const SITE_ID = '4ebaccf5-b863-4f12-aa49-9bbe0e1844e2'
-const OWNER_USER_ID = '16e76a82-d316-4aec-83ca-70197b0b2b7e' // dev@droni.co
-const STUDENT_USER_ID = 'e68e40f8-bd28-4180-a2a9-e58459848a97' // kalvinmanson@gmail.com
-
-function uuid() {
-  return crypto.randomUUID()
-}
+const ownerUser = await User.firstOrFail()
+const studentUser = await User.firstOrFail()
 
 export default class LearnDummySeeder extends BaseSeeder {
   async run() {
@@ -19,23 +24,23 @@ export default class LearnDummySeeder extends BaseSeeder {
 
   // Course 1: auto-enroll, fully populated with views/answers/quiz attempt
   private async seedJavascriptCourse() {
-    const courseId = uuid()
-    await db.table('learn_courses').insert({
-      id: courseId,
-      site_id: SITE_ID,
-      slug: string.slug('Fundamentos de JavaScript'),
-      name: 'Fundamentos de JavaScript',
-      group: 'Programación',
-      description:
-        'Aprende las bases del lenguaje que corre en todos lados: variables, funciones, scope y tu primer proyecto.',
-      picture:
-        'https://dronico.nyc3.digitaloceanspaces.com/4ebaccf5-b863-4f12-aa49-9bbe0e1844e2/db7d4d54-7354-4421-9682-d1b75b1f1413/74529-dronico-card.png.png',
-      video: 'https://www.youtube.com/watch?v=W6NZfCO5SIk',
-      auto_enroll: 1,
-      active: 1,
-      created_at: new Date(),
-      updated_at: new Date(),
-    })
+    const course = await LearnCourse.firstOrCreate(
+      { siteId: SITE_ID, slug: string.slug('Fundamentos de JavaScript') },
+      {
+        siteId: SITE_ID,
+        slug: string.slug('Fundamentos de JavaScript'),
+        name: 'Fundamentos de JavaScript',
+        group: 'Programación',
+        description:
+          'Aprende las bases del lenguaje que corre en todos lados: variables, funciones, scope y tu primer proyecto.',
+        picture:
+          'https://dronico.nyc3.digitaloceanspaces.com/4ebaccf5-b863-4f12-aa49-9bbe0e1844e2/db7d4d54-7354-4421-9682-d1b75b1f1413/74529-dronico-card.png.png',
+        video: 'https://www.youtube.com/watch?v=W6NZfCO5SIk',
+        autoEnroll: true,
+        active: true,
+      }
+    )
+    const courseId = course.id
 
     const lessons = [
       {
@@ -69,7 +74,7 @@ export default class LearnDummySeeder extends BaseSeeder {
         content: '# Proyecto final\n\nEs momento de poner en práctica lo aprendido...',
         activity: 'Sube el enlace a tu repositorio con la calculadora funcionando.',
         order: 4,
-        limitDate: new Date(Date.now() + 1000 * 60 * 60 * 24 * 30), // 30 days from now
+        limitDate: DateTime.now().plus({ days: 30 }), // 30 days from now
       },
       {
         name: 'Lección en revisión (borrador)',
@@ -84,24 +89,23 @@ export default class LearnDummySeeder extends BaseSeeder {
 
     const lessonIds: string[] = []
     for (const lesson of lessons) {
-      const id = uuid()
-      lessonIds.push(id)
-      await db.table('learn_lessons').insert({
-        id,
-        course_id: courseId,
-        slug: string.slug(lesson.name),
-        name: lesson.name,
-        description: lesson.description,
-        format: 'markdown',
-        content: lesson.content,
-        activity: lesson.activity,
-        video: null,
-        order: lesson.order,
-        active: lesson.active === false ? 0 : 1,
-        limit_date: (lesson as any).limitDate ?? null,
-        created_at: new Date(),
-        updated_at: new Date(),
-      })
+      const createdLesson = await LearnLesson.firstOrCreate(
+        { courseId, slug: string.slug(lesson.name) },
+        {
+          courseId,
+          slug: string.slug(lesson.name),
+          name: lesson.name,
+          description: lesson.description,
+          format: 'markdown',
+          content: lesson.content,
+          activity: lesson.activity,
+          video: null,
+          order: lesson.order,
+          active: lesson.active !== false,
+          limitDate: lesson.limitDate ?? null,
+        }
+      )
+      lessonIds.push(createdLesson.id)
     }
     const [lesson1Id, lesson2Id, lesson3Id] = lessonIds
 
@@ -154,93 +158,71 @@ export default class LearnDummySeeder extends BaseSeeder {
     ]
     const questionIds: string[] = []
     for (const q of questions) {
-      const id = uuid()
-      questionIds.push(id)
-      await db.table('learn_questions').insert({
-        id,
-        course_id: courseId,
-        name: q.name,
-        description: null,
-        picture: null,
-        attachment: null,
-        response_1: q.r1,
-        response_2: q.r2,
-        response_3: q.r3,
-        response_4: q.r4,
-        response_5: q.r5,
-        response_correct: q.correct,
-        wons: 0,
-        losses: 0,
-        difficulty: 0,
-        created_at: new Date(),
-        updated_at: new Date(),
-      })
+      const question = await LearnQuestion.firstOrCreate(
+        { courseId, name: q.name },
+        {
+          courseId,
+          name: q.name,
+          description: null,
+          picture: null,
+          attachment: null,
+          response1: q.r1,
+          response2: q.r2,
+          response3: q.r3,
+          response4: q.r4,
+          response5: q.r5,
+          responseCorrect: q.correct,
+          wons: 0,
+          losses: 0,
+          difficulty: '0',
+        }
+      )
+      questionIds.push(question.id)
     }
 
     // Link the first 3 questions to lesson 3 ("Funciones y scope")
     const linkedQuestionIds = questionIds.slice(0, 3)
     for (const questionId of linkedQuestionIds) {
-      await db.table('learn_lesson_questions').insert({
-        id: uuid(),
-        lesson_id: lesson3Id,
-        question_id: questionId,
-        created_at: new Date(),
-        updated_at: new Date(),
-      })
+      await LearnLessonQuestion.firstOrCreate(
+        { lessonId: lesson3Id, questionId },
+        { lessonId: lesson3Id, questionId }
+      )
     }
 
     // Enrollments
-    const studentEnrollmentId = uuid()
-    await db.table('learn_enrollments').insert({
-      id: studentEnrollmentId,
-      course_id: courseId,
-      user_id: STUDENT_USER_ID,
-      role: 'student',
-      status: 'active',
-      progress: 50, // 2 of 4 active lessons viewed
-      created_at: new Date(),
-      updated_at: new Date(),
-    })
-    await db.table('learn_enrollments').insert({
-      id: uuid(),
-      course_id: courseId,
-      user_id: OWNER_USER_ID,
-      role: 'teacher',
-      status: 'active',
-      progress: 0,
-      created_at: new Date(),
-      updated_at: new Date(),
-    })
+    const studentEnrollment = await LearnEnrollment.firstOrCreate(
+      { courseId, userId: studentUser.id },
+      { courseId, userId: studentUser.id, role: 'student', status: 'active', progress: '50' }
+    )
+    await LearnEnrollment.firstOrCreate(
+      { courseId, userId: ownerUser.id },
+      { courseId, userId: ownerUser.id, role: 'teacher', status: 'active', progress: '0' }
+    )
+    const studentEnrollmentId = studentEnrollment.id
 
     // Student viewed lessons 1 and 2 (out of 4 active lessons => 50% progress)
-    await db.table('learn_lesson_views').insert({
-      id: uuid(),
-      lesson_id: lesson1Id,
-      learn_enrollment_id: studentEnrollmentId,
-      created_at: new Date(),
-      updated_at: new Date(),
-    })
-    await db.table('learn_lesson_views').insert({
-      id: uuid(),
-      lesson_id: lesson2Id,
-      learn_enrollment_id: studentEnrollmentId,
-      created_at: new Date(),
-      updated_at: new Date(),
-    })
+    await LearnLessonView.firstOrCreate(
+      { lessonId: lesson1Id, learnEnrollmentId: studentEnrollmentId },
+      { lessonId: lesson1Id, learnEnrollmentId: studentEnrollmentId }
+    )
+    await LearnLessonView.firstOrCreate(
+      { lessonId: lesson2Id, learnEnrollmentId: studentEnrollmentId },
+      { lessonId: lesson2Id, learnEnrollmentId: studentEnrollmentId }
+    )
 
     // Student submitted the lesson 2 activity, not graded yet
-    await db.table('learn_lesson_answers').insert({
-      id: uuid(),
-      lesson_id: lesson2Id,
-      learn_enrollment_id: studentEnrollmentId,
-      answer:
-        'const nombre = "Kalvin"; let edad = 28; var esActivo = true; // uso const porque nombre no cambia, let porque edad sí podría actualizarse.',
-      attachment: null,
-      feedback: null,
-      result: null,
-      created_at: new Date(),
-      updated_at: new Date(),
-    })
+    await LearnLessonAnswer.firstOrCreate(
+      { lessonId: lesson2Id, learnEnrollmentId: studentEnrollmentId },
+      {
+        lessonId: lesson2Id,
+        learnEnrollmentId: studentEnrollmentId,
+        answer:
+          'const nombre = "Kalvin"; let edad = 28; var esActivo = true; // uso const porque nombre no cambia, let porque edad sí podría actualizarse.',
+        attachment: null,
+        feedback: null,
+        result: null,
+      }
+    )
 
     // Student completed the quiz on lesson 3 (2 correct, 1 incorrect)
     const gradedAnswers = [
@@ -261,49 +243,46 @@ export default class LearnDummySeeder extends BaseSeeder {
         response_correct: q.correct,
       }
     })
-    await db.table('learn_lesson_questions_quizzes').insert({
-      id: uuid(),
-      lesson_id: lesson3Id,
-      learn_enrollment_id: studentEnrollmentId,
-      questions: JSON.stringify(questionsSnapshot),
-      answers: JSON.stringify(gradedAnswers),
-      status: 'completed',
-      results: 66.67,
-      created_at: new Date(),
-      updated_at: new Date(),
-    })
+    await LearnLessonQuestionsQuiz.firstOrCreate(
+      { lessonId: lesson3Id, learnEnrollmentId: studentEnrollmentId },
+      {
+        lessonId: lesson3Id,
+        learnEnrollmentId: studentEnrollmentId,
+        questions: JSON.stringify(questionsSnapshot),
+        answers: JSON.stringify(gradedAnswers),
+        status: 'completed',
+        results: '66.67',
+      }
+    )
     // Reflect the quiz result on the question bank (wons/losses/difficulty)
-    await db
-      .from('learn_questions')
+    await LearnQuestion.query()
       .where('id', linkedQuestionIds[0])
       .update({ wons: 1, losses: 0, difficulty: 0 })
-    await db
-      .from('learn_questions')
+    await LearnQuestion.query()
       .where('id', linkedQuestionIds[1])
       .update({ wons: 1, losses: 0, difficulty: 0 })
-    await db
-      .from('learn_questions')
+    await LearnQuestion.query()
       .where('id', linkedQuestionIds[2])
       .update({ wons: 0, losses: 1, difficulty: 100 })
   }
 
   // Course 2: manual-enrollment only ("por invitación"), fresh enrollment with no activity yet
   private async seedMysqlCourse() {
-    const courseId = uuid()
-    await db.table('learn_courses').insert({
-      id: courseId,
-      site_id: SITE_ID,
-      slug: string.slug('Bases de Datos con MySQL'),
-      name: 'Bases de Datos con MySQL',
-      group: 'Programación',
-      description: 'Modela, consulta y optimiza bases de datos relacionales usando MySQL.',
-      picture: null,
-      video: null,
-      auto_enroll: 0,
-      active: 1,
-      created_at: new Date(),
-      updated_at: new Date(),
-    })
+    const course = await LearnCourse.firstOrCreate(
+      { siteId: SITE_ID, slug: string.slug('Bases de Datos con MySQL') },
+      {
+        siteId: SITE_ID,
+        slug: string.slug('Bases de Datos con MySQL'),
+        name: 'Bases de Datos con MySQL',
+        group: 'Programación',
+        description: 'Modela, consulta y optimiza bases de datos relacionales usando MySQL.',
+        picture: null,
+        video: null,
+        autoEnroll: false,
+        active: true,
+      }
+    )
+    const courseId = course.id
 
     const lessons = [
       {
@@ -331,29 +310,28 @@ export default class LearnDummySeeder extends BaseSeeder {
           '# Índices y optimización\n\nUn índice mal diseñado puede ser peor que no tener índice...',
         activity: 'Analiza una consulta lenta con EXPLAIN y propone un índice para mejorarla.',
         order: 3,
-        limitDate: new Date(Date.now() - 1000 * 60 * 60 * 24 * 5), // vencida hace 5 días, para probar el rechazo por fecha límite
+        limitDate: DateTime.now().minus({ days: 5 }), // vencida hace 5 días, para probar el rechazo por fecha límite
       },
     ]
     const lessonIds: string[] = []
     for (const lesson of lessons) {
-      const id = uuid()
-      lessonIds.push(id)
-      await db.table('learn_lessons').insert({
-        id,
-        course_id: courseId,
-        slug: string.slug(lesson.name),
-        name: lesson.name,
-        description: lesson.description,
-        format: 'markdown',
-        content: lesson.content,
-        activity: lesson.activity,
-        video: null,
-        order: lesson.order,
-        active: 1,
-        limit_date: lesson.limitDate,
-        created_at: new Date(),
-        updated_at: new Date(),
-      })
+      const createdLesson = await LearnLesson.firstOrCreate(
+        { courseId, slug: string.slug(lesson.name) },
+        {
+          courseId,
+          slug: string.slug(lesson.name),
+          name: lesson.name,
+          description: lesson.description,
+          format: 'markdown',
+          content: lesson.content,
+          activity: lesson.activity,
+          video: null,
+          order: lesson.order,
+          active: true,
+          limitDate: lesson.limitDate,
+        }
+      )
+      lessonIds.push(createdLesson.id)
     }
     const [, lesson2Id] = lessonIds
 
@@ -388,69 +366,59 @@ export default class LearnDummySeeder extends BaseSeeder {
     ]
     const questionIds: string[] = []
     for (const q of questions) {
-      const id = uuid()
-      questionIds.push(id)
-      await db.table('learn_questions').insert({
-        id,
-        course_id: courseId,
-        name: q.name,
-        description: null,
-        picture: null,
-        attachment: null,
-        response_1: q.r1,
-        response_2: q.r2,
-        response_3: q.r3,
-        response_4: q.r4,
-        response_5: q.r5,
-        response_correct: q.correct,
-        wons: 0,
-        losses: 0,
-        difficulty: 0,
-        created_at: new Date(),
-        updated_at: new Date(),
-      })
+      const question = await LearnQuestion.firstOrCreate(
+        { courseId, name: q.name },
+        {
+          courseId,
+          name: q.name,
+          description: null,
+          picture: null,
+          attachment: null,
+          response1: q.r1,
+          response2: q.r2,
+          response3: q.r3,
+          response4: q.r4,
+          response5: q.r5,
+          responseCorrect: q.correct,
+          wons: 0,
+          losses: 0,
+          difficulty: '0',
+        }
+      )
+      questionIds.push(question.id)
     }
     for (const questionId of questionIds) {
-      await db.table('learn_lesson_questions').insert({
-        id: uuid(),
-        lesson_id: lesson2Id,
-        question_id: questionId,
-        created_at: new Date(),
-        updated_at: new Date(),
-      })
+      await LearnLessonQuestion.firstOrCreate(
+        { lessonId: lesson2Id, questionId },
+        { lessonId: lesson2Id, questionId }
+      )
     }
 
     // Only the site owner is enrolled here (manually, since auto_enroll is off)
-    await db.table('learn_enrollments').insert({
-      id: uuid(),
-      course_id: courseId,
-      user_id: OWNER_USER_ID,
-      role: 'admin',
-      status: 'active',
-      progress: 0,
-      created_at: new Date(),
-      updated_at: new Date(),
-    })
+    await LearnEnrollment.firstOrCreate(
+      { courseId, userId: ownerUser.id },
+      { courseId, userId: ownerUser.id, role: 'admin', status: 'active', progress: '0' }
+    )
   }
 
   // Course 3: auto-enroll, includes course video, pending enrollment with zero progress
   private async seedUxCourse() {
-    const courseId = uuid()
-    await db.table('learn_courses').insert({
-      id: courseId,
-      site_id: SITE_ID,
-      slug: string.slug('Diseño UX/UI para Developers'),
-      name: 'Diseño UX/UI para Developers',
-      group: 'Diseño',
-      description:
-        'Principios de UX/UI y design systems, pensado para quienes programan y quieren dejar de romper la interfaz.',
-      picture: null,
-      video: 'https://www.youtube.com/watch?v=c9Wg6Cb_YlU',
-      auto_enroll: 1,
-      active: 1,
-      created_at: new Date(),
-      updated_at: new Date(),
-    })
+    const course = await LearnCourse.firstOrCreate(
+      { siteId: SITE_ID, slug: string.slug('Diseño UX/UI para Developers') },
+      {
+        siteId: SITE_ID,
+        slug: string.slug('Diseño UX/UI para Developers'),
+        name: 'Diseño UX/UI para Developers',
+        group: 'Diseño',
+        description:
+          'Principios de UX/UI y design systems, pensado para quienes programan y quieren dejar de romper la interfaz.',
+        picture: null,
+        video: 'https://www.youtube.com/watch?v=c9Wg6Cb_YlU',
+        autoEnroll: true,
+        active: true,
+      }
+    )
+    const courseId = course.id
 
     const lessons = [
       {
@@ -480,24 +448,23 @@ export default class LearnDummySeeder extends BaseSeeder {
     ]
     const lessonIds: string[] = []
     for (const lesson of lessons) {
-      const id = uuid()
-      lessonIds.push(id)
-      await db.table('learn_lessons').insert({
-        id,
-        course_id: courseId,
-        slug: string.slug(lesson.name),
-        name: lesson.name,
-        description: lesson.description,
-        format: 'markdown',
-        content: lesson.content,
-        activity: lesson.activity,
-        video: null,
-        order: lesson.order,
-        active: 1,
-        limit_date: null,
-        created_at: new Date(),
-        updated_at: new Date(),
-      })
+      const createdLesson = await LearnLesson.firstOrCreate(
+        { courseId, slug: string.slug(lesson.name) },
+        {
+          courseId,
+          slug: string.slug(lesson.name),
+          name: lesson.name,
+          description: lesson.description,
+          format: 'markdown',
+          content: lesson.content,
+          activity: lesson.activity,
+          video: null,
+          order: lesson.order,
+          active: true,
+          limitDate: null,
+        }
+      )
+      lessonIds.push(createdLesson.id)
     }
     const [, lesson2Id] = lessonIds
 
@@ -541,58 +508,42 @@ export default class LearnDummySeeder extends BaseSeeder {
     ]
     const questionIds: string[] = []
     for (const q of questions) {
-      const id = uuid()
-      questionIds.push(id)
-      await db.table('learn_questions').insert({
-        id,
-        course_id: courseId,
-        name: q.name,
-        description: null,
-        picture: null,
-        attachment: null,
-        response_1: q.r1,
-        response_2: q.r2,
-        response_3: q.r3,
-        response_4: q.r4,
-        response_5: q.r5,
-        response_correct: q.correct,
-        wons: 0,
-        losses: 0,
-        difficulty: 0,
-        created_at: new Date(),
-        updated_at: new Date(),
-      })
+      const question = await LearnQuestion.firstOrCreate(
+        { courseId, name: q.name },
+        {
+          courseId,
+          name: q.name,
+          description: null,
+          picture: null,
+          attachment: null,
+          response1: q.r1,
+          response2: q.r2,
+          response3: q.r3,
+          response4: q.r4,
+          response5: q.r5,
+          responseCorrect: q.correct,
+          wons: 0,
+          losses: 0,
+          difficulty: '0',
+        }
+      )
+      questionIds.push(question.id)
     }
     for (const questionId of questionIds.slice(0, 2)) {
-      await db.table('learn_lesson_questions').insert({
-        id: uuid(),
-        lesson_id: lesson2Id,
-        question_id: questionId,
-        created_at: new Date(),
-        updated_at: new Date(),
-      })
+      await LearnLessonQuestion.firstOrCreate(
+        { lessonId: lesson2Id, questionId },
+        { lessonId: lesson2Id, questionId }
+      )
     }
 
     // Student enrolled but hasn't started yet (pending, 0 progress)
-    await db.table('learn_enrollments').insert({
-      id: uuid(),
-      course_id: courseId,
-      user_id: STUDENT_USER_ID,
-      role: 'student',
-      status: 'pending',
-      progress: 0,
-      created_at: new Date(),
-      updated_at: new Date(),
-    })
-    await db.table('learn_enrollments').insert({
-      id: uuid(),
-      course_id: courseId,
-      user_id: OWNER_USER_ID,
-      role: 'admin',
-      status: 'active',
-      progress: 0,
-      created_at: new Date(),
-      updated_at: new Date(),
-    })
+    await LearnEnrollment.firstOrCreate(
+      { courseId, userId: studentUser.id },
+      { courseId, userId: studentUser.id, role: 'student', status: 'pending', progress: '0' }
+    )
+    await LearnEnrollment.firstOrCreate(
+      { courseId, userId: ownerUser.id },
+      { courseId, userId: ownerUser.id, role: 'admin', status: 'active', progress: '0' }
+    )
   }
 }
