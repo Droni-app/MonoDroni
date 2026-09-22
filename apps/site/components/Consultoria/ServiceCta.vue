@@ -1,0 +1,3 @@
+<template>
+  <section class="bg-pink-500 text-slate-950 dark:bg-pink-600"><div class="mx-auto flex max-w-7xl flex-col gap-8 px-6 py-16 lg:flex-row lg:items-center lg:justify-between lg:px-10 lg:py-20"><div><p class="text-xs font-bold uppercase tracking-[0.28em] text-slate-950/60">Siguiente paso</p><h2 class="mt-4 text-4xl font-black tracking-tight sm:text-5xl">Hagamos que esto tome forma.</h2></div><NuxtLink to="/login" class="inline-flex items-center gap-3 self-start bg-slate-950 px-6 py-4 text-sm font-bold text-white transition hover:bg-white hover:text-slate-950">Conversemos <i class="mdi mdi-arrow-top-right" /></NuxtLink></div></section>
+</template>

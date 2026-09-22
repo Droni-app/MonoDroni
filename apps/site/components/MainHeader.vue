@@ -82,6 +82,44 @@ const navItems = [
     active: route.path.startsWith('/proyectos')
   },
   {
+    label: 'Consultoría',
+    icon: 'mdi mdi-briefcase-variant-outline',
+    to: '/consultoria',
+    active: route.path.startsWith('/consultoria'),
+    children: [
+      {
+        icon: 'mdi mdi-cellphone-link',
+        label: 'Desarrollo web y móvil',
+        to: '/consultoria/desarrollo-web-movil',
+        active: route.path === '/consultoria/desarrollo-web-movil'
+      },
+      {
+        icon: 'mdi mdi-chart-box-outline',
+        label: 'Sistemas de administración y gestión',
+        to: '/consultoria/sistemas-administracion-gestion',
+        active: route.path === '/consultoria/sistemas-administracion-gestion'
+      },
+      {
+        icon: 'mdi mdi-school-outline',
+        label: 'Plataforma de educación virtual',
+        to: '/consultoria/plataforma-educacion-virtual',
+        active: route.path === '/consultoria/plataforma-educacion-virtual'
+      },
+      {
+        icon: 'mdi mdi-cart-outline',
+        label: 'Plataforma eCommerce',
+        to: '/consultoria/plataforma-ecommerce',
+        active: route.path === '/consultoria/plataforma-ecommerce'
+      },
+      {
+        icon: 'mdi mdi-domain',
+        label: 'Administración de propiedad horizontal',
+        to: '/consultoria/administracion-propiedad-horizontal',
+        active: route.path === '/consultoria/administracion-propiedad-horizontal'
+      }
+    ]
+  },
+  {
     label: 'Code lab',
     icon: 'mdi mdi-test-tube-empty',
     to: '/codelab',
