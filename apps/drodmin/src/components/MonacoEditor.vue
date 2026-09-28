@@ -1,8 +1,8 @@
 <script setup lang="ts">
 import { ref, onMounted, onBeforeUnmount, watch } from 'vue'
 import * as monaco from 'monaco-editor'
-import EditorWorker from 'monaco-editor/esm/vs/editor/editor.worker?worker'
-import HtmlWorker from 'monaco-editor/esm/vs/language/html/html.worker?worker'
+import EditorWorker from 'monaco-editor/editor/editor.worker?worker'
+import HtmlWorker from 'monaco-editor/language/html/html.worker?worker'
 import { useTheme } from '../composables/useTheme'
 
 if (!globalThis.MonacoEnvironment) {
