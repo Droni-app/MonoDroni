@@ -1,73 +1,135 @@
 <script setup lang="ts">
-import { onMounted, ref } from 'vue'
-import { DuiButton, DuiAlert } from '@dronico/droni-kit'
-import AppiService from '../../services/AppiService'
-import type { LearnLessonQuestionsQuiz, PaginatedResponse } from '../../types/AppiService'
+import { computed, onMounted, ref } from 'vue'
+import { DuiButton, DuiInput, DuiLabel, DuiModal, DuiSelect, DuiPagination, useToast } from '@dronico/droni-kit'
+import AppiService, { apiError } from '../../services/AppiService'
+import { usePaginatedList } from '../../composables/usePaginatedList'
+import { formatDateTime } from '../../utils/format'
+import { QUIZ_STATUSES } from '../../utils/labels'
+import UserAvatar from '../ui/UserAvatar.vue'
+import StatusBadge from '../ui/StatusBadge.vue'
+import ConfirmDelete from '../ui/ConfirmDelete.vue'
+import EmptyState from '../ui/EmptyState.vue'
+import type { LearnLessonQuestionsQuiz } from '../../types/AppiService'
 
+// Exam attempts submitted by students for this lesson.
 const props = defineProps<{ courseId: string; lessonId: string }>()
 
-const quizzes = ref<LearnLessonQuestionsQuiz[]>([])
-const loading = ref(false)
-const deletingId = ref<string | null>(null)
-const error = ref<string | null>(null)
+const toast = useToast()
+const url = `/admin/learn/courses/${props.courseId}/lessons/${props.lessonId}/quizzes`
+const { rows, loading, pagination, fetch } = usePaginatedList<LearnLessonQuestionsQuiz>(url)
 
-async function fetchQuizzes() {
-  loading.value = true
+// --- Detail / grade modal ---
+const selected = ref<LearnLessonQuestionsQuiz | null>(null)
+const showModal = ref(false)
+const saving = ref(false)
+const form = ref({ status: 'pending', results: '' as number | '' })
+
+function open(quiz: LearnLessonQuestionsQuiz) {
+  selected.value = quiz
+  form.value = { status: quiz.status, results: quiz.results ?? '' }
+  showModal.value = true
+}
+
+// `questions`/`answers` are JSON text columns in appi
+const parse = <T,>(value: T[] | string): T[] => (typeof value === 'string' ? JSON.parse(value) : value) ?? []
+const questions = computed(() => (selected.value ? parse(selected.value.questions) : []))
+const answers = computed(() => (selected.value ? parse(selected.value.answers) : []))
+
+function answerFor(questionId: string) {
+  return answers.value.find((a) => a.question_id === questionId)
+}
+
+async function save() {
+  saving.value = true
   try {
-    const { data } = await AppiService.get<PaginatedResponse<LearnLessonQuestionsQuiz>>(
-      `/admin/learn/courses/${props.courseId}/lessons/${props.lessonId}/quizzes`,
-      { params: { per_page: 50 } }
-    )
-    quizzes.value = data.data
-  } catch {
-    error.value = 'Error al cargar los intentos de cuestionario.'
+    await AppiService.patch(`${url}/${selected.value!.id}`, {
+      status: form.value.status,
+      results: form.value.results === '' ? null : form.value.results,
+    })
+    toast.success('Intento actualizado.')
+    showModal.value = false
+    fetch(pagination.value.page)
+  } catch (e) {
+    toast.error(apiError(e, 'Error al actualizar el intento.'))
   } finally {
-    loading.value = false
+    saving.value = false
   }
 }
 
-async function deleteQuiz(id: string) {
-  deletingId.value = id
-  error.value = null
+async function remove(quiz: LearnLessonQuestionsQuiz) {
   try {
-    await AppiService.delete(`/admin/learn/courses/${props.courseId}/lessons/${props.lessonId}/quizzes/${id}`)
-    quizzes.value = quizzes.value.filter((q) => q.id !== id)
-  } catch (e: any) {
-    error.value = e?.response?.data?.message ?? 'Error al eliminar el intento.'
-  } finally {
-    deletingId.value = null
+    await AppiService.delete(`${url}/${quiz.id}`)
+    toast.success('Intento eliminado.')
+    fetch(pagination.value.page)
+  } catch (e) {
+    toast.error(apiError(e, 'Error al eliminar el intento.'))
   }
 }
 
-onMounted(fetchQuizzes)
+onMounted(() => fetch())
 </script>
 
 <template>
-  <div class="flex flex-col gap-3">
-    <DuiAlert v-if="error" color="danger">{{ error }}</DuiAlert>
+  <div class="flex flex-col gap-4">
+    <p v-if="loading && !rows.length" class="text-sm text-slate-500">Cargando...</p>
+    <EmptyState v-else-if="!rows.length" icon="mdi-clipboard-check-outline" text="Nadie ha presentado el examen todavía." />
 
-    <div v-if="loading" class="text-sm text-slate-500 dark:text-slate-400">Cargando...</div>
-    <div v-else-if="quizzes.length === 0" class="text-sm text-slate-400 dark:text-slate-500 text-center py-4">
-      Sin intentos de cuestionario
-    </div>
-    <div v-else class="flex flex-col gap-2">
-      <div
-        v-for="quiz in quizzes"
-        :key="quiz.id"
-        class="flex items-center gap-2 p-2 rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900"
-      >
-        <div class="flex-1 min-w-0">
-          <p class="text-xs font-semibold text-slate-500 dark:text-slate-400 truncate">
-            {{ quiz.enrollment?.user?.fullName ?? quiz.enrollment?.userId ?? quiz.learnEnrollmentId }}
-          </p>
-          <p class="text-sm text-slate-800 dark:text-slate-100">
-            {{ quiz.status === 'completed' ? `${quiz.results ?? 0}% aciertos` : 'Pendiente' }}
-          </p>
+    <ul v-else class="divide-y divide-slate-200 dark:divide-slate-700">
+      <li v-for="quiz in rows" :key="quiz.id" class="flex flex-wrap items-center gap-3 py-3">
+        <UserAvatar :user="quiz.enrollment?.user" />
+        <span class="text-xs text-slate-400">{{ formatDateTime(quiz.createdAt) }}</span>
+        <StatusBadge :status="quiz.status" />
+        <span class="font-semibold">{{ quiz.results != null ? `${Number(quiz.results)}%` : '—' }}</span>
+        <div class="ml-auto flex gap-1">
+          <DuiButton variant="ghost" size="sm" @click="open(quiz)">
+            <i class="mdi mdi-eye-outline mr-1" /> Ver
+          </DuiButton>
+          <ConfirmDelete :action="() => remove(quiz)" label="" size="sm" />
         </div>
-        <DuiButton type="button" size="sm" color="danger" :disabled="deletingId === quiz.id" @click="deleteQuiz(quiz.id)">
-          <i class="mdi mdi-trash-can" />
-        </DuiButton>
+      </li>
+    </ul>
+
+    <DuiPagination
+      v-if="pagination.total > pagination.perPage"
+      :model-value="pagination.page"
+      :total="pagination.total"
+      :per-page="pagination.perPage"
+      size="sm"
+      @update:model-value="fetch"
+    />
+
+    <DuiModal v-model="showModal" title="Intento de examen" size="lg">
+      <div v-if="selected" class="flex flex-col gap-4">
+        <UserAvatar :user="selected.enrollment?.user" size="md" />
+        <ol class="flex flex-col gap-2">
+          <li
+            v-for="(question, index) in questions"
+            :key="question.id"
+            class="flex items-start gap-2 rounded-lg p-2 text-sm"
+            :class="answerFor(question.id)?.correct ? 'bg-green-500/10' : 'bg-red-500/10'"
+          >
+            <i :class="['mdi', answerFor(question.id)?.correct ? 'mdi-check-circle text-green-600' : 'mdi-close-circle text-red-500']" />
+            <span class="flex-1">{{ index + 1 }}. {{ question.name }}</span>
+            <span class="text-xs text-slate-500">
+              Eligió {{ answerFor(question.id)?.selected ?? '—' }} · correcta {{ question.response_correct }}
+            </span>
+          </li>
+        </ol>
+        <div class="grid gap-4 sm:grid-cols-2">
+          <DuiLabel title="Estado">
+            <DuiSelect v-model="form.status" :options="QUIZ_STATUSES" item-label="label" item-value="value" block />
+          </DuiLabel>
+          <DuiLabel title="Resultado (%)">
+            <DuiInput v-model.number="form.results" block type="number" min="0" max="100" />
+          </DuiLabel>
+        </div>
       </div>
-    </div>
+      <template #footer>
+        <div class="flex justify-end gap-2">
+          <DuiButton variant="ghost" @click="showModal = false">Cerrar</DuiButton>
+          <DuiButton color="primary" :loading="saving" @click="save">Guardar</DuiButton>
+        </div>
+      </template>
+    </DuiModal>
   </div>
 </template>

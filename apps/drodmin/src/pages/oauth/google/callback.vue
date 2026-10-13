@@ -1,8 +1,9 @@
 <script setup lang="ts">
 import { onMounted, ref } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
-import { DuiCard, DuiAlert } from '@dronico/droni-kit'
+import { DuiCard, DuiAlert, DuiButton } from '@dronico/droni-kit'
 import { useAuth } from '../../../composables/useAuth'
+import { apiError } from '../../../services/AppiService'
 
 const route = useRoute()
 const router = useRouter()
@@ -20,25 +21,21 @@ onMounted(async () => {
     await handleGoogleCallback(code)
     router.push('/')
   } catch (e: any) {
-    error.value = e.response?.data?.message ?? e.message ?? 'Error al autenticar con Google.'
+    error.value = apiError(e, e.message ?? 'Error al autenticar con Google.')
   }
 })
 </script>
 
 <template>
-  <div class="callback-wrapper">
-    <DuiCard>
-      <DuiAlert v-if="error" color="danger">{{ error }}</DuiAlert>
-      <p v-else>Autenticando con Google...</p>
+  <div class="flex min-h-screen items-center justify-center p-4">
+    <DuiCard class="w-full max-w-sm">
+      <template v-if="error">
+        <DuiAlert color="danger">{{ error }}</DuiAlert>
+        <DuiButton to="/login" block class="mt-4">Volver al login</DuiButton>
+      </template>
+      <p v-else class="flex items-center justify-center gap-2 py-4 text-slate-500">
+        <i class="mdi mdi-loading mdi-spin" /> Autenticando con Google...
+      </p>
     </DuiCard>
   </div>
 </template>
-
-<style scoped>
-.callback-wrapper {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  min-height: 100vh;
-}
-</style>

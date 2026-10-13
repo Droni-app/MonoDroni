@@ -20,4 +20,11 @@ AppiService.interceptors.request.use((config) => {
   return config
 })
 
+// Extracts a readable message from an appi error: `{ message }` for regular errors,
+// `{ errors: [{ message }] }` for VineJS validation (422) errors.
+export function apiError(e: any, fallback: string): string {
+  const data = e?.response?.data
+  return data?.message ?? data?.errors?.[0]?.message ?? fallback
+}
+
 export default AppiService

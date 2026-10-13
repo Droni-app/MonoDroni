@@ -125,16 +125,6 @@ export interface Reply {
   user: EmbeddedUser
 }
 
-export interface PostFormData {
-  name: string
-  description: string
-  tags: string[]
-  picture: string | null
-  content: string | null
-  format: string
-  active: boolean
-}
-
 // Store module types
 
 export interface StoreProductAttribute {
@@ -165,21 +155,6 @@ export interface StoreProduct {
   attributes?: StoreProductAttribute[]
 }
 
-export interface StoreProductFormData {
-  name: string
-  description: string | null
-  content: string | null
-  picture: string | null
-  price: number
-  stock: number
-  tags: string[]
-  size_w: number | null
-  size_h: number | null
-  size_d: number | null
-  weight: number | null
-  active: boolean
-}
-
 export interface StoreOrderItem {
   id: string
   orderId: string
@@ -201,6 +176,7 @@ export interface StorePayment {
   currency: string
   createdAt: string
   updatedAt: string
+  order?: StoreOrder
 }
 
 export interface StoreOrder {
@@ -215,7 +191,7 @@ export interface StoreOrder {
   updatedAt: string
   user?: EmbeddedUser | null
   items?: StoreOrderItem[]
-  payment?: StorePayment | null
+  payments?: StorePayment[]
 }
 
 export interface StoreCoupon {
@@ -278,16 +254,6 @@ export interface LearnCourse {
   updatedAt: string
 }
 
-export interface LearnCourseFormData {
-  name: string
-  group: string | null
-  description: string | null
-  picture: string | null
-  video: string | null
-  auto_enroll: boolean
-  active: boolean
-}
-
 export interface LearnLesson {
   id: string
   courseId: string
@@ -303,18 +269,6 @@ export interface LearnLesson {
   limitDate: string | null
   createdAt: string
   updatedAt: string
-}
-
-export interface LearnLessonFormData {
-  name: string
-  description: string | null
-  format: 'text' | 'html' | 'markdown'
-  content: string | null
-  activity: string | null
-  video: string | null
-  order: number
-  active: boolean
-  limit_date: string | null
 }
 
 export interface LearnQuestion {
@@ -335,19 +289,6 @@ export interface LearnQuestion {
   difficulty: number
   createdAt: string
   updatedAt: string
-}
-
-export interface LearnQuestionFormData {
-  name: string
-  description: string | null
-  picture: string | null
-  attachment: string | null
-  response_1: string
-  response_2: string
-  response_3: string | null
-  response_4: string | null
-  response_5: string | null
-  response_correct: number
 }
 
 export interface LearnLessonQuestion {
@@ -374,8 +315,9 @@ export interface LearnLessonQuestionsQuiz {
   id: string
   lessonId: string
   learnEnrollmentId: string
-  questions: { id: string; name: string; response_correct: number }[]
-  answers: { question_id: string; selected: number; correct: boolean }[]
+  // Stored as JSON text in appi: may arrive as a string or already parsed
+  questions: { id: string; name: string; response_correct: number }[] | string
+  answers: { question_id: string; selected: number; correct: boolean }[] | string
   status: 'pending' | 'completed'
   results: number | null
   createdAt: string
@@ -394,13 +336,6 @@ export interface LearnEnrollment {
   updatedAt: string
   user?: EmbeddedUser
   course?: Pick<LearnCourse, 'id' | 'name' | 'slug' | 'group'>
-}
-
-export interface LearnEnrollmentFormData {
-  course_id: string
-  user_id: string
-  role: 'student' | 'teacher' | 'admin'
-  status: 'pending' | 'active' | 'completed' | 'canceled'
 }
 
 export interface SiteUser {

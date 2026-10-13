@@ -1,255 +1,173 @@
 <script setup lang="ts">
-import { computed, onMounted, ref, watch } from 'vue'
-import { DuiButton, DuiAlert, DuiInput } from '@dronico/droni-kit'
-import AppiService from '../../../services/AppiService'
-import type { Attachment, PaginatedResponse, PaginationMeta } from '../../../types/AppiService'
+import { onMounted, ref, watch } from 'vue'
+import { DuiButton, DuiInput, DuiLabel, DuiModal, DuiFile, DuiPagination, useToast } from '@dronico/droni-kit'
+import AppiService, { apiError } from '../../../services/AppiService'
+import { usePaginatedList } from '../../../composables/usePaginatedList'
+import { formatDate, formatSize } from '../../../utils/format'
+import PageHeader from '../../../components/ui/PageHeader.vue'
+import ConfirmDelete from '../../../components/ui/ConfirmDelete.vue'
+import EmptyState from '../../../components/ui/EmptyState.vue'
+import type { Attachment } from '../../../types/AppiService'
 
-const rows = ref<Attachment[]>([])
-const loading = ref(false)
-const error = ref<string | null>(null)
-const deletingId = ref<string | null>(null)
-const copiedId = ref<string | null>(null)
-const search = ref('')
-const meta = ref<Pick<PaginationMeta, 'total' | 'perPage' | 'currentPage'>>({ total: 0, perPage: 16, currentPage: 1 })
-
-const totalPages = computed(() => Math.max(1, Math.ceil(meta.value.total / meta.value.perPage)))
-const hasPreviousPage = computed(() => meta.value.currentPage > 1)
-const hasNextPage = computed(() => meta.value.currentPage < totalPages.value)
-
-function formatSize(bytes: number): string {
-  if (bytes < 1024) return `${bytes} B`
-  if (bytes < 1024 * 1024) return `${(bytes / 1024).toFixed(1)} KB`
-  return `${(bytes / (1024 * 1024)).toFixed(1)} MB`
-}
-
-function isImage(mime: string): boolean {
-  return mime.toLowerCase().startsWith('image/')
-}
-
-async function fetchAttachments(page = 1) {
-  loading.value = true
-  error.value = null
-  try {
-    const { data } = await AppiService.get<PaginatedResponse<Attachment>>('/admin/content/attachments', {
-      params: {
-        page,
-        per_page: 16,
-        ...(search.value ? { q: search.value } : {}),
-      },
-    })
-    rows.value = data.data
-    meta.value = {
-      total: data.meta.total,
-      perPage: data.meta.perPage,
-      currentPage: data.meta.currentPage,
-    }
-  } catch (e: any) {
-    error.value = e?.response?.data?.message ?? 'Error al cargar los attachments.'
-  } finally {
-    loading.value = false
-  }
-}
-
-async function handleDelete(id: string, name: string) {
-  if (!confirm(`¿Eliminar "${name}"? Esta acción no se puede deshacer.`)) return
-  deletingId.value = id
-  error.value = null
-  try {
-    await AppiService.delete(`/admin/content/attachments/${id}`)
-    rows.value = rows.value.filter(r => r.id !== id)
-    meta.value.total = Math.max(0, meta.value.total - 1)
-  } catch (e: any) {
-    error.value = e?.response?.data?.message ?? 'Error al eliminar el attachment.'
-  } finally {
-    deletingId.value = null
-  }
-}
-
-async function copyUrl(attachment: Attachment) {
-  if (!attachment.url) return
-  await navigator.clipboard.writeText(attachment.url)
-  copiedId.value = attachment.id
-  setTimeout(() => { copiedId.value = null }, 1500)
-}
-
-function goToPreviousPage() {
-  if (!hasPreviousPage.value || loading.value) return
-  fetchAttachments(meta.value.currentPage - 1)
-}
-
-function goToNextPage() {
-  if (!hasNextPage.value || loading.value) return
-  fetchAttachments(meta.value.currentPage + 1)
-}
+const toast = useToast()
+const q = ref('')
+const { rows, loading, pagination, fetch } = usePaginatedList<Attachment>(
+  '/admin/content/attachments',
+  () => ({ q: q.value, per_page: 16 })
+)
 
 let searchTimer: ReturnType<typeof setTimeout>
-watch(search, () => {
+watch(q, () => {
   clearTimeout(searchTimer)
-  searchTimer = setTimeout(() => fetchAttachments(1), 350)
+  searchTimer = setTimeout(() => fetch(1), 350)
 })
 
-onMounted(() => fetchAttachments())
+const isImage = (mime: string) => mime.toLowerCase().startsWith('image/')
+
+async function copyUrl(url?: string) {
+  if (!url) return
+  await navigator.clipboard.writeText(url)
+  toast.success('URL copiada al portapapeles.')
+}
+
+async function remove(attachment: Attachment) {
+  try {
+    await AppiService.delete(`/admin/content/attachments/${attachment.id}`)
+    toast.success('Archivo eliminado.')
+    fetch(pagination.value.page)
+  } catch (e) {
+    toast.error(apiError(e, 'Error al eliminar el archivo.'))
+  }
+}
+
+// --- Upload ---
+const showUpload = ref(false)
+const uploading = ref(false)
+const upload = ref<{ name: string; file: File | null }>({ name: '', file: null })
+
+function openUpload() {
+  upload.value = { name: '', file: null }
+  showUpload.value = true
+}
+
+function pickFile(file: File) {
+  upload.value.file = file
+  if (!upload.value.name) upload.value.name = file.name.replace(/\.[^.]+$/, '')
+}
+
+async function submitUpload() {
+  if (!upload.value.file) return
+  uploading.value = true
+  try {
+    const formData = new FormData()
+    formData.append('name', upload.value.name)
+    formData.append('file', upload.value.file)
+    await AppiService.post('/admin/content/attachments', formData, {
+      headers: { 'Content-Type': 'multipart/form-data' },
+    })
+    toast.success('Archivo subido.')
+    showUpload.value = false
+    fetch(1)
+  } catch (e) {
+    toast.error(apiError(e, 'Error al subir el archivo.'))
+  } finally {
+    uploading.value = false
+  }
+}
+
+// --- Import files that already exist in the site's bucket ---
+const importing = ref(false)
+
+async function importFromBucket() {
+  importing.value = true
+  try {
+    const { data } = await AppiService.get<{ created: number; updated: number }>('/admin/content/attachments/import')
+    toast.success(`Importación lista: ${data.created} nuevos, ${data.updated} actualizados.`)
+    fetch(1)
+  } catch (e) {
+    toast.error(apiError(e, 'Error al importar desde el bucket.'))
+  } finally {
+    importing.value = false
+  }
+}
+
+onMounted(() => fetch())
 </script>
 
 <template>
-  <div class="p-6">
-    <div class="flex items-center justify-between mb-6">
-      <h1 class="text-2xl font-bold text-slate-800 dark:text-slate-100">Attachments</h1>
-      <RouterLink to="/content/attachments/create">
-        <DuiButton color="primary" size="sm">
-          <i class="mdi mdi-plus mr-1" /> Subir archivo
-        </DuiButton>
-      </RouterLink>
-    </div>
-    <div class="relative mb-6">
-      <i class="mdi mdi-magnify absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none" />
-      <DuiInput v-model="search" placeholder="Buscar por nombre..." block class="pl-9" />
-    </div>
+  <PageHeader title="Archivos" subtitle="Imágenes y documentos del sitio">
+    <DuiButton variant="outline" :loading="importing" title="Registra los archivos que ya están en el bucket del sitio" @click="importFromBucket">
+      <i class="mdi mdi-cloud-sync-outline mr-1" /> Sincronizar bucket
+    </DuiButton>
+    <DuiButton color="primary" @click="openUpload">
+      <i class="mdi mdi-upload mr-1" /> Subir archivo
+    </DuiButton>
+  </PageHeader>
 
-    <DuiAlert v-if="error" color="danger" class="mb-4">{{ error }}</DuiAlert>
+  <div class="mb-6 max-w-md">
+    <DuiInput v-model="q" block placeholder="Buscar por nombre..." />
+  </div>
 
-    <p v-if="loading" class="text-slate-500 dark:text-slate-400">Cargando attachments...</p>
+  <p v-if="loading && !rows.length" class="text-slate-500">Cargando...</p>
+  <EmptyState v-else-if="!rows.length" icon="mdi-paperclip" text="No hay archivos." />
 
-    <div v-else-if="rows.length" class="masonry">
-      <article
-        v-for="attachment in rows"
-        :key="attachment.id"
-        class="card border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 rounded-lg overflow-hidden"
-      >
-        <a
-          v-if="isImage(attachment.mime) && attachment.url"
-          :href="attachment.url"
-          target="_blank"
-          rel="noopener noreferrer"
-          class="preview-link"
-        >
-          <img
-            :src="attachment.url"
-            :alt="attachment.name"
-            class="preview-image"
-            loading="lazy"
-          >
-        </a>
-        <a
-          v-else-if="attachment.url"
-          :href="attachment.url"
-          target="_blank"
-          rel="noopener noreferrer"
-          class="preview-placeholder"
-        >
-          <i class="mdi mdi-file-document-outline preview-icon" />
-        </a>
-        <div v-else class="preview-placeholder">
-          <i class="mdi mdi-file-document-outline preview-icon" />
-        </div>
-
-        <div class="p-4">
-          <p
-            class="font-semibold break-all cursor-pointer select-none"
-            :class="copiedId === attachment.id
-              ? 'text-green-600 dark:text-green-400'
-              : 'text-slate-800 dark:text-slate-100 hover:text-primary-600 dark:hover:text-primary-400'"
-            :title="copiedId === attachment.id ? '¡URL copiada!' : 'Clic para copiar URL'"
-            @click="copyUrl(attachment)"
-          >
-            <i v-if="copiedId === attachment.id" class="mdi mdi-check mr-1" />
-            {{ attachment.name }}
-          </p>
-          <p class="text-sm text-slate-500 dark:text-slate-400 mt-1 break-all">{{ attachment.mime }}</p>
-          <p class="text-sm text-slate-500 dark:text-slate-400 mt-1">{{ formatSize(attachment.size) }}</p>
-          <p class="text-sm text-slate-500 dark:text-slate-400 mt-1">
-            {{ new Date(attachment.createdAt).toLocaleDateString() }}
-          </p>
-
-          <div class="flex items-center gap-2 mt-4">
-            <a
-              v-if="attachment.url"
-              :href="attachment.url"
-              target="_blank"
-              rel="noopener noreferrer"
-            >
-              <DuiButton size="sm" color="secondary">
-                <i class="mdi mdi-open-in-new" />
-              </DuiButton>
-            </a>
-            <DuiButton
+  <div v-else class="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4" :class="{ 'opacity-60': loading }">
+    <article
+      v-for="attachment in rows"
+      :key="attachment.id"
+      class="overflow-hidden rounded-xl border border-slate-200 bg-white dark:border-slate-700 dark:bg-slate-800"
+    >
+      <a :href="attachment.url" target="_blank" rel="noopener" class="flex h-40 items-center justify-center bg-slate-100 dark:bg-slate-700">
+        <img v-if="isImage(attachment.mime) && attachment.url" :src="attachment.url" :alt="attachment.name" class="h-full w-full object-cover" loading="lazy" />
+        <i v-else class="mdi mdi-file-document-outline text-5xl text-slate-400" />
+      </a>
+      <div class="p-3">
+        <p class="truncate font-medium" :title="attachment.name">{{ attachment.name }}</p>
+        <p class="truncate text-xs text-slate-500 dark:text-slate-400">
+          {{ attachment.mime }} · {{ formatSize(attachment.size) }} · {{ formatDate(attachment.createdAt) }}
+        </p>
+        <div class="mt-3 flex items-center gap-1">
+          <DuiButton variant="ghost" size="sm" title="Copiar URL" @click="copyUrl(attachment.url)">
+            <i class="mdi mdi-content-copy" />
+          </DuiButton>
+          <div class="ml-auto">
+            <ConfirmDelete
+              :action="() => remove(attachment)"
+              :message="`¿Eliminar «${attachment.name}»? El archivo también se borrará del almacenamiento.`"
+              label=""
               size="sm"
-              color="danger"
-              :loading="deletingId === attachment.id"
-              @click="handleDelete(attachment.id, attachment.name)"
-            >
-              <i class="mdi mdi-trash-can" />
-            </DuiButton>
+            />
           </div>
         </div>
-      </article>
-    </div>
+      </div>
+    </article>
+  </div>
 
-    <p v-else class="text-slate-500 dark:text-slate-400">No hay attachments aún.</p>
+  <DuiPagination
+    v-if="pagination.total > pagination.perPage"
+    class="mt-6"
+    :model-value="pagination.page"
+    :total="pagination.total"
+    :per-page="pagination.perPage"
+    @update:model-value="fetch"
+  />
 
-    <div class="flex items-center justify-between mt-6 gap-3">
-      <p class="text-sm text-slate-500 dark:text-slate-400">
-        Página {{ meta.currentPage }} de {{ totalPages }}
-      </p>
-      <div class="flex items-center gap-2">
-        <DuiButton size="sm" color="secondary" :disabled="!hasPreviousPage || loading" @click="goToPreviousPage">
-          Anterior
-        </DuiButton>
-        <DuiButton size="sm" color="secondary" :disabled="!hasNextPage || loading" @click="goToNextPage">
-          Siguiente
+  <DuiModal v-model="showUpload" title="Subir archivo" size="md">
+    <form class="flex flex-col gap-4" @submit.prevent="submitUpload">
+      <DuiLabel title="Archivo" required help-text="Máx. 10MB: imágenes, PDF, Office, zip, texto">
+        <DuiFile :browser-btn="false" @upload-file="pickFile" />
+      </DuiLabel>
+      <DuiLabel title="Nombre" required>
+        <DuiInput v-model="upload.name" block required />
+      </DuiLabel>
+    </form>
+    <template #footer>
+      <div class="flex justify-end gap-2">
+        <DuiButton variant="ghost" @click="showUpload = false">Cancelar</DuiButton>
+        <DuiButton color="primary" :loading="uploading" @click="submitUpload" :disabled="!upload.file">
+          Subir
         </DuiButton>
       </div>
-    </div>
-  </div>
+    </template>
+  </DuiModal>
 </template>
-
-<style scoped>
-.masonry {
-  display: grid;
-  grid-template-columns: repeat(4, 1fr);
-  grid-template-rows: masonry;
-  gap: 1rem;
-}
-
-.card {
-  break-inside: avoid;
-}
-
-.preview-link,
-.preview-placeholder {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  min-height: 180px;
-  background: linear-gradient(135deg, #f1f5f9 0%, #e2e8f0 100%);
-}
-
-.preview-image {
-  width: 100%;
-  height: auto;
-  display: block;
-}
-
-.preview-icon {
-  font-size: 3.5rem;
-  color: #64748b;
-}
-
-@media (max-width: 1200px) {
-  .masonry {
-    grid-template-columns: repeat(3, 1fr);
-  }
-}
-
-@media (max-width: 900px) {
-  .masonry {
-    grid-template-columns: repeat(2, 1fr);
-  }
-}
-
-@media (max-width: 640px) {
-  .masonry {
-    grid-template-columns: 1fr;
-  }
-}
-</style>

@@ -1,27 +1,23 @@
 <script setup lang="ts">
 import { DuiCard } from '@dronico/droni-kit'
 import { useAuth } from '../composables/useAuth'
+import PageHeader from '../components/ui/PageHeader.vue'
+import UserAvatar from '../components/ui/UserAvatar.vue'
 
-const { user } = useAuth()
+const { user, siteId } = useAuth()
 </script>
 
 <template>
-  <div class="p-6 max-w-lg mx-auto">
+  <div class="mx-auto max-w-lg">
+    <PageHeader title="Mi perfil" />
     <DuiCard>
-      <div class="flex flex-col items-center gap-4 py-4">
-        <img
-          v-if="user?.avatar"
-          :src="user.avatar"
-          :alt="user.fullName"
-          class="h-24 w-24 rounded-full object-cover"
-        />
-        <span v-else class="flex h-24 w-24 items-center justify-center rounded-full bg-gray-200 text-3xl font-semibold uppercase text-gray-600">
-          {{ user?.fullName?.charAt(0) ?? '?' }}
-        </span>
-        <div class="text-center">
-          <h1 class="text-xl font-bold">{{ user?.fullName }}</h1>
-          <p class="text-sm text-gray-500">{{ user?.email }}</p>
+      <div class="flex flex-col items-center gap-4 py-4 text-center">
+        <UserAvatar :user="user" size="lg" :show-name="false" />
+        <div>
+          <p class="text-xl font-bold">{{ user?.fullName }}</p>
+          <p class="text-sm text-slate-500 dark:text-slate-400">{{ user?.email }}</p>
         </div>
+        <p class="font-mono text-xs text-slate-400">Sitio: {{ siteId }}</p>
       </div>
     </DuiCard>
   </div>

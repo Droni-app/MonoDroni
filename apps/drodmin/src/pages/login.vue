@@ -1,16 +1,19 @@
 <script setup lang="ts">
-import { ref } from 'vue'
+import { computed, ref } from 'vue'
 import { useRouter } from 'vue-router'
-import { DuiCard, DuiInput, DuiLabel, DuiButton, DuiAlert } from '@dronico/droni-kit'
+import { DuiCard, DuiForm, DuiInput, DuiLabel, DuiButton, DuiAlert } from '@dronico/droni-kit'
 import { useAuth } from '../composables/useAuth'
-import AppiService from '../services/AppiService'
+import { useTheme } from '../composables/useTheme'
+import AppiService, { apiError } from '../services/AppiService'
+import logoLight from '../assets/img/logo.svg'
+import logoDark from '../assets/img/logo-w.svg'
 
 const router = useRouter()
 const { login, loginWithGoogle } = useAuth()
+const { theme } = useTheme()
+const logo = computed(() => theme.value === 'dark' ? logoDark : logoLight)
 
-type Step = 'site' | 'credentials'
-
-const step = ref<Step>('site')
+const step = ref<'site' | 'credentials'>('site')
 const siteId = ref('')
 const email = ref('')
 const password = ref('')
@@ -25,11 +28,9 @@ async function handleSiteSubmit() {
     await AppiService.get('/', { headers: { 'x-site-id': siteId.value } })
     step.value = 'credentials'
   } catch (e: any) {
-    if (e.response?.status === 404) {
-      error.value = 'El sitio no fue encontrado. Verifica el Site ID.'
-    } else {
-      error.value = e.response?.data?.message ?? e.message ?? 'No se pudo verificar el sitio.'
-    }
+    error.value = e.response?.status === 404
+      ? 'El sitio no fue encontrado. Verifica el Site ID.'
+      : apiError(e, 'No se pudo verificar el sitio.')
   } finally {
     loading.value = false
   }
@@ -42,7 +43,7 @@ async function handleSubmit() {
     await login(email.value, password.value, siteId.value)
     router.push('/')
   } catch (e: any) {
-    error.value = e.response?.data?.message ?? e.message ?? 'Error al iniciar sesión'
+    error.value = apiError(e, e.message ?? 'Error al iniciar sesión')
   } finally {
     loading.value = false
   }
@@ -54,7 +55,7 @@ async function handleGoogleLogin() {
   try {
     await loginWithGoogle(siteId.value)
   } catch (e: any) {
-    error.value = e.response?.data?.message ?? e.message ?? 'Error al iniciar sesión con Google'
+    error.value = apiError(e, e.message ?? 'Error al iniciar sesión con Google')
     googleLoading.value = false
   }
 }
@@ -66,68 +67,45 @@ function goBack() {
 </script>
 
 <template>
-  <div class="login-wrapper">
-    <DuiCard>
-      <form v-if="step === 'site'" @submit.prevent="handleSiteSubmit">
-        <DuiAlert v-if="error" color="danger">{{ error }}</DuiAlert>
-        <DuiLabel title="Site ID">
-          <DuiInput v-model="siteId" :block="true" placeholder="Ingresa tu Site ID" autofocus />
-        </DuiLabel>
-        <DuiButton type="submit" :loading="loading" :block="true" color="primary">
-          Continuar
-        </DuiButton>
-      </form>
+  <div class="flex min-h-screen items-center justify-center p-4">
+    <div class="w-full max-w-sm">
+      <img :src="logo" alt="Droni" class="mx-auto mb-6 h-12 w-auto" />
+      <DuiCard>
+        <DuiForm v-if="step === 'site'" @submit="handleSiteSubmit">
+          <template #header>
+            <h1 class="text-lg font-semibold">Panel de administración</h1>
+            <p class="text-sm text-slate-500 dark:text-slate-400">Ingresa el ID del sitio que quieres administrar.</p>
+          </template>
+          <DuiAlert v-if="error" color="danger">{{ error }}</DuiAlert>
+          <DuiLabel title="Site ID" required>
+            <DuiInput v-model="siteId" block placeholder="Ingresa tu Site ID" required autofocus />
+          </DuiLabel>
+          <DuiButton type="submit" :loading="loading" block color="primary">Continuar</DuiButton>
+        </DuiForm>
 
-      <form v-else @submit.prevent="handleSubmit">
-        <DuiAlert v-if="error" color="danger">{{ error }}</DuiAlert>
-        <div class="site-badge">
-          <span>{{ siteId }}</span>
-          <button type="button" class="site-badge-change" @click="goBack">Cambiar</button>
-        </div>
-        <DuiLabel title="Email">
-          <DuiInput v-model="email" type="email" :block="true" autofocus />
-        </DuiLabel>
-        <DuiLabel title="Contraseña">
-          <DuiInput v-model="password" type="password" :block="true" />
-        </DuiLabel>
-        <DuiButton type="submit" :loading="loading" :block="true" color="primary">
-          Iniciar sesión
-        </DuiButton>
-        <DuiButton type="button" :loading="googleLoading" :block="true" color="neutral" @click="handleGoogleLogin">
-          <i class="mdi mdi-google" /> Iniciar sesión con Google
-        </DuiButton>
-      </form>
-    </DuiCard>
+        <DuiForm v-else @submit="handleSubmit">
+          <template #header>
+            <div class="flex items-center justify-between gap-2">
+              <div class="min-w-0">
+                <p class="text-xs text-slate-500 dark:text-slate-400">Sitio</p>
+                <p class="truncate font-mono text-sm">{{ siteId }}</p>
+              </div>
+              <DuiButton variant="ghost" size="sm" @click="goBack">Cambiar</DuiButton>
+            </div>
+          </template>
+          <DuiAlert v-if="error" color="danger">{{ error }}</DuiAlert>
+          <DuiLabel title="Email" required>
+            <DuiInput v-model="email" type="email" block required autofocus />
+          </DuiLabel>
+          <DuiLabel title="Contraseña" required>
+            <DuiInput v-model="password" type="password" block required />
+          </DuiLabel>
+          <DuiButton type="submit" :loading="loading" block color="primary">Iniciar sesión</DuiButton>
+          <DuiButton type="button" :loading="googleLoading" block variant="outline" @click="handleGoogleLogin">
+            <i class="mdi mdi-google mr-1" /> Continuar con Google
+          </DuiButton>
+        </DuiForm>
+      </DuiCard>
+    </div>
   </div>
 </template>
-
-<style scoped>
-.login-wrapper {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  min-height: 100vh;
-}
-
-.site-badge {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  background: var(--dui-color-neutral-100, #f3f4f6);
-  border-radius: 6px;
-  padding: 6px 12px;
-  margin-bottom: 12px;
-  font-size: 0.875rem;
-  font-weight: 500;
-}
-
-.site-badge-change {
-  background: none;
-  border: none;
-  cursor: pointer;
-  font-size: 0.75rem;
-  color: var(--dui-color-primary, #6366f1);
-  padding: 0;
-  text-decoration: underline;
-}
-</style>

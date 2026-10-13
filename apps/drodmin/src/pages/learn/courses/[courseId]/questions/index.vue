@@ -1,74 +1,59 @@
 <script setup lang="ts">
-import { ref, onMounted } from 'vue'
+import { onMounted } from 'vue'
 import { useRoute } from 'vue-router'
 import { DuiTable, DuiButton } from '@dronico/droni-kit'
-import AppiService from '../../../../../services/AppiService'
-import type { LearnQuestion, PaginatedResponse, PaginationMeta } from '../../../../../types/AppiService'
+import { useFetchItem } from '../../../../../composables/useFetchItem'
+import { usePaginatedList } from '../../../../../composables/usePaginatedList'
+import PageHeader from '../../../../../components/ui/PageHeader.vue'
+import EmptyState from '../../../../../components/ui/EmptyState.vue'
+import type { LearnCourse, LearnQuestion } from '../../../../../types/AppiService'
 
-const route = useRoute()
-const courseId = route.params.courseId as string
+const courseId = useRoute().params.courseId as string
+const { item: course } = useFetchItem<LearnCourse>(`/admin/learn/courses/${courseId}`)
+const { rows, loading, tablePagination, fetch } = usePaginatedList<LearnQuestion>(`/admin/learn/courses/${courseId}/questions`)
 
 const columns = [
   { label: 'Pregunta', name: 'name' },
   { label: 'Aciertos', name: 'wons' },
   { label: 'Fallos', name: 'losses' },
   { label: 'Dificultad', name: 'difficulty' },
-  { label: '', name: 'actions' },
+  { label: '', name: 'actions', classes: 'text-right' },
 ]
 
-const rows = ref<LearnQuestion[]>([])
-const loading = ref(false)
-const meta = ref<Pick<PaginationMeta, 'total' | 'perPage' | 'currentPage'>>({ total: 0, perPage: 10, currentPage: 1 })
-
-async function fetchQuestions(page = 1) {
-  loading.value = true
-  try {
-    const { data } = await AppiService.get<PaginatedResponse<LearnQuestion>>(
-      `/admin/learn/courses/${courseId}/questions`,
-      { params: { page } }
-    )
-    rows.value = data.data
-    meta.value = { total: data.meta.total, perPage: data.meta.perPage, currentPage: data.meta.currentPage }
-  } finally {
-    loading.value = false
-  }
-}
-
-onMounted(() => fetchQuestions())
+onMounted(() => fetch())
 </script>
 
 <template>
-  <div class="p-6">
-    <div class="flex items-center justify-between mb-6">
-      <div>
-        <RouterLink to="/learn/courses" class="text-sm text-slate-500 hover:text-slate-700 dark:text-slate-400 dark:hover:text-slate-200">
-          <i class="mdi mdi-arrow-left mr-1" />Cursos
-        </RouterLink>
-        <h1 class="text-2xl font-bold text-slate-800 dark:text-slate-100">Banco de preguntas</h1>
+  <PageHeader title="Banco de preguntas" :subtitle="course?.name" :back="`/learn/courses/${courseId}`">
+    <DuiButton variant="outline" :to="`/learn/courses/${courseId}/lessons`">
+      <i class="mdi mdi-book-open-page-variant-outline mr-1" /> Lecciones
+    </DuiButton>
+    <DuiButton color="primary" :to="`/learn/courses/${courseId}/questions/create`">
+      <i class="mdi mdi-plus mr-1" /> Nueva pregunta
+    </DuiButton>
+  </PageHeader>
+
+  <DuiTable :columns="columns" :rows="rows" :loading="loading" :pagination="tablePagination" @paginate="fetch">
+    <template #name="{ id, name }">
+      <RouterLink :to="`/learn/courses/${courseId}/questions/${id}`" class="font-medium hover:underline">{{ name }}</RouterLink>
+    </template>
+    <template #wons="{ wons }"><span class="text-green-600">{{ wons }}</span></template>
+    <template #losses="{ losses }"><span class="text-red-500">{{ losses }}</span></template>
+    <template #difficulty="{ difficulty }">
+      <div class="flex items-center gap-2">
+        <div class="h-1.5 w-20 overflow-hidden rounded-full bg-slate-200 dark:bg-slate-700">
+          <div class="h-full bg-amber-500" :style="{ width: `${Number(difficulty)}%` }" />
+        </div>
+        <span class="text-xs">{{ Number(difficulty).toFixed(0) }}%</span>
       </div>
-      <RouterLink :to="`/learn/courses/${courseId}/questions/create`">
-        <DuiButton color="primary" size="sm">
-          <i class="mdi mdi-plus mr-1" /> Nueva pregunta
+    </template>
+    <template #actions="{ id }">
+      <div class="flex justify-end">
+        <DuiButton variant="ghost" size="sm" title="Editar" :to="`/learn/courses/${courseId}/questions/${id}`">
+          <i class="mdi mdi-pencil" />
         </DuiButton>
-      </RouterLink>
-    </div>
-    <DuiTable
-      :columns="columns"
-      :rows="rows"
-      :loading="loading"
-      :pagination="{ page: meta.currentPage, perPage: meta.perPage, total: meta.total }"
-      @paginate="fetchQuestions"
-    >
-      <template #difficulty="{ difficulty }">
-        {{ Number(difficulty).toFixed(0) }}%
-      </template>
-      <template #actions="{ id }">
-        <RouterLink :to="`/learn/courses/${courseId}/questions/${id}`">
-          <DuiButton size="sm" color="secondary">
-            <i class="mdi mdi-pencil" />
-          </DuiButton>
-        </RouterLink>
-      </template>
-    </DuiTable>
-  </div>
+      </div>
+    </template>
+  </DuiTable>
+  <EmptyState v-if="!loading && !rows.length" icon="mdi-help-circle-outline" text="El banco de preguntas está vacío." />
 </template>

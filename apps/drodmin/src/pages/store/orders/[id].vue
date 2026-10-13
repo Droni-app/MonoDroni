@@ -1,181 +1,117 @@
 <script setup lang="ts">
-import { ref, onMounted } from 'vue'
+import { computed, ref, watch } from 'vue'
 import { useRoute } from 'vue-router'
-import { DuiButton } from '@dronico/droni-kit'
-import AppiService from '../../../services/AppiService'
+import { DuiCard, DuiAlert, DuiButton, DuiSelect, DuiTable, useToast } from '@dronico/droni-kit'
+import AppiService, { apiError } from '../../../services/AppiService'
+import { useFetchItem } from '../../../composables/useFetchItem'
+import { formatDateTime, formatMoney } from '../../../utils/format'
+import { ORDER_STATUSES } from '../../../utils/labels'
+import PageHeader from '../../../components/ui/PageHeader.vue'
+import StatusBadge from '../../../components/ui/StatusBadge.vue'
+import UserAvatar from '../../../components/ui/UserAvatar.vue'
 import type { StoreOrder } from '../../../types/AppiService'
 
 const route = useRoute()
+const toast = useToast()
+const url = `/admin/store/orders/${route.params.id}`
+const { item: order, error } = useFetchItem<StoreOrder>(url)
 
-const order = ref<StoreOrder | null>(null)
-const fetching = ref(true)
-const error = ref<string | null>(null)
+const status = ref('')
 const saving = ref(false)
-const saveError = ref<string | null>(null)
-const selectedStatus = ref('')
-
-const STATUS_LABELS: Record<string, string> = {
-  pending: 'Pendiente',
-  paid: 'Pagado',
-  shipped: 'Enviado',
-  completed: 'Completado',
-  canceled: 'Cancelado',
-}
-
-const STATUS_COLORS: Record<string, string> = {
-  pending: 'bg-yellow-100 text-yellow-800',
-  paid: 'bg-blue-100 text-blue-800',
-  shipped: 'bg-purple-100 text-purple-800',
-  completed: 'bg-green-100 text-green-800',
-  canceled: 'bg-red-100 text-red-800',
-}
-
-onMounted(async () => {
-  try {
-    const { data } = await AppiService.get<StoreOrder>(`/admin/store/orders/${route.params.id}`)
-    order.value = data
-    selectedStatus.value = data.status
-  } catch {
-    error.value = 'No se pudo cargar el pedido.'
-  } finally {
-    fetching.value = false
-  }
-})
+watch(order, (o) => { if (o) status.value = o.status })
 
 async function updateStatus() {
-  if (!order.value || selectedStatus.value === order.value.status) return
   saving.value = true
-  saveError.value = null
   try {
-    const { data } = await AppiService.patch<StoreOrder>(`/admin/store/orders/${route.params.id}`, {
-      status: selectedStatus.value,
-    })
-    order.value.status = data.status
-  } catch (e: any) {
-    saveError.value = e?.response?.data?.message ?? 'Error al actualizar el estado.'
+    const { data } = await AppiService.patch<StoreOrder>(url, { status: status.value })
+    order.value!.status = data.status
+    toast.success('Estado del pedido actualizado.')
+  } catch (e) {
+    toast.error(apiError(e, 'Error al actualizar el estado.'))
   } finally {
     saving.value = false
   }
 }
+
+// Addresses are free-form JSON; show them as a list of fields.
+function addressFields(address: unknown): Record<string, unknown> {
+  if (typeof address === 'string') {
+    try { return JSON.parse(address) } catch { return { dirección: address } }
+  }
+  return (address ?? {}) as Record<string, unknown>
+}
+
+const addresses = computed(() => [
+  { title: 'Dirección de envío', value: order.value?.shippingAddress },
+  { title: 'Dirección de facturación', value: order.value?.billingAddress },
+])
+
+const itemColumns = [
+  { label: 'Producto', name: 'product' },
+  { label: 'Precio', name: 'price', classes: 'text-right' },
+  { label: 'Cant.', name: 'quantity', classes: 'text-right' },
+  { label: 'Subtotal', name: 'subtotal', classes: 'text-right' },
+]
 </script>
 
 <template>
-  <div class="p-6 max-w-4xl">
-    <div class="flex items-center gap-4 mb-6">
-      <RouterLink to="/store/orders" class="text-slate-500 hover:text-slate-700 dark:hover:text-slate-300">
-        <i class="mdi mdi-arrow-left text-lg" />
-      </RouterLink>
-      <h1 class="text-2xl font-bold text-slate-800 dark:text-slate-100">Detalle del pedido</h1>
+  <PageHeader :title="order ? `Pedido #${order.id.slice(0, 8)}` : 'Pedido'" :subtitle="formatDateTime(order?.createdAt)" back="/store/orders" />
+
+  <DuiAlert v-if="error" color="danger">{{ error }}</DuiAlert>
+  <p v-else-if="!order" class="text-slate-500">Cargando...</p>
+
+  <div v-else class="grid items-start gap-6 lg:grid-cols-3">
+    <div class="flex flex-col gap-6 lg:col-span-2">
+      <DuiCard title="Productos">
+        <DuiTable :columns="itemColumns" :rows="order.items ?? []">
+          <template #product="{ product }">{{ product?.name ?? 'Producto eliminado' }}</template>
+          <template #price="{ price }"><span class="block text-right">{{ formatMoney(price) }}</span></template>
+          <template #quantity="{ quantity }"><span class="block text-right">{{ quantity }}</span></template>
+          <template #subtotal="{ price, quantity }">
+            <span class="block text-right font-medium">{{ formatMoney(price * quantity) }}</span>
+          </template>
+        </DuiTable>
+        <p class="mt-4 text-right text-lg">Total: <strong>{{ formatMoney(order.total) }}</strong></p>
+      </DuiCard>
+
+      <DuiCard title="Pagos">
+        <p v-if="!order.payments?.length" class="text-sm text-slate-400">Sin pagos registrados.</p>
+        <ul class="divide-y divide-slate-200 dark:divide-slate-700">
+          <li v-for="payment in order.payments" :key="payment.id" class="flex flex-wrap items-center gap-3 py-3 text-sm">
+            <StatusBadge :status="payment.paymentStatus" />
+            <span class="capitalize">{{ payment.paymentMethod }}</span>
+            <span class="font-medium">{{ formatMoney(payment.amount) }} {{ payment.currency }}</span>
+            <span class="text-xs text-slate-400">{{ formatDateTime(payment.createdAt) }}</span>
+            <DuiButton variant="ghost" size="sm" class="ml-auto" :to="`/store/payments/${payment.id}`">Ver pago</DuiButton>
+          </li>
+        </ul>
+      </DuiCard>
     </div>
 
-    <p v-if="fetching" class="text-slate-500">Cargando...</p>
-    <p v-else-if="error" class="text-red-500">{{ error }}</p>
-
-    <template v-else-if="order">
-      <!-- Header info -->
-      <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
-        <div class="bg-white dark:bg-slate-800 rounded-lg p-4 border border-slate-200 dark:border-slate-700">
-          <p class="text-xs text-slate-500 mb-1">ID del pedido</p>
-          <p class="font-mono text-sm break-all">{{ order.id }}</p>
-        </div>
-        <div class="bg-white dark:bg-slate-800 rounded-lg p-4 border border-slate-200 dark:border-slate-700">
-          <p class="text-xs text-slate-500 mb-1">Cliente</p>
-          <p class="font-medium">{{ order.user?.fullName ?? 'Invitado' }}</p>
-        </div>
-        <div class="bg-white dark:bg-slate-800 rounded-lg p-4 border border-slate-200 dark:border-slate-700">
-          <p class="text-xs text-slate-500 mb-1">Total</p>
-          <p class="text-xl font-bold text-slate-900 dark:text-slate-100">${{ Number(order.total).toFixed(2) }}</p>
-        </div>
-      </div>
-
-      <!-- Status update -->
-      <div class="bg-white dark:bg-slate-800 rounded-lg p-4 border border-slate-200 dark:border-slate-700 mb-6">
-        <p class="text-sm font-medium text-slate-700 dark:text-slate-300 mb-3">Estado del pedido</p>
-        <div class="flex items-center gap-3">
-          <span :class="`px-2 py-1 rounded text-xs font-medium ${STATUS_COLORS[order.status] ?? ''}`">
-            {{ STATUS_LABELS[order.status] ?? order.status }}
-          </span>
-          <select
-            v-model="selectedStatus"
-            class="rounded border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-100 px-3 py-1.5 text-sm"
-          >
-            <option v-for="(label, key) in STATUS_LABELS" :key="key" :value="key">{{ label }}</option>
-          </select>
-          <DuiButton
-            size="sm"
-            color="primary"
-            :disabled="saving || selectedStatus === order.status"
-            @click="updateStatus"
-          >
-            {{ saving ? 'Guardando...' : 'Actualizar' }}
+    <div class="flex flex-col gap-6">
+      <DuiCard title="Estado">
+        <div class="flex flex-col gap-3">
+          <StatusBadge :status="order.status" />
+          <DuiSelect v-model="status" :options="ORDER_STATUSES" item-label="label" item-value="value" block />
+          <DuiButton color="primary" block :loading="saving" :disabled="status === order.status" @click="updateStatus">
+            Actualizar estado
           </DuiButton>
         </div>
-        <p v-if="saveError" class="text-red-500 text-sm mt-2">{{ saveError }}</p>
-      </div>
+      </DuiCard>
 
-      <!-- Items -->
-      <div class="bg-white dark:bg-slate-800 rounded-lg border border-slate-200 dark:border-slate-700 mb-6">
-        <div class="px-4 py-3 border-b border-slate-200 dark:border-slate-700">
-          <p class="font-medium text-slate-700 dark:text-slate-300">Productos del pedido</p>
-        </div>
-        <table class="w-full text-sm">
-          <thead class="text-xs text-slate-500 uppercase border-b border-slate-200 dark:border-slate-700">
-            <tr>
-              <th class="px-4 py-2 text-left">Producto</th>
-              <th class="px-4 py-2 text-right">Precio unit.</th>
-              <th class="px-4 py-2 text-right">Cantidad</th>
-              <th class="px-4 py-2 text-right">Subtotal</th>
-            </tr>
-          </thead>
-          <tbody>
-            <tr
-              v-for="item in order.items ?? []"
-              :key="item.id"
-              class="border-b border-slate-100 dark:border-slate-700"
-            >
-              <td class="px-4 py-3">{{ item.product?.name ?? 'Producto eliminado' }}</td>
-              <td class="px-4 py-3 text-right">${{ Number(item.price).toFixed(2) }}</td>
-              <td class="px-4 py-3 text-right">{{ item.quantity }}</td>
-              <td class="px-4 py-3 text-right font-medium">${{ (item.price * item.quantity).toFixed(2) }}</td>
-            </tr>
-          </tbody>
-        </table>
-      </div>
+      <DuiCard title="Cliente">
+        <UserAvatar :user="order.user" size="md" />
+      </DuiCard>
 
-      <!-- Addresses -->
-      <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
-        <div v-if="order.shippingAddress" class="bg-white dark:bg-slate-800 rounded-lg p-4 border border-slate-200 dark:border-slate-700">
-          <p class="text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">Dirección de envío</p>
-          <pre class="text-xs text-slate-600 dark:text-slate-400 whitespace-pre-wrap">{{ JSON.stringify(order.shippingAddress, null, 2) }}</pre>
-        </div>
-        <div v-if="order.billingAddress" class="bg-white dark:bg-slate-800 rounded-lg p-4 border border-slate-200 dark:border-slate-700">
-          <p class="text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">Dirección de facturación</p>
-          <pre class="text-xs text-slate-600 dark:text-slate-400 whitespace-pre-wrap">{{ JSON.stringify(order.billingAddress, null, 2) }}</pre>
-        </div>
-      </div>
-
-      <!-- Payment -->
-      <div v-if="order.payment" class="bg-white dark:bg-slate-800 rounded-lg p-4 border border-slate-200 dark:border-slate-700">
-        <p class="text-sm font-medium text-slate-700 dark:text-slate-300 mb-3">Información de pago</p>
-        <div class="grid grid-cols-2 md:grid-cols-4 gap-3 text-sm">
-          <div>
-            <p class="text-xs text-slate-500">Método</p>
-            <p class="font-medium capitalize">{{ order.payment.paymentMethod }}</p>
-          </div>
-          <div>
-            <p class="text-xs text-slate-500">Estado</p>
-            <p class="font-medium capitalize">{{ order.payment.paymentStatus }}</p>
-          </div>
-          <div>
-            <p class="text-xs text-slate-500">Monto</p>
-            <p class="font-medium">${{ Number(order.payment.amount).toFixed(2) }} {{ order.payment.currency }}</p>
-          </div>
-          <div v-if="order.payment.transactionId">
-            <p class="text-xs text-slate-500">Transacción</p>
-            <p class="font-mono text-xs">{{ order.payment.transactionId }}</p>
-          </div>
-        </div>
-      </div>
-    </template>
+      <DuiCard v-for="address in addresses" :key="address.title" :title="address.title">
+        <p v-if="!address.value" class="text-sm text-slate-400">No registrada.</p>
+        <dl v-else class="grid grid-cols-3 gap-x-2 gap-y-1 text-sm">
+          <template v-for="(value, key) in addressFields(address.value)" :key="key">
+            <dt class="capitalize text-slate-500">{{ String(key).replace(/_/g, ' ') }}</dt>
+            <dd class="col-span-2 break-words">{{ value }}</dd>
+          </template>
+        </dl>
+      </DuiCard>
+    </div>
   </div>
 </template>

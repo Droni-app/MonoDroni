@@ -1,86 +1,74 @@
 <script setup lang="ts">
 import { ref, onMounted } from 'vue'
-import { DuiTable, DuiButton, DuiInput } from '@dronico/droni-kit'
-import AppiService from '../../../services/AppiService'
-import type { LearnCourse, PaginatedResponse, PaginationMeta } from '../../../types/AppiService'
+import { DuiTable, DuiButton, DuiInput, DuiBadge } from '@dronico/droni-kit'
+import { usePaginatedList } from '../../../composables/usePaginatedList'
+import { formatDate } from '../../../utils/format'
+import PageHeader from '../../../components/ui/PageHeader.vue'
+import StatusBadge from '../../../components/ui/StatusBadge.vue'
+import EmptyState from '../../../components/ui/EmptyState.vue'
+import type { LearnCourse } from '../../../types/AppiService'
 
 const columns = [
-  { label: 'Nombre', name: 'name' },
+  { label: 'Curso', name: 'name' },
   { label: 'Grupo', name: 'group' },
   { label: 'Auto-inscripción', name: 'autoEnroll' },
-  { label: 'Activo', name: 'active' },
+  { label: 'Estado', name: 'active' },
   { label: 'Creado', name: 'createdAt' },
-  { label: '', name: 'actions' },
+  { label: '', name: 'actions', classes: 'text-right' },
 ]
 
-const rows = ref<LearnCourse[]>([])
-const loading = ref(false)
-const meta = ref<Pick<PaginationMeta, 'total' | 'perPage' | 'currentPage'>>({ total: 0, perPage: 10, currentPage: 1 })
-const searchQuery = ref('')
+const q = ref('')
+const group = ref('')
+const { rows, loading, tablePagination, fetch } = usePaginatedList<LearnCourse>(
+  '/admin/learn/courses',
+  () => ({ q: q.value.trim(), group: group.value.trim() })
+)
 
-async function fetchCourses(page = 1) {
-  loading.value = true
-  try {
-    const params: Record<string, unknown> = { page }
-    if (searchQuery.value.trim()) params.q = searchQuery.value.trim()
-    const { data } = await AppiService.get<PaginatedResponse<LearnCourse>>('/admin/learn/courses', { params })
-    rows.value = data.data
-    meta.value = { total: data.meta.total, perPage: data.meta.perPage, currentPage: data.meta.currentPage }
-  } finally {
-    loading.value = false
-  }
-}
-
-function onSearchKeydown(event: KeyboardEvent) {
-  if (event.key === 'Enter') fetchCourses(1)
-}
-
-onMounted(() => fetchCourses())
+onMounted(() => fetch())
 </script>
 
 <template>
-  <div class="p-6">
-    <div class="flex items-center justify-between mb-6">
-      <h1 class="text-2xl font-bold text-slate-800 dark:text-slate-100">Cursos</h1>
-      <RouterLink to="/learn/courses/create">
-        <DuiButton color="primary" size="sm">
-          <i class="mdi mdi-plus mr-1" /> Nuevo curso
+  <PageHeader title="Cursos" subtitle="Cursos, lecciones y bancos de preguntas">
+    <DuiButton color="primary" to="/learn/courses/create">
+      <i class="mdi mdi-plus mr-1" /> Nuevo curso
+    </DuiButton>
+  </PageHeader>
+
+  <form class="mb-4 grid max-w-2xl gap-2 sm:grid-cols-3" @submit.prevent="fetch(1)">
+    <DuiInput v-model="q" block placeholder="Buscar cursos..." class="sm:col-span-2" />
+    <DuiInput v-model="group" block placeholder="Grupo" />
+    <button type="submit" class="hidden" />
+  </form>
+
+  <DuiTable :columns="columns" :rows="rows" :loading="loading" :pagination="tablePagination" @paginate="fetch">
+    <template #name="{ id, name, slug }">
+      <RouterLink :to="`/learn/courses/${id}`" class="font-medium hover:underline">{{ name }}</RouterLink>
+      <p class="text-xs text-slate-400">{{ slug }}</p>
+    </template>
+    <template #group="{ group }">
+      <DuiBadge v-if="group" :label="group" size="xs" color="primary" />
+      <span v-else class="text-slate-400">—</span>
+    </template>
+    <template #autoEnroll="{ autoEnroll }">
+      <StatusBadge :status="autoEnroll" on="Sí" off="No" />
+    </template>
+    <template #active="{ active }">
+      <StatusBadge :status="active" />
+    </template>
+    <template #createdAt="{ createdAt }">{{ formatDate(createdAt) }}</template>
+    <template #actions="{ id }">
+      <div class="flex justify-end gap-1">
+        <DuiButton variant="ghost" size="sm" title="Lecciones" :to="`/learn/courses/${id}/lessons`">
+          <i class="mdi mdi-book-open-page-variant-outline" />
         </DuiButton>
-      </RouterLink>
-    </div>
-    <div class="mb-4">
-      <DuiInput v-model="searchQuery" placeholder="Buscar cursos... (Enter para buscar)" @keydown="onSearchKeydown" />
-    </div>
-    <DuiTable
-      :columns="columns"
-      :rows="rows"
-      :loading="loading"
-      :pagination="{ page: meta.currentPage, perPage: meta.perPage, total: meta.total }"
-      @paginate="fetchCourses"
-    >
-      <template #group="{ group }">
-        {{ group || '—' }}
-      </template>
-      <template #autoEnroll="{ autoEnroll }">
-        <span :class="autoEnroll ? 'text-green-600' : 'text-slate-400'">
-          {{ autoEnroll ? 'Sí' : 'No' }}
-        </span>
-      </template>
-      <template #active="{ active }">
-        <span :class="active ? 'text-green-600' : 'text-red-500'">
-          {{ active ? 'Sí' : 'No' }}
-        </span>
-      </template>
-      <template #createdAt="{ createdAt }">
-        {{ new Date(createdAt).toLocaleDateString() }}
-      </template>
-      <template #actions="{ id }">
-        <RouterLink :to="`/learn/courses/${id}`">
-          <DuiButton size="sm" color="secondary">
-            <i class="mdi mdi-pencil" />
-          </DuiButton>
-        </RouterLink>
-      </template>
-    </DuiTable>
-  </div>
+        <DuiButton variant="ghost" size="sm" title="Banco de preguntas" :to="`/learn/courses/${id}/questions`">
+          <i class="mdi mdi-help-circle-outline" />
+        </DuiButton>
+        <DuiButton variant="ghost" size="sm" title="Editar" :to="`/learn/courses/${id}`">
+          <i class="mdi mdi-pencil" />
+        </DuiButton>
+      </div>
+    </template>
+  </DuiTable>
+  <EmptyState v-if="!loading && !rows.length" icon="mdi-school-outline" text="No hay cursos." />
 </template>

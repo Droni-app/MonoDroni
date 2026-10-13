@@ -1,79 +1,53 @@
 <script setup lang="ts">
-import { ref, onMounted } from 'vue'
+import { onMounted } from 'vue'
 import { DuiTable, DuiButton } from '@dronico/droni-kit'
-import AppiService from '../../../services/AppiService'
-import type { StoreCoupon, PaginatedResponse, PaginationMeta } from '../../../types/AppiService'
+import { usePaginatedList } from '../../../composables/usePaginatedList'
+import { formatDate, formatMoney } from '../../../utils/format'
+import PageHeader from '../../../components/ui/PageHeader.vue'
+import StatusBadge from '../../../components/ui/StatusBadge.vue'
+import EmptyState from '../../../components/ui/EmptyState.vue'
+import type { StoreCoupon } from '../../../types/AppiService'
 
 const columns = [
   { label: 'Código', name: 'code' },
   { label: 'Descuento', name: 'discount' },
-  { label: 'Tipo', name: 'discountType' },
-  { label: 'Mín. pedido', name: 'minimumOrderValue' },
-  { label: 'Vencimiento', name: 'expirationDate' },
-  { label: 'Activo', name: 'active' },
-  { label: '', name: 'actions' },
+  { label: 'Pedido mínimo', name: 'minimumOrderValue' },
+  { label: 'Vence', name: 'expirationDate' },
+  { label: 'Estado', name: 'active' },
+  { label: '', name: 'actions', classes: 'text-right' },
 ]
 
-const rows = ref<StoreCoupon[]>([])
-const loading = ref(false)
-const meta = ref<Pick<PaginationMeta, 'total' | 'perPage' | 'currentPage'>>({ total: 0, perPage: 10, currentPage: 1 })
+const { rows, loading, tablePagination, fetch } = usePaginatedList<StoreCoupon>('/admin/store/coupons')
 
-async function fetchCoupons(page = 1) {
-  loading.value = true
-  try {
-    const { data } = await AppiService.get<PaginatedResponse<StoreCoupon>>('/admin/store/coupons', { params: { page } })
-    rows.value = data.data
-    meta.value = { total: data.meta.total, perPage: data.meta.perPage, currentPage: data.meta.currentPage }
-  } finally {
-    loading.value = false
-  }
-}
-
-onMounted(() => fetchCoupons())
+onMounted(() => fetch())
 </script>
 
 <template>
-  <div class="p-6">
-    <div class="flex items-center justify-between mb-6">
-      <h1 class="text-2xl font-bold text-slate-800 dark:text-slate-100">Cupones</h1>
-      <RouterLink to="/store/coupons/create">
-        <DuiButton color="primary" size="sm">
-          <i class="mdi mdi-plus mr-1" /> Nuevo cupón
+  <PageHeader title="Cupones" subtitle="Códigos de descuento">
+    <DuiButton color="primary" to="/store/coupons/create">
+      <i class="mdi mdi-plus mr-1" /> Nuevo cupón
+    </DuiButton>
+  </PageHeader>
+
+  <DuiTable :columns="columns" :rows="rows" :loading="loading" :pagination="tablePagination" @paginate="fetch">
+    <template #code="{ id, code }">
+      <RouterLink :to="`/store/coupons/${id}`" class="font-mono font-semibold hover:underline">{{ code }}</RouterLink>
+    </template>
+    <template #discount="{ discount, discountType }">
+      {{ discountType === 'percentage' ? `${Number(discount)}%` : formatMoney(discount) }}
+    </template>
+    <template #minimumOrderValue="{ minimumOrderValue }">{{ formatMoney(minimumOrderValue) }}</template>
+    <template #expirationDate="{ expirationDate }">{{ formatDate(expirationDate) }}</template>
+    <template #active="{ active }">
+      <StatusBadge :status="active" />
+    </template>
+    <template #actions="{ id }">
+      <div class="flex justify-end">
+        <DuiButton variant="ghost" size="sm" title="Editar" :to="`/store/coupons/${id}`">
+          <i class="mdi mdi-pencil" />
         </DuiButton>
-      </RouterLink>
-    </div>
-    <DuiTable
-      :columns="columns"
-      :rows="rows"
-      :loading="loading"
-      :pagination="{ page: meta.currentPage, perPage: meta.perPage, total: meta.total }"
-      @paginate="fetchCoupons"
-    >
-      <template #code="{ code }">
-        <span class="font-mono font-bold">{{ code }}</span>
-      </template>
-      <template #discount="{ discount, discountType }">
-        {{ discountType === 'percentage' ? `${discount}%` : `$${Number(discount).toFixed(2)}` }}
-      </template>
-      <template #discountType="{ discountType }">
-        {{ discountType === 'percentage' ? 'Porcentaje' : 'Fijo' }}
-      </template>
-      <template #minimumOrderValue="{ minimumOrderValue }">
-        {{ minimumOrderValue != null ? `$${Number(minimumOrderValue).toFixed(2)}` : '—' }}
-      </template>
-      <template #expirationDate="{ expirationDate }">
-        {{ expirationDate ? new Date(expirationDate).toLocaleDateString() : '—' }}
-      </template>
-      <template #active="{ active }">
-        <span :class="active ? 'text-green-600' : 'text-red-500'">{{ active ? 'Sí' : 'No' }}</span>
-      </template>
-      <template #actions="{ id }">
-        <RouterLink :to="`/store/coupons/${id}`">
-          <DuiButton size="sm" color="secondary">
-            <i class="mdi mdi-pencil" />
-          </DuiButton>
-        </RouterLink>
-      </template>
-    </DuiTable>
-  </div>
+      </div>
+    </template>
+  </DuiTable>
+  <EmptyState v-if="!loading && !rows.length" icon="mdi-ticket-percent-outline" text="No hay cupones." />
 </template>

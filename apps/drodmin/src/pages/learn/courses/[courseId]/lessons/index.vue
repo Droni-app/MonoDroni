@@ -1,76 +1,59 @@
 <script setup lang="ts">
-import { ref, onMounted } from 'vue'
+import { onMounted } from 'vue'
 import { useRoute } from 'vue-router'
-import { DuiTable, DuiButton } from '@dronico/droni-kit'
-import AppiService from '../../../../../services/AppiService'
-import type { LearnLesson, PaginatedResponse, PaginationMeta } from '../../../../../types/AppiService'
+import { DuiTable, DuiButton, DuiBadge } from '@dronico/droni-kit'
+import { useFetchItem } from '../../../../../composables/useFetchItem'
+import { usePaginatedList } from '../../../../../composables/usePaginatedList'
+import { formatDate } from '../../../../../utils/format'
+import PageHeader from '../../../../../components/ui/PageHeader.vue'
+import StatusBadge from '../../../../../components/ui/StatusBadge.vue'
+import EmptyState from '../../../../../components/ui/EmptyState.vue'
+import type { LearnCourse, LearnLesson } from '../../../../../types/AppiService'
 
-const route = useRoute()
-const courseId = route.params.courseId as string
+const courseId = useRoute().params.courseId as string
+const { item: course } = useFetchItem<LearnCourse>(`/admin/learn/courses/${courseId}`)
+const { rows, loading, tablePagination, fetch } = usePaginatedList<LearnLesson>(`/admin/learn/courses/${courseId}/lessons`)
 
 const columns = [
-  { label: 'Orden', name: 'order' },
-  { label: 'Nombre', name: 'name' },
+  { label: '#', name: 'order' },
+  { label: 'Lección', name: 'name' },
   { label: 'Formato', name: 'format' },
-  { label: 'Activa', name: 'active' },
-  { label: '', name: 'actions' },
+  { label: 'Fecha límite', name: 'limitDate' },
+  { label: 'Estado', name: 'active' },
+  { label: '', name: 'actions', classes: 'text-right' },
 ]
 
-const rows = ref<LearnLesson[]>([])
-const loading = ref(false)
-const meta = ref<Pick<PaginationMeta, 'total' | 'perPage' | 'currentPage'>>({ total: 0, perPage: 10, currentPage: 1 })
-
-async function fetchLessons(page = 1) {
-  loading.value = true
-  try {
-    const { data } = await AppiService.get<PaginatedResponse<LearnLesson>>(
-      `/admin/learn/courses/${courseId}/lessons`,
-      { params: { page } }
-    )
-    rows.value = data.data
-    meta.value = { total: data.meta.total, perPage: data.meta.perPage, currentPage: data.meta.currentPage }
-  } finally {
-    loading.value = false
-  }
-}
-
-onMounted(() => fetchLessons())
+onMounted(() => fetch())
 </script>
 
 <template>
-  <div class="p-6">
-    <div class="flex items-center justify-between mb-6">
-      <div>
-        <RouterLink to="/learn/courses" class="text-sm text-slate-500 hover:text-slate-700 dark:text-slate-400 dark:hover:text-slate-200">
-          <i class="mdi mdi-arrow-left mr-1" />Cursos
-        </RouterLink>
-        <h1 class="text-2xl font-bold text-slate-800 dark:text-slate-100">Lecciones</h1>
-      </div>
-      <RouterLink :to="`/learn/courses/${courseId}/lessons/create`">
-        <DuiButton color="primary" size="sm">
-          <i class="mdi mdi-plus mr-1" /> Nueva lección
+  <PageHeader title="Lecciones" :subtitle="course?.name" :back="`/learn/courses/${courseId}`">
+    <DuiButton variant="outline" :to="`/learn/courses/${courseId}/questions`">
+      <i class="mdi mdi-help-circle-outline mr-1" /> Banco de preguntas
+    </DuiButton>
+    <DuiButton color="primary" :to="`/learn/courses/${courseId}/lessons/create`">
+      <i class="mdi mdi-plus mr-1" /> Nueva lección
+    </DuiButton>
+  </PageHeader>
+
+  <DuiTable :columns="columns" :rows="rows" :loading="loading" :pagination="tablePagination" @paginate="fetch">
+    <template #order="{ order }"><span class="font-mono text-slate-400">{{ order }}</span></template>
+    <template #name="{ id, name, activity }">
+      <RouterLink :to="`/learn/courses/${courseId}/lessons/${id}`" class="font-medium hover:underline">{{ name }}</RouterLink>
+      <DuiBadge v-if="activity" label="con actividad" size="xs" color="secondary" class="ml-2" />
+    </template>
+    <template #format="{ format }"><DuiBadge :label="format" size="xs" /></template>
+    <template #limitDate="{ limitDate }">{{ formatDate(limitDate) }}</template>
+    <template #active="{ active }">
+      <StatusBadge :status="active" on="Publicada" off="Borrador" />
+    </template>
+    <template #actions="{ id }">
+      <div class="flex justify-end">
+        <DuiButton variant="ghost" size="sm" title="Editar" :to="`/learn/courses/${courseId}/lessons/${id}`">
+          <i class="mdi mdi-pencil" />
         </DuiButton>
-      </RouterLink>
-    </div>
-    <DuiTable
-      :columns="columns"
-      :rows="rows"
-      :loading="loading"
-      :pagination="{ page: meta.currentPage, perPage: meta.perPage, total: meta.total }"
-      @paginate="fetchLessons"
-    >
-      <template #active="{ active }">
-        <span :class="active ? 'text-green-600' : 'text-red-500'">
-          {{ active ? 'Sí' : 'No' }}
-        </span>
-      </template>
-      <template #actions="{ id }">
-        <RouterLink :to="`/learn/courses/${courseId}/lessons/${id}`">
-          <DuiButton size="sm" color="secondary">
-            <i class="mdi mdi-pencil" />
-          </DuiButton>
-        </RouterLink>
-      </template>
-    </DuiTable>
-  </div>
+      </div>
+    </template>
+  </DuiTable>
+  <EmptyState v-if="!loading && !rows.length" icon="mdi-book-open-page-variant-outline" text="Este curso aún no tiene lecciones." />
 </template>

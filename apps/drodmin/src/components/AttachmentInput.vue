@@ -1,239 +1,123 @@
 <script setup lang="ts">
-import { computed, ref, watch } from 'vue'
-import { DuiInput, DuiButton, DuiModal, DuiAlert } from '@dronico/droni-kit'
-import AppiService from '../services/AppiService'
+import { ref, watch } from 'vue'
+import { DuiFile, DuiInput, DuiButton, DuiModal, DuiPagination, useToast } from '@dronico/droni-kit'
+import AppiService, { apiError } from '../services/AppiService'
 import type { Attachment, PaginatedResponse } from '../types/AppiService'
+import EmptyState from './ui/EmptyState.vue'
 
-const props = withDefaults(defineProps<{
-  modelValue: string | null
-  placeholder?: string
-}>(), {
-  placeholder: 'URL del archivo',
-})
+// v-model is the file URL. Files can be uploaded, picked from the site's
+// attachment library, or given as an external URL.
+const model = defineModel<string | null>({ default: null })
 
-const emit = defineEmits<{
-  'update:modelValue': [value: string | null]
-}>()
+const toast = useToast()
+const isImage = (value?: string | null) => !!value && /\.(png|jpe?g|gif|webp|svg|avif)(\?|$)/i.test(value)
 
-const inputValue = computed({
-  get: () => props.modelValue ?? '',
-  set: (val: string) => emit('update:modelValue', val || null),
-})
-
-// --- File browser ---
-const showBrowser = ref(false)
-const browserSearch = ref('')
-const browserRows = ref<Attachment[]>([])
-const browserLoading = ref(false)
-const browserError = ref<string | null>(null)
-const browserMeta = ref({ total: 0, perPage: 16, currentPage: 1 })
-const selectedAttachment = ref<Attachment | null>(null)
-
-const totalPages = computed(() => Math.max(1, Math.ceil(browserMeta.value.total / browserMeta.value.perPage)))
-const hasPreviousPage = computed(() => browserMeta.value.currentPage > 1)
-const hasNextPage = computed(() => browserMeta.value.currentPage < totalPages.value)
-
-function isImage(mime: string) {
-  return mime.toLowerCase().startsWith('image/')
-}
-
-async function fetchBrowser(page = 1) {
-  browserLoading.value = true
-  browserError.value = null
-  try {
-    const { data } = await AppiService.get<PaginatedResponse<Attachment>>('/admin/content/attachments', {
-      params: { page, per_page: 16, ...(browserSearch.value ? { q: browserSearch.value } : {}) },
-    })
-    browserRows.value = data.data
-    browserMeta.value = { total: data.meta.total, perPage: data.meta.perPage, currentPage: data.meta.currentPage }
-  } catch (e: any) {
-    browserError.value = e?.response?.data?.message ?? 'Error al cargar los archivos.'
-  } finally {
-    browserLoading.value = false
-  }
-}
-
-function openBrowser() {
-  selectedAttachment.value = null
-  browserSearch.value = ''
-  showBrowser.value = true
-  fetchBrowser(1)
-}
-
-function confirmSelection() {
-  if (selectedAttachment.value?.url) {
-    emit('update:modelValue', selectedAttachment.value.url)
-    showBrowser.value = false
-  }
-}
-
-let searchTimer: ReturnType<typeof setTimeout>
-watch(browserSearch, () => {
-  clearTimeout(searchTimer)
-  searchTimer = setTimeout(() => fetchBrowser(1), 350)
-})
-
-// --- Direct upload ---
-const uploadInput = ref<HTMLInputElement | null>(null)
-const uploading = ref(false)
-const uploadError = ref<string | null>(null)
-
-function triggerUpload() {
-  uploadInput.value?.click()
-}
-
-async function handleFileUpload(event: Event) {
-  const input = event.target as HTMLInputElement
-  const file = input.files?.[0]
-  if (!file) return
-  uploading.value = true
-  uploadError.value = null
+async function upload(file: File) {
   try {
     const formData = new FormData()
     formData.append('name', file.name.replace(/\.[^.]+$/, ''))
     formData.append('file', file)
-    const { data } = await AppiService.post<{ data: Attachment }>('/admin/content/attachments', formData, {
+    const { data } = await AppiService.post<Attachment>('/admin/content/attachments', formData, {
       headers: { 'Content-Type': 'multipart/form-data' },
     })
-    if (data.data?.url) {
-      emit('update:modelValue', data.data.url)
-    }
-  } catch (e: any) {
-    uploadError.value = e?.response?.data?.message ?? 'Error al subir el archivo.'
-  } finally {
-    uploading.value = false
-    input.value = ''
+    model.value = data.url ?? null
+  } catch (e) {
+    toast.error(apiError(e, 'Error al subir el archivo.'))
   }
 }
+
+function openFile(url: string) {
+  window.open(url, '_blank', 'noopener')
+}
+
+// --- Library modal ---
+const showBrowser = ref(false)
+const search = ref('')
+const externalUrl = ref('')
+const files = ref<Attachment[]>([])
+const loading = ref(false)
+const page = ref(1)
+const total = ref(0)
+
+async function fetchFiles() {
+  loading.value = true
+  try {
+    const { data } = await AppiService.get<PaginatedResponse<Attachment>>('/admin/content/attachments', {
+      params: { page: page.value, per_page: 12, q: search.value || undefined },
+    })
+    files.value = data.data
+    total.value = data.meta.total
+  } finally {
+    loading.value = false
+  }
+}
+
+function openBrowser() {
+  search.value = ''
+  externalUrl.value = model.value ?? ''
+  page.value = 1
+  showBrowser.value = true
+  fetchFiles()
+}
+
+function select(url?: string | null) {
+  model.value = url || null
+  showBrowser.value = false
+}
+
+let searchTimer: ReturnType<typeof setTimeout>
+watch(search, () => {
+  clearTimeout(searchTimer)
+  searchTimer = setTimeout(() => { page.value = 1; fetchFiles() }, 350)
+})
+watch(page, fetchFiles)
 </script>
 
 <template>
-  <div class="flex flex-col gap-1">
-    <div class="flex gap-2 items-center">
-      <DuiInput
-        v-model="inputValue"
-        :placeholder="placeholder"
-        block
-        class="flex-1 min-w-0"
-      />
-      <DuiButton type="button" color="secondary" size="sm" title="Biblioteca de archivos" @click="openBrowser">
-        <i class="mdi mdi-folder-open-outline" />
-      </DuiButton>
-      <DuiButton type="button" color="secondary" size="sm" :disabled="uploading" title="Subir archivo" @click="triggerUpload">
-        <i v-if="uploading" class="mdi mdi-loading mdi-spin" />
-        <i v-else class="mdi mdi-upload" />
-      </DuiButton>
-      <a v-if="modelValue" :href="modelValue" target="_blank" rel="noopener noreferrer">
-        <DuiButton type="button" color="secondary" size="sm" title="Abrir en nueva ventana">
-          <i class="mdi mdi-open-in-new" />
-        </DuiButton>
-      </a>
-    </div>
-
-    <p v-if="uploadError" class="text-xs text-red-500">{{ uploadError }}</p>
-
-    <input
-      ref="uploadInput"
-      type="file"
-      class="hidden"
-      @change="handleFileUpload"
+  <div class="flex items-center gap-3">
+    <img v-if="isImage(model)" :src="model!" alt="" class="h-10 w-10 shrink-0 rounded-lg object-cover" />
+    <DuiFile
+      :model-value="model"
+      class="min-w-0 flex-1"
+      @upload-file="upload"
+      @open-browser="openBrowser"
+      @open-file="openFile"
     />
+    <DuiButton v-if="model" variant="ghost" color="danger" size="sm" title="Quitar" @click="model = null">
+      <i class="mdi mdi-close" />
+    </DuiButton>
 
-    <!-- File browser modal -->
-    <DuiModal v-model="showBrowser" size="xl" :show-close="true">
-      <template #header>
-        <div class="flex items-center justify-between w-full gap-4 pr-2">
-          <span class="font-semibold text-slate-800 dark:text-slate-100">Biblioteca de archivos</span>
-          <DuiInput v-model="browserSearch" placeholder="Buscar..." class="w-56" />
-        </div>
-      </template>
+    <DuiModal v-model="showBrowser" title="Biblioteca de archivos" size="xl">
+      <div class="flex flex-col gap-4">
+        <DuiInput v-model="search" block placeholder="Buscar por nombre..." />
 
-      <div class="min-h-[360px] flex flex-col">
-        <DuiAlert v-if="browserError" color="danger" class="mb-4">{{ browserError }}</DuiAlert>
-
-        <p v-if="browserLoading" class="text-slate-500 dark:text-slate-400 text-sm m-auto">Cargando...</p>
-
-        <div v-else-if="browserRows.length" class="grid grid-cols-4 gap-3">
+        <p v-if="loading" class="py-10 text-center text-sm text-slate-500">Cargando...</p>
+        <EmptyState v-else-if="!files.length" text="No hay archivos" />
+        <div v-else class="grid grid-cols-2 gap-3 sm:grid-cols-4">
           <button
-            v-for="attachment in browserRows"
-            :key="attachment.id"
+            v-for="file in files"
+            :key="file.id"
             type="button"
-            class="browser-card"
-            :class="{ 'browser-card--selected': selectedAttachment?.id === attachment.id }"
-            @click="selectedAttachment = attachment"
+            class="overflow-hidden rounded-lg border-2 border-transparent bg-slate-100 text-left transition hover:border-blue-500 dark:bg-slate-800"
+            @click="select(file.url)"
           >
-            <div class="browser-card__preview">
-              <img
-                v-if="isImage(attachment.mime) && attachment.url"
-                :src="attachment.url"
-                :alt="attachment.name"
-                class="w-full h-full object-cover"
-                loading="lazy"
-              />
+            <div class="flex h-24 items-center justify-center bg-slate-200 dark:bg-slate-700">
+              <img v-if="file.mime.startsWith('image/') && file.url" :src="file.url" :alt="file.name" class="h-full w-full object-cover" loading="lazy" />
               <i v-else class="mdi mdi-file-document-outline text-3xl text-slate-400" />
             </div>
-            <p class="text-xs text-center truncate px-1 pb-2 text-slate-700 dark:text-slate-300">
-              {{ attachment.name }}
-            </p>
+            <p class="truncate px-2 py-1 text-xs">{{ file.name }}</p>
           </button>
         </div>
 
-        <div v-else class="flex flex-col items-center justify-center flex-1 gap-2 text-slate-400">
-          <i class="mdi mdi-file-document-outline text-5xl" />
-          <p class="text-sm">No hay archivos</p>
-        </div>
-
-        <div v-if="!browserLoading && totalPages > 1" class="flex items-center justify-between mt-4 pt-4 border-t border-slate-200 dark:border-slate-700">
-          <p class="text-xs text-slate-500">Página {{ browserMeta.currentPage }} de {{ totalPages }}</p>
-          <div class="flex gap-2">
-            <DuiButton size="sm" color="secondary" :disabled="!hasPreviousPage" @click="fetchBrowser(browserMeta.currentPage - 1)">
-              Anterior
-            </DuiButton>
-            <DuiButton size="sm" color="secondary" :disabled="!hasNextPage" @click="fetchBrowser(browserMeta.currentPage + 1)">
-              Siguiente
-            </DuiButton>
-          </div>
-        </div>
+        <DuiPagination v-if="total > 12" v-model="page" :total="total" :per-page="12" size="sm" />
       </div>
 
       <template #footer>
-        <div class="flex justify-end gap-3">
-          <DuiButton type="button" color="neutral" @click="showBrowser = false">Cancelar</DuiButton>
-          <DuiButton type="button" color="primary" :disabled="!selectedAttachment" @click="confirmSelection">
-            Seleccionar
-          </DuiButton>
-        </div>
+        <form class="flex w-full gap-2" @submit.prevent="select(externalUrl)">
+          <DuiInput v-model="externalUrl" block placeholder="...o pega una URL externa" class="flex-1" />
+          <DuiButton type="submit" color="primary">Usar URL</DuiButton>
+        </form>
       </template>
     </DuiModal>
   </div>
 </template>
-
-<style scoped>
-.browser-card {
-  border-radius: 8px;
-  border: 2px solid transparent;
-  background: var(--dui-color-surface, #f8fafc);
-  overflow: hidden;
-  cursor: pointer;
-  transition: border-color 0.15s, box-shadow 0.15s;
-  text-align: left;
-}
-
-.browser-card:hover {
-  border-color: #94a3b8;
-}
-
-.browser-card--selected {
-  border-color: var(--dui-color-primary, #6366f1);
-  box-shadow: 0 0 0 3px color-mix(in srgb, var(--dui-color-primary, #6366f1) 20%, transparent);
-}
-
-.browser-card__preview {
-  height: 100px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  background: linear-gradient(135deg, #f1f5f9 0%, #e2e8f0 100%);
-  overflow: hidden;
-}
-</style>

@@ -1,97 +1,63 @@
 <script setup lang="ts">
 import { ref, onMounted } from 'vue'
-import { DuiTable, DuiButton } from '@dronico/droni-kit'
-import AppiService from '../../../services/AppiService'
-import type { StoreOrder, PaginatedResponse, PaginationMeta } from '../../../types/AppiService'
+import { DuiTable, DuiButton, DuiSelect } from '@dronico/droni-kit'
+import { usePaginatedList } from '../../../composables/usePaginatedList'
+import { formatDate, formatMoney } from '../../../utils/format'
+import { ORDER_STATUSES } from '../../../utils/labels'
+import PageHeader from '../../../components/ui/PageHeader.vue'
+import StatusBadge from '../../../components/ui/StatusBadge.vue'
+import UserAvatar from '../../../components/ui/UserAvatar.vue'
+import EmptyState from '../../../components/ui/EmptyState.vue'
+import type { StoreOrder } from '../../../types/AppiService'
 
 const columns = [
-  { label: 'ID', name: 'id' },
-  { label: 'Usuario', name: 'user' },
+  { label: 'Pedido', name: 'id' },
+  { label: 'Cliente', name: 'user' },
   { label: 'Total', name: 'total' },
   { label: 'Estado', name: 'status' },
   { label: 'Fecha', name: 'createdAt' },
-  { label: '', name: 'actions' },
+  { label: '', name: 'actions', classes: 'text-right' },
 ]
 
-const STATUS_LABELS: Record<string, string> = {
-  pending: 'Pendiente',
-  paid: 'Pagado',
-  shipped: 'Enviado',
-  completed: 'Completado',
-  canceled: 'Cancelado',
-}
+const status = ref('')
+const { rows, loading, tablePagination, fetch } = usePaginatedList<StoreOrder>('/admin/store/orders', () => ({ status: status.value }))
 
-const STATUS_COLORS: Record<string, string> = {
-  pending: 'text-yellow-600',
-  paid: 'text-blue-600',
-  shipped: 'text-purple-600',
-  completed: 'text-green-600',
-  canceled: 'text-red-500',
-}
-
-const rows = ref<StoreOrder[]>([])
-const loading = ref(false)
-const statusFilter = ref('')
-const meta = ref<Pick<PaginationMeta, 'total' | 'perPage' | 'currentPage'>>({ total: 0, perPage: 10, currentPage: 1 })
-
-async function fetchOrders(page = 1) {
-  loading.value = true
-  try {
-    const params: Record<string, unknown> = { page }
-    if (statusFilter.value) params.status = statusFilter.value
-    const { data } = await AppiService.get<PaginatedResponse<StoreOrder>>('/admin/store/orders', { params })
-    rows.value = data.data
-    meta.value = { total: data.meta.total, perPage: data.meta.perPage, currentPage: data.meta.currentPage }
-  } finally {
-    loading.value = false
-  }
-}
-
-onMounted(() => fetchOrders())
+onMounted(() => fetch())
 </script>
 
 <template>
-  <div class="p-6">
-    <div class="flex items-center justify-between mb-6">
-      <h1 class="text-2xl font-bold text-slate-800 dark:text-slate-100">Pedidos</h1>
-      <select
-        v-model="statusFilter"
-        class="rounded border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-100 px-3 py-1.5 text-sm"
-        @change="fetchOrders(1)"
-      >
-        <option value="">Todos los estados</option>
-        <option v-for="(label, key) in STATUS_LABELS" :key="key" :value="key">{{ label }}</option>
-      </select>
-    </div>
-    <DuiTable
-      :columns="columns"
-      :rows="rows"
-      :loading="loading"
-      :pagination="{ page: meta.currentPage, perPage: meta.perPage, total: meta.total }"
-      @paginate="fetchOrders"
-    >
-      <template #id="{ id }">
-        <span class="font-mono text-xs">{{ id.slice(0, 8) }}...</span>
-      </template>
-      <template #user="{ user }">
-        {{ user?.fullName ?? 'Invitado' }}
-      </template>
-      <template #total="{ total }">
-        {{ Number(total).toFixed(2) }}
-      </template>
-      <template #status="{ status }">
-        <span :class="STATUS_COLORS[status] ?? ''">{{ STATUS_LABELS[status] ?? status }}</span>
-      </template>
-      <template #createdAt="{ createdAt }">
-        {{ new Date(createdAt).toLocaleDateString() }}
-      </template>
-      <template #actions="{ id }">
-        <RouterLink :to="`/store/orders/${id}`">
-          <DuiButton size="sm" color="secondary">
-            <i class="mdi mdi-eye" />
-          </DuiButton>
-        </RouterLink>
-      </template>
-    </DuiTable>
-  </div>
+  <PageHeader title="Pedidos" subtitle="Órdenes de compra de la tienda">
+    <DuiSelect
+      v-model="status"
+      :options="ORDER_STATUSES"
+      item-label="label"
+      item-value="value"
+      placeholder="Todos los estados"
+      @update:model-value="fetch(1)"
+    />
+  </PageHeader>
+
+  <DuiTable :columns="columns" :rows="rows" :loading="loading" :pagination="tablePagination" @paginate="fetch">
+    <template #id="{ id }">
+      <RouterLink :to="`/store/orders/${id}`" class="font-mono text-xs hover:underline">#{{ id.slice(0, 8) }}</RouterLink>
+    </template>
+    <template #user="{ user }">
+      <UserAvatar :user="user" />
+    </template>
+    <template #total="{ total }">
+      <span class="font-medium">{{ formatMoney(total) }}</span>
+    </template>
+    <template #status="{ status }">
+      <StatusBadge :status="status" />
+    </template>
+    <template #createdAt="{ createdAt }">{{ formatDate(createdAt) }}</template>
+    <template #actions="{ id }">
+      <div class="flex justify-end">
+        <DuiButton variant="ghost" size="sm" title="Ver" :to="`/store/orders/${id}`">
+          <i class="mdi mdi-eye-outline" />
+        </DuiButton>
+      </div>
+    </template>
+  </DuiTable>
+  <EmptyState v-if="!loading && !rows.length" icon="mdi-cart-outline" text="No hay pedidos." />
 </template>

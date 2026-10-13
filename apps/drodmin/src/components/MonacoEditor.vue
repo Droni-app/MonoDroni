@@ -17,7 +17,7 @@ if (!globalThis.MonacoEnvironment) {
 const languageMap: Record<string, string> = {
   markdown: 'markdown',
   html: 'html',
-  plain: 'plaintext',
+  text: 'plaintext',
 }
 
 const props = withDefaults(defineProps<{

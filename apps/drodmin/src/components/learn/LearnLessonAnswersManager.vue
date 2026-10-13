@@ -1,97 +1,148 @@
 <script setup lang="ts">
 import { onMounted, reactive, ref } from 'vue'
-import { DuiButton, DuiInput, DuiAlert } from '@dronico/droni-kit'
-import AppiService from '../../services/AppiService'
-import type { LearnLessonAnswer, PaginatedResponse } from '../../types/AppiService'
+import { DuiButton, DuiInput, DuiTextarea, DuiLabel, DuiModal, DuiPagination, DuiBadge, useToast } from '@dronico/droni-kit'
+import AppiService, { apiError } from '../../services/AppiService'
+import { usePaginatedList } from '../../composables/usePaginatedList'
+import { emptyToNull, formatDateTime } from '../../utils/format'
+import AttachmentInput from '../AttachmentInput.vue'
+import UserPicker from './UserPicker.vue'
+import UserAvatar from '../ui/UserAvatar.vue'
+import ConfirmDelete from '../ui/ConfirmDelete.vue'
+import EmptyState from '../ui/EmptyState.vue'
+import type { LearnLessonAnswer, SiteUser } from '../../types/AppiService'
 
+// Students' answers to the lesson activity: review, grade, register manually or delete.
 const props = defineProps<{ courseId: string; lessonId: string }>()
 
-const answers = ref<LearnLessonAnswer[]>([])
-const loading = ref(false)
-const error = ref<string | null>(null)
-const editingId = ref<string | null>(null)
-const savingId = ref<string | null>(null)
-const draft = reactive({ feedback: '', result: '' })
+const toast = useToast()
+const url = `/admin/learn/courses/${props.courseId}/lessons/${props.lessonId}/answers`
+const { rows, loading, pagination, fetch } = usePaginatedList<LearnLessonAnswer>(url)
 
-async function fetchAnswers() {
-  loading.value = true
+// --- Grade / edit modal (also used to register a new answer) ---
+const editing = ref<LearnLessonAnswer | null>(null)
+const showModal = ref(false)
+const saving = ref(false)
+const user = ref<SiteUser | null>(null)
+const form = reactive({ answer: '', attachment: null as string | null, feedback: '', result: '' as number | '' })
+
+function openModal(answer: LearnLessonAnswer | null) {
+  editing.value = answer
+  user.value = null
+  Object.assign(form, {
+    answer: answer?.answer ?? '',
+    attachment: answer?.attachment ?? null,
+    feedback: answer?.feedback ?? '',
+    result: answer?.result ?? '',
+  })
+  showModal.value = true
+}
+
+async function save() {
+  saving.value = true
   try {
-    const { data } = await AppiService.get<PaginatedResponse<LearnLessonAnswer>>(
-      `/admin/learn/courses/${props.courseId}/lessons/${props.lessonId}/answers`,
-      { params: { per_page: 50 } }
-    )
-    answers.value = data.data
-  } catch {
-    error.value = 'Error al cargar las respuestas.'
+    const payload = emptyToNull({ ...form })
+    if (editing.value) {
+      await AppiService.patch(`${url}/${editing.value.id}`, payload)
+      toast.success('Respuesta calificada.')
+    } else {
+      await AppiService.post(url, { ...payload, user_id: user.value?.id })
+      toast.success('Respuesta registrada.')
+    }
+    showModal.value = false
+    fetch(pagination.value.page)
+  } catch (e) {
+    toast.error(apiError(e, 'Error al guardar la respuesta.'))
   } finally {
-    loading.value = false
+    saving.value = false
   }
 }
 
-function startEdit(answer: LearnLessonAnswer) {
-  editingId.value = answer.id
-  draft.feedback = answer.feedback ?? ''
-  draft.result = answer.result != null ? String(answer.result) : ''
-}
-
-async function saveGrade(answer: LearnLessonAnswer) {
-  savingId.value = answer.id
-  error.value = null
+async function remove(answer: LearnLessonAnswer) {
   try {
-    const { data } = await AppiService.patch<LearnLessonAnswer>(
-      `/admin/learn/courses/${props.courseId}/lessons/${props.lessonId}/answers/${answer.id}`,
-      { feedback: draft.feedback || null, result: draft.result === '' ? null : Number(draft.result) }
-    )
-    const index = answers.value.findIndex((a) => a.id === answer.id)
-    if (index !== -1) answers.value[index] = data
-    editingId.value = null
-  } catch (e: any) {
-    error.value = e?.response?.data?.message ?? 'Error al calificar la respuesta.'
-  } finally {
-    savingId.value = null
+    await AppiService.delete(`${url}/${answer.id}`)
+    toast.success('Respuesta eliminada.')
+    fetch(pagination.value.page)
+  } catch (e) {
+    toast.error(apiError(e, 'Error al eliminar la respuesta.'))
   }
 }
 
-onMounted(fetchAnswers)
+onMounted(() => fetch())
 </script>
 
 <template>
-  <div class="flex flex-col gap-3">
-    <DuiAlert v-if="error" color="danger">{{ error }}</DuiAlert>
-
-    <div v-if="loading" class="text-sm text-slate-500 dark:text-slate-400">Cargando...</div>
-    <div v-else-if="answers.length === 0" class="text-sm text-slate-400 dark:text-slate-500 text-center py-4">
-      Sin respuestas
+  <div class="flex flex-col gap-4">
+    <div class="flex justify-end">
+      <DuiButton variant="outline" size="sm" @click="openModal(null)">
+        <i class="mdi mdi-plus mr-1" /> Registrar respuesta
+      </DuiButton>
     </div>
-    <div v-else class="flex flex-col gap-2">
-      <div
-        v-for="answer in answers"
-        :key="answer.id"
-        class="flex flex-col gap-2 p-2 rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900"
-      >
-        <p class="text-xs font-semibold text-slate-500 dark:text-slate-400 truncate">
-          {{ answer.enrollment?.user?.fullName ?? answer.enrollment?.userId ?? answer.learnEnrollmentId }}
-        </p>
-        <p class="text-sm text-slate-800 dark:text-slate-100 whitespace-pre-line">{{ answer.answer }}</p>
 
-        <template v-if="editingId === answer.id">
-          <DuiInput v-model="draft.feedback" block placeholder="Feedback" />
-          <DuiInput v-model="draft.result" block type="number" min="0" max="100" placeholder="Resultado (0-100)" />
-          <div class="flex gap-2 justify-end">
-            <DuiButton type="button" size="sm" color="neutral" @click="editingId = null">Cancelar</DuiButton>
-            <DuiButton type="button" size="sm" color="primary" :disabled="savingId === answer.id" @click="saveGrade(answer)">
-              {{ savingId === answer.id ? 'Guardando...' : 'Guardar' }}
+    <p v-if="loading && !rows.length" class="text-sm text-slate-500">Cargando...</p>
+    <EmptyState v-else-if="!rows.length" icon="mdi-text-box-check-outline" text="Nadie ha respondido la actividad todavía." />
+
+    <ul v-else class="divide-y divide-slate-200 dark:divide-slate-700">
+      <li v-for="answer in rows" :key="answer.id" class="flex flex-col gap-2 py-4">
+        <div class="flex flex-wrap items-center gap-2">
+          <UserAvatar :user="answer.enrollment?.user" />
+          <span class="text-xs text-slate-400">{{ formatDateTime(answer.createdAt) }}</span>
+          <DuiBadge
+            :label="answer.result != null ? `${answer.result}/100` : 'Sin calificar'"
+            :color="answer.result != null ? 'success' : 'warning'"
+            size="xs"
+          />
+          <div class="ml-auto flex gap-1">
+            <DuiButton variant="ghost" size="sm" @click="openModal(answer)">
+              <i class="mdi mdi-check-decagram-outline mr-1" /> Calificar
             </DuiButton>
+            <ConfirmDelete :action="() => remove(answer)" label="" size="sm" />
           </div>
-        </template>
-        <template v-else>
-          <p v-if="answer.feedback" class="text-xs text-slate-500 dark:text-slate-400">Feedback: {{ answer.feedback }}</p>
-          <p v-if="answer.result != null" class="text-xs text-slate-500 dark:text-slate-400">Resultado: {{ answer.result }}</p>
-          <DuiButton type="button" size="sm" color="secondary" @click="startEdit(answer)">
-            <i class="mdi mdi-pencil mr-1" />Calificar
-          </DuiButton>
-        </template>
-      </div>
-    </div>
+        </div>
+        <p class="whitespace-pre-wrap text-sm">{{ answer.answer }}</p>
+        <a v-if="answer.attachment" :href="answer.attachment" target="_blank" rel="noopener" class="text-xs text-blue-500 hover:underline">
+          <i class="mdi mdi-paperclip" /> Adjunto
+        </a>
+        <p v-if="answer.feedback" class="rounded-lg bg-slate-500/10 p-2 text-sm text-slate-600 dark:text-slate-300">
+          <strong>Feedback:</strong> {{ answer.feedback }}
+        </p>
+      </li>
+    </ul>
+
+    <DuiPagination
+      v-if="pagination.total > pagination.perPage"
+      :model-value="pagination.page"
+      :total="pagination.total"
+      :per-page="pagination.perPage"
+      size="sm"
+      @update:model-value="fetch"
+    />
+
+    <DuiModal v-model="showModal" :title="editing ? 'Calificar respuesta' : 'Registrar respuesta'" size="lg">
+      <form class="flex flex-col gap-4" @submit.prevent="save">
+        <DuiLabel v-if="!editing" title="Estudiante" required help-text="Debe estar inscrito en el curso">
+          <UserPicker v-model="user" />
+        </DuiLabel>
+        <DuiLabel title="Respuesta" required>
+          <DuiTextarea v-model="form.answer" block rows="5" required />
+        </DuiLabel>
+        <DuiLabel title="Adjunto">
+          <AttachmentInput v-model="form.attachment" />
+        </DuiLabel>
+        <div class="grid gap-4 sm:grid-cols-4">
+          <DuiLabel title="Nota (0-100)">
+            <DuiInput v-model.number="form.result" block type="number" min="0" max="100" />
+          </DuiLabel>
+          <DuiLabel title="Feedback" class="sm:col-span-3">
+            <DuiTextarea v-model="form.feedback" block autoheight placeholder="Comentarios para el estudiante" />
+          </DuiLabel>
+        </div>
+      </form>
+      <template #footer>
+        <div class="flex justify-end gap-2">
+          <DuiButton variant="ghost" @click="showModal = false">Cancelar</DuiButton>
+          <DuiButton color="primary" :loading="saving" :disabled="!editing && !user" @click="save">Guardar</DuiButton>
+        </div>
+      </template>
+    </DuiModal>
   </div>
 </template>

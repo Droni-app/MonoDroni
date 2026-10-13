@@ -4,6 +4,8 @@ import { DuiNavbar, DuiButton } from '@dronico/droni-kit'
 import { useRouter } from 'vue-router'
 import { useAuth } from '../composables/useAuth'
 import { useTheme } from '../composables/useTheme'
+import { modules } from '../navigation'
+import UserAvatar from './ui/UserAvatar.vue'
 import logoLight from '../assets/img/logo.svg'
 import logoDark from '../assets/img/logo-w.svg'
 
@@ -11,41 +13,13 @@ const router = useRouter()
 const { logout, user } = useAuth()
 const { theme, toggleTheme } = useTheme()
 
-const logo = computed(() => theme.value === 'dark' ? logoDark : logoLight)
+// DuiNavbar renders `icon` as plain text, so the navbar gets the items without icons
+const navItems = modules.map(({ label, children }) => ({
+  label,
+  children: children.map(({ label, to }) => ({ label, to })),
+}))
 
-const items = [
-  {
-    label: 'Content',
-    children: [
-      { label: 'Posts', to: '/content/posts' },
-      { label: 'Attachments', to: '/content/attachments' },
-    ],
-  },
-  {
-    label: 'Social',
-    children: [
-      { label: 'Comments', to: '/social/comments' },
-      { label: 'Topics', to: '/social/topics' },
-    ],
-  },
-  {
-    label: 'Store',
-    children: [
-      { label: 'Productos', to: '/store/products' },
-      { label: 'Pedidos', to: '/store/orders' },
-      { label: 'Pagos', to: '/store/payments' },
-      { label: 'Cupones', to: '/store/coupons' },
-      { label: 'Reglas de envío', to: '/store/shipping-rules' },
-    ],
-  },
-  {
-    label: 'Learn',
-    children: [
-      { label: 'Cursos', to: '/learn/courses' },
-      { label: 'Inscripciones', to: '/learn/enrollments' },
-    ],
-  },
-]
+const logo = computed(() => theme.value === 'dark' ? logoDark : logoLight)
 
 function handleLogout() {
   logout()
@@ -54,27 +28,21 @@ function handleLogout() {
 </script>
 
 <template>
-  <DuiNavbar :items="items">
+  <DuiNavbar :items="navItems">
     <template #brand>
-      <img :src="logo" alt="Droni" class="h-8 w-auto" />
+      <RouterLink to="/">
+        <img :src="logo" alt="Droni" class="h-8 w-auto" />
+      </RouterLink>
     </template>
     <template #actions>
-      <RouterLink to="/profile" class="flex items-center gap-2 text-sm text-slate-600 hover:text-slate-900 dark:text-white/80 dark:hover:text-white transition-colors">
-        <img
-          v-if="user?.avatar"
-          :src="user.avatar"
-          :alt="user.fullName"
-          class="h-8 w-8 rounded-full object-cover"
-        />
-        <span v-else class="flex h-8 w-8 items-center justify-center rounded-full bg-slate-200 text-slate-700 dark:bg-white/20 dark:text-white text-xs font-semibold uppercase">
-          {{ user?.fullName?.charAt(0) ?? '?' }}
-        </span>
-        <span class="hidden sm:block font-medium">{{ user?.fullName }}</span>
+      <RouterLink to="/profile" class="text-slate-600 transition-colors hover:text-slate-900 dark:text-white/80 dark:hover:text-white">
+        <UserAvatar :user="user" size="md" :show-name="false" class="sm:hidden" />
+        <UserAvatar :user="user" size="md" class="hidden font-medium sm:inline-flex" />
       </RouterLink>
-      <DuiButton color="secondary" size="sm" @click="toggleTheme">
+      <DuiButton variant="ghost" size="sm" :title="theme === 'dark' ? 'Tema claro' : 'Tema oscuro'" @click="toggleTheme">
         <i :class="theme === 'dark' ? 'mdi mdi-weather-sunny' : 'mdi mdi-weather-night'" />
       </DuiButton>
-      <DuiButton color="danger" size="sm" @click="handleLogout">
+      <DuiButton color="danger" variant="ghost" size="sm" title="Cerrar sesión" @click="handleLogout">
         <i class="mdi mdi-logout" />
       </DuiButton>
     </template>

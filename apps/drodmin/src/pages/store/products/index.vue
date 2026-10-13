@@ -1,81 +1,65 @@
 <script setup lang="ts">
 import { ref, onMounted } from 'vue'
 import { DuiTable, DuiButton, DuiInput } from '@dronico/droni-kit'
-import AppiService from '../../../services/AppiService'
-import type { StoreProduct, PaginatedResponse, PaginationMeta } from '../../../types/AppiService'
+import { usePaginatedList } from '../../../composables/usePaginatedList'
+import { formatMoney } from '../../../utils/format'
+import PageHeader from '../../../components/ui/PageHeader.vue'
+import StatusBadge from '../../../components/ui/StatusBadge.vue'
+import EmptyState from '../../../components/ui/EmptyState.vue'
+import type { StoreProduct } from '../../../types/AppiService'
 
 const columns = [
-  { label: 'Nombre', name: 'name' },
+  { label: 'Producto', name: 'name' },
   { label: 'Precio', name: 'price' },
   { label: 'Stock', name: 'stock' },
-  { label: 'Activo', name: 'active' },
-  { label: 'Creado', name: 'createdAt' },
-  { label: '', name: 'actions' },
+  { label: 'Estado', name: 'active' },
+  { label: '', name: 'actions', classes: 'text-right' },
 ]
 
-const rows = ref<StoreProduct[]>([])
-const loading = ref(false)
-const meta = ref<Pick<PaginationMeta, 'total' | 'perPage' | 'currentPage'>>({ total: 0, perPage: 10, currentPage: 1 })
-const searchQuery = ref('')
+const q = ref('')
+const { rows, loading, tablePagination, fetch } = usePaginatedList<StoreProduct>('/admin/store/products', () => ({ q: q.value.trim() }))
 
-async function fetchProducts(page = 1) {
-  loading.value = true
-  try {
-    const params: Record<string, unknown> = { page }
-    if (searchQuery.value.trim()) params.q = searchQuery.value.trim()
-    const { data } = await AppiService.get<PaginatedResponse<StoreProduct>>('/admin/store/products', { params })
-    rows.value = data.data
-    meta.value = { total: data.meta.total, perPage: data.meta.perPage, currentPage: data.meta.currentPage }
-  } finally {
-    loading.value = false
-  }
-}
-
-function onSearchKeydown(event: KeyboardEvent) {
-  if (event.key === 'Enter') fetchProducts(1)
-}
-
-onMounted(() => fetchProducts())
+onMounted(() => fetch())
 </script>
 
 <template>
-  <div class="p-6">
-    <div class="flex items-center justify-between mb-6">
-      <h1 class="text-2xl font-bold text-slate-800 dark:text-slate-100">Productos</h1>
-      <RouterLink to="/store/products/create">
-        <DuiButton color="primary" size="sm">
-          <i class="mdi mdi-plus mr-1" /> Nuevo producto
-        </DuiButton>
-      </RouterLink>
-    </div>
-    <div class="mb-4">
-      <DuiInput v-model="searchQuery" placeholder="Buscar productos... (Enter para buscar)" @keydown="onSearchKeydown" />
-    </div>
-    <DuiTable
-      :columns="columns"
-      :rows="rows"
-      :loading="loading"
-      :pagination="{ page: meta.currentPage, perPage: meta.perPage, total: meta.total }"
-      @paginate="fetchProducts"
-    >
-      <template #price="{ price }">
-        {{ Number(price).toFixed(2) }}
-      </template>
-      <template #active="{ active }">
-        <span :class="active ? 'text-green-600' : 'text-red-500'">
-          {{ active ? 'Sí' : 'No' }}
+  <PageHeader title="Productos" subtitle="Catálogo de la tienda">
+    <DuiButton color="primary" to="/store/products/create">
+      <i class="mdi mdi-plus mr-1" /> Nuevo producto
+    </DuiButton>
+  </PageHeader>
+
+  <form class="mb-4 max-w-md" @submit.prevent="fetch(1)">
+    <DuiInput v-model="q" block placeholder="Buscar productos y presiona Enter" />
+  </form>
+
+  <DuiTable :columns="columns" :rows="rows" :loading="loading" :pagination="tablePagination" @paginate="fetch">
+    <template #name="{ id, name, picture, slug }">
+      <RouterLink :to="`/store/products/${id}`" class="flex items-center gap-3 hover:underline">
+        <img v-if="picture" :src="picture" alt="" class="h-10 w-10 rounded-lg object-cover" />
+        <span v-else class="flex h-10 w-10 items-center justify-center rounded-lg bg-slate-200 dark:bg-slate-700">
+          <i class="mdi mdi-package-variant-closed text-slate-400" />
         </span>
-      </template>
-      <template #createdAt="{ createdAt }">
-        {{ new Date(createdAt).toLocaleDateString() }}
-      </template>
-      <template #actions="{ id }">
-        <RouterLink :to="`/store/products/${id}`">
-          <DuiButton size="sm" color="secondary">
-            <i class="mdi mdi-pencil" />
-          </DuiButton>
-        </RouterLink>
-      </template>
-    </DuiTable>
-  </div>
+        <span>
+          <span class="block font-medium">{{ name }}</span>
+          <span class="block text-xs text-slate-400">{{ slug }}</span>
+        </span>
+      </RouterLink>
+    </template>
+    <template #price="{ price }">{{ formatMoney(price) }}</template>
+    <template #stock="{ stock }">
+      <span :class="{ 'font-semibold text-red-500': stock <= 0 }">{{ stock }}</span>
+    </template>
+    <template #active="{ active }">
+      <StatusBadge :status="active" on="Disponible" off="Oculto" />
+    </template>
+    <template #actions="{ id }">
+      <div class="flex justify-end">
+        <DuiButton variant="ghost" size="sm" title="Editar" :to="`/store/products/${id}`">
+          <i class="mdi mdi-pencil" />
+        </DuiButton>
+      </div>
+    </template>
+  </DuiTable>
+  <EmptyState v-if="!loading && !rows.length" icon="mdi-package-variant" text="No hay productos." />
 </template>

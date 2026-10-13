@@ -32,6 +32,15 @@ VITE_API_URL=https://appi.droni.vip
 
 **UI components**: The app uses `@dronico/droni-kit` (internal Droni design system). Import components from that package rather than building from scratch (`DuiCard`, `DuiInput`, `DuiButton`, `DuiAlert`, `DuiNavbar`, `DuiLabel`, etc.). Its CSS must be imported globally — it is already done in `src/main.ts`.
 
+**Page conventions** (follow these when adding a resource):
+
+- List pages use `usePaginatedList(url, () => filters)` and bind `tablePagination` to `DuiTable`, with `EmptyState` below it.
+- Create/edit share one self-saving form component per resource (`components/<module>/XForm.vue`) taking an optional `item` prop: no item → POST and redirect to the edit page; item → PATCH. `create.vue`/`[id].vue` stay thin (`PageHeader` + `useFetchItem` + form).
+- Forms use `DuiForm` + `DuiCard` + `DuiLabel title=...`; booleans use `DuiSwitch`, enums `DuiSelect`. Optional text fields are kept as `''` and converted with `emptyToNull()` before sending.
+- Feedback goes through `useToast()` (the `DuiToast` host is in `App.vue`); error messages via `apiError(e, fallback)`. Deletes use `ConfirmDelete`.
+- Statuses/roles render with `StatusBadge` (labels/colors in `utils/labels.ts`). MySQL returns booleans as `1/0`: coerce with `!!` before binding to a switch.
+- `DuiNavbar` and `DuiTabs` render `icon` as plain text, so don't pass mdi classes to them. Modules/sections live in `src/navigation.ts`.
+
 **Deployment**: The app builds to a static SPA served via Nginx. The `Dockerfile` is a two-stage build (Node builder → Nginx). `docker-compose.yml` expects an external `nginx-proxy` Docker network and sets `VIRTUAL_HOST`/`LETSENCRYPT_HOST` for the reverse proxy.
 
 When asked to "redeploy" or "redesplegar", use Docker:
