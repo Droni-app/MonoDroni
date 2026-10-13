@@ -31,6 +31,7 @@ export default defineConfig({
     () => import('@adonisjs/session/commands'),
     () => import('@adonisjs/bouncer/commands'),
     () => import('@adonisjs/mail/commands'),
+    () => import('@outloud/adonis-openapi/commands')
   ],
 
   /*
@@ -60,7 +61,8 @@ export default defineConfig({
     () => import('@adonisjs/drive/drive_provider'),
     () => import('@adonisjs/mail/mail_provider'),
     () => import('@adonisjs/core/providers/edge_provider'),
-    () => import('@adonisjs/ally/ally_provider')
+    () => import('@adonisjs/ally/ally_provider'),
+    () => import('@outloud/adonis-openapi/provider')
   ],
 
   /*
@@ -113,8 +115,13 @@ export default defineConfig({
   */
   metaFiles: [{
     pattern: 'resources/views/**/*.edge',
-    reloadServer: false,
-  }],
+      reloadServer: false,
+  },
+  {
+    pattern: '.adonisjs/openapi.json',
+      reloadServer: false,
+  }
+  ],
 
   hooks: {
     init: [

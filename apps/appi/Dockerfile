@@ -8,7 +8,7 @@ RUN npm ci
 
 COPY . .
 
-# Provide dummy env vars so AdonisJS can boot for swagger generation.
+# Provide dummy env vars so AdonisJS can boot for OpenAPI generation.
 # No DB queries are made (Lucid is lazy), so dummy DB values are safe.
 RUN set -e && \
     printf '%s\n' \
@@ -40,7 +40,7 @@ RUN set -e && \
       'GOOGLE_CLIENT_ID=placeholder' \
       'GOOGLE_CLIENT_SECRET=placeholder' \
     > .env && \
-    node ace swagger:generate && \
+    node ace openapi:generate && \
     rm .env
 
 RUN node ace build --ignore-ts-errors
@@ -52,7 +52,6 @@ WORKDIR /app
 
 COPY --from=builder /app/build ./
 COPY --from=builder /app/package*.json ./
-COPY --from=builder /app/swagger.yml ./swagger.yml
 
 RUN npm ci --omit=dev
 

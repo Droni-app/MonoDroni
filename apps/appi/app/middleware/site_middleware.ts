@@ -9,7 +9,8 @@ export default class SiteMiddleware {
     if (
       ctx.request.url().startsWith('/auth/verify-email') ||
       ctx.request.url() === '/201aae24c561528ec1542b94df7e1db9.txt' ||
-      ctx.request.url() === '/docs'
+      ctx.request.url() === '/docs' ||
+      ctx.request.url() === '/openapi.json'
     ) {
       return await next()
     }

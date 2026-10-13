@@ -5,14 +5,6 @@ import string from '@adonisjs/core/helpers/string'
 import drive from '@adonisjs/drive/services/main'
 
 export default class AttachmentsController {
-  /**
-   * @index
-   * @summary Listar archivos adjuntos del usuario autenticado
-   * @paramQuery page - Número de página - @type(number)
-   * @paramQuery per_page - Resultados por página (default 10) - @type(number)
-   * @responseBody 200 - {"meta": {"total": 5, "perPage": 10, "currentPage": 1, "lastPage": 1}, "data": [{"id": "uuid", "name": "string", "path": "string", "size": 1024, "mime": "image/jpeg", "url": "string", "createdAt": "string"}]}
-   * @responseBody 401 - {"message": "Unauthorized"}
-   */
   async index({ site, auth, request }: HttpContext) {
     const page = request.input('page', 1)
     const perPage = request.input('per_page', 10)
@@ -23,15 +15,6 @@ export default class AttachmentsController {
       .paginate(page, perPage)
     return attachments
   }
-
-  /**
-   * @store
-   * @summary Subir un archivo adjunto (multipart/form-data)
-   * @requestBody {"file": "binary", "name": "string (opcional)"}
-   * @responseBody 201 - {"id": "uuid", "siteId": "string", "userId": "uuid", "name": "string", "path": "string", "size": 1024, "mime": "image/jpeg", "createdAt": "string"}
-   * @responseBody 401 - {"message": "Unauthorized"}
-   * @responseBody 422 - {"errors": [{"message": "string", "field": "string"}]}
-   */
   async store({ site, auth, request }: HttpContext) {
     const data = await request.validateUsing(storeAttachmentValidator)
 
@@ -51,15 +34,6 @@ export default class AttachmentsController {
     })
     return attachment
   }
-
-  /**
-   * @destroy
-   * @summary Eliminar un archivo adjunto
-   * @paramPath id - ID del attachment - @type(string) @required
-   * @responseBody 200 - {"id": "uuid", "name": "string", "path": "string"}
-   * @responseBody 401 - {"message": "Unauthorized"}
-   * @responseBody 404 - {"message": "Not Found"}
-   */
   async destroy({ site, auth, params }: HttpContext) {
     const attachment = await ContentAttachment.query()
       .where('site_id', site.id)
