@@ -16,6 +16,30 @@
 
           <!-- Contenido -->
           <div class="p-6 flex flex-col justify-center">
+            <h2 class="text-2xl font-bold mb-4">Appi</h2>
+            <p class="text-zinc-600 dark:text-zinc-400">
+              El backend como servicio que impulsa Droni.co. Con un siteId puedes construir tu propio sitio
+              sobre sus módulos de autenticación, contenido, comunidad, tienda y cursos, sin escribir una
+              línea de backend.
+            </p>
+            <div class="mt-4">
+              <NuxtLink to="/proyectos/appi" title="Documentación de Appi">
+                <DuiAction variant="ghost" size="sm">
+                  <i class="mdi mdi-text-box-search-outline"/>
+                  Documentación de la API
+                </DuiAction>
+              </NuxtLink>
+            </div>
+          </div>
+          <div class="flex-shrink-0 flex items-center justify-center w-full md:w-60 h-48 md:h-auto bg-gradient-to-br from-pink-500 to-purple-700 text-white">
+            <i class="mdi mdi-api text-8xl" />
+          </div>
+        </div>
+
+        <div class="flex flex-col md:flex-row rounded-2xl shadow-lg overflow-hidden bg-gradient-to-r from-zinc-50 to-slate-100 text-zinc-800 dark:from-slate-800 dark:to-zinc-900 dark:text-zinc-50 mb-3">
+
+          <!-- Contenido -->
+          <div class="p-6 flex flex-col justify-center">
             <h2 class="text-2xl font-bold mb-4">Droni-kit</h2>
             <p class="text-zinc-600 dark:text-zinc-400">
               Un catálogo de componentes de Vue 3 para el desarrollo de aplicaciones
