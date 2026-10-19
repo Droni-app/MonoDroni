@@ -17,7 +17,7 @@ No test runner is configured.
 Copy `.env.example` to `.env` and set:
 
 ```
-VITE_API_URL=https://appi.droni.vip
+VITE_API_URL=https://appi.droni.co
 ```
 
 `VITE_API_URL` must be defined at build time — `AppiService` throws on startup if it's missing.

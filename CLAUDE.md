@@ -8,8 +8,8 @@ MonoDroni is a Turborepo/npm-workspaces monorepo combining what used to be three
 
 | Path | Project | Stack | Deploy target |
 |---|---|---|---|
-| `apps/appi` | Backend API | AdonisJS 7 + TypeScript, MySQL | appi.droni.vip |
-| `apps/drodmin` | Backoffice SPA | Vue 3 + Vite | drodmin.droni.vip |
+| `apps/appi` | Backend API | AdonisJS 7 + TypeScript, MySQL | appi.droni.co |
+| `apps/drodmin` | Backoffice SPA | Vue 3 + Vite | drodmin.droni.co |
 | `apps/site` | Public site | Nuxt 3 | droni.co |
 
 `packages/droni-kit` is an empty leftover directory — the shared UI kit was extracted into its own repo ([Droni-app/droni-kit](https://github.com/Droni-app/droni-kit)) and is consumed by `drodmin` and `site` as the published npm package `@dronico/droni-kit`, not as an in-repo workspace package.
