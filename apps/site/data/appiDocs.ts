@@ -1033,6 +1033,36 @@ const learnModule: ApiModule = {
       ],
     },
     {
+      id: 'my-learning',
+      title: 'Mi aprendizaje',
+      description: 'Rutas para armar el panel del estudiante: los cursos en los que está inscrito y las lecciones que ya completó, en todos los cursos del sitio.',
+      endpoints: [
+        {
+          id: 'user-courses',
+          method: 'GET',
+          path: '/learn/user/courses',
+          summary: 'Listar mis cursos',
+          description: 'Cursos activos del sitio en los que el usuario autenticado está inscrito (con cualquier rol), del más reciente al más antiguo. Cada curso incluye en enrollments la inscripción del propio usuario.',
+          access: 'auth',
+          query: pagination,
+          response: paginatedExample(extendExample(courseExample, `"enrollments": [
+    { "id": "uuid", "role": "student", "status": "active", "progress": "40" }
+  ]`)),
+        },
+        {
+          id: 'user-lessons',
+          method: 'GET',
+          path: '/learn/user/lessons',
+          summary: 'Listar mis lecciones completadas',
+          description: 'Lecciones que el usuario autenticado ya vio al menos una vez (el mismo criterio con el que se calcula el progreso), ordenadas por fecha de creación de la lección descendente. Cada lección incluye su curso en course.',
+          access: 'auth',
+          query: pagination,
+          response: paginatedExample(extendExample(lessonExample, `"course": { "id": "uuid", "slug": "vue-desde-cero", "name": "Vue desde cero", … }`)),
+          notes: ['Una lección cuenta como completada al abrirla con GET /learn/courses/:course/lessons/:lesson usando el token del estudiante.'],
+        },
+      ],
+    },
+    {
       id: 'lessons',
       title: 'Lecciones',
       endpoints: [
