@@ -21,12 +21,6 @@ function resolveLesson(courseId: string, lessonSlug: string) {
 }
 
 export default class AnswersController {
-  /**
-   * @index
-   * @summary [Teacher/Admin] Listar respuestas enviadas para una lección
-   * @paramPath course_id - ID del curso (ya resuelto desde el slug por el middleware) - @type(string) @required
-   * @paramPath lesson_id - Slug de la lección - @type(string) @required
-   */
   async index({ params, request }: HttpContext) {
     const lesson = await resolveLesson(params.course_id, params.lesson_id)
     const page = request.input('page', 1)
@@ -37,14 +31,6 @@ export default class AnswersController {
       .orderBy('created_at', 'desc')
       .paginate(page, perPage)
   }
-
-  /**
-   * @show
-   * @summary Ver una respuesta (el estudiante solo ve la propia, teacher/admin ven cualquiera)
-   * @paramPath course_id - ID del curso (ya resuelto desde el slug por el middleware) - @type(string) @required
-   * @paramPath lesson_id - Slug de la lección - @type(string) @required
-   * @paramPath id - ID de la respuesta - @type(string) @required
-   */
   async show({ auth, params }: HttpContext) {
     const manager = await isCourseManager(params.course_id, auth.user!.id)
     const lesson = await resolveLesson(params.course_id, params.lesson_id)
@@ -59,13 +45,6 @@ export default class AnswersController {
       )
       .firstOrFail()
   }
-
-  /**
-   * @store
-   * @summary [Student] Enviar la respuesta de actividad de una lección
-   * @paramPath course_id - ID del curso (ya resuelto desde el slug por el middleware) - @type(string) @required
-   * @paramPath lesson_id - Slug de la lección - @type(string) @required
-   */
   async store({ auth, params, request, response }: HttpContext) {
     const lesson = await resolveLesson(params.course_id, params.lesson_id)
 
@@ -99,14 +78,6 @@ export default class AnswersController {
     await updateLearnCourseProgress(enrollment)
     return response.created(answer)
   }
-
-  /**
-   * @update
-   * @summary [Teacher/Admin] Calificar una respuesta (feedback/result)
-   * @paramPath course_id - ID del curso (ya resuelto desde el slug por el middleware) - @type(string) @required
-   * @paramPath lesson_id - Slug de la lección - @type(string) @required
-   * @paramPath id - ID de la respuesta - @type(string) @required
-   */
   async update({ params, request }: HttpContext) {
     const data = await request.validateUsing(updateAnswerValidator)
     const lesson = await resolveLesson(params.course_id, params.lesson_id)
@@ -121,14 +92,6 @@ export default class AnswersController {
     await answer.save()
     return answer
   }
-
-  /**
-   * @destroy
-   * @summary [Admin] Eliminar una respuesta
-   * @paramPath course_id - ID del curso (ya resuelto desde el slug por el middleware) - @type(string) @required
-   * @paramPath lesson_id - Slug de la lección - @type(string) @required
-   * @paramPath id - ID de la respuesta - @type(string) @required
-   */
   async destroy({ params }: HttpContext) {
     const lesson = await resolveLesson(params.course_id, params.lesson_id)
     const answer = await LearnLessonAnswer.query()

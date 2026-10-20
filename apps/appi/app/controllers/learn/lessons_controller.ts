@@ -21,13 +21,6 @@ async function isCourseManager(courseId: string, userId?: string) {
 }
 
 export default class LessonsController {
-  /**
-   * @index
-   * @summary Listar lecciones activas de un curso (teachers/admins ven también las inactivas)
-   * @paramPath course_id - Slug del curso - @type(string) @required
-   * @paramQuery page - Número de página - @type(number)
-   * @paramQuery per_page - Resultados por página (default 10) - @type(number)
-   */
   async index({ site, auth, params, request }: HttpContext) {
     const course = await LearnCourse.query()
       .where('site_id', site.id)
@@ -42,14 +35,6 @@ export default class LessonsController {
       .orderBy('order', 'asc')
       .paginate(page, perPage)
   }
-
-  /**
-   * @show
-   * @summary Ver una lección por slug (registra la vista, actualiza el progreso y
-   * devuelve la respuesta/quiz propios y las preguntas del quiz si el usuario está inscrito)
-   * @paramPath course_id - Slug del curso - @type(string) @required
-   * @paramPath id - Slug de la lección - @type(string) @required
-   */
   async show({ site, auth, params }: HttpContext) {
     const course = await LearnCourse.query()
       .where('site_id', site.id)
@@ -128,12 +113,6 @@ export default class LessonsController {
       quizQuestions,
     }
   }
-
-  /**
-   * @store
-   * @summary [Teacher/Admin] Crear una nueva lección
-   * @paramPath course_id - ID del curso - @type(string) @required
-   */
   async store({ params, request, response }: HttpContext) {
     const data = await request.validateUsing(storeLessonValidator)
     const slugBase = string.slug(data.name)
@@ -145,13 +124,6 @@ export default class LessonsController {
     const lesson = await LearnLesson.create({ ...data, slug, courseId: params.course_id })
     return response.created(lesson)
   }
-
-  /**
-   * @update
-   * @summary [Teacher/Admin] Actualizar una lección
-   * @paramPath course_id - ID del curso (ya resuelto desde el slug por el middleware) - @type(string) @required
-   * @paramPath id - Slug de la lección - @type(string) @required
-   */
   async update({ params, request }: HttpContext) {
     const data = await request.validateUsing(updateLessonValidator)
     const lesson = await LearnLesson.query()
@@ -162,13 +134,6 @@ export default class LessonsController {
     await lesson.save()
     return lesson
   }
-
-  /**
-   * @destroy
-   * @summary [Admin] Eliminar una lección
-   * @paramPath course_id - ID del curso (ya resuelto desde el slug por el middleware) - @type(string) @required
-   * @paramPath id - Slug de la lección - @type(string) @required
-   */
   async destroy({ params }: HttpContext) {
     const lesson = await LearnLesson.query()
       .where('course_id', params.course_id)

@@ -22,12 +22,6 @@ function resolveLesson(courseId: string, lessonSlug: string) {
 }
 
 export default class QuizzesController {
-  /**
-   * @index
-   * @summary [Teacher/Admin] Listar intentos de cuestionario de una lección
-   * @paramPath course_id - ID del curso (ya resuelto desde el slug por el middleware) - @type(string) @required
-   * @paramPath lesson_id - Slug de la lección - @type(string) @required
-   */
   async index({ params, request }: HttpContext) {
     const lesson = await resolveLesson(params.course_id, params.lesson_id)
     const page = request.input('page', 1)
@@ -38,14 +32,6 @@ export default class QuizzesController {
       .orderBy('created_at', 'desc')
       .paginate(page, perPage)
   }
-
-  /**
-   * @show
-   * @summary Ver un intento de cuestionario (el estudiante solo ve los propios)
-   * @paramPath course_id - ID del curso (ya resuelto desde el slug por el middleware) - @type(string) @required
-   * @paramPath lesson_id - Slug de la lección - @type(string) @required
-   * @paramPath id - ID del intento - @type(string) @required
-   */
   async show({ auth, params }: HttpContext) {
     const manager = await isCourseManager(params.course_id, auth.user!.id)
     const lesson = await resolveLesson(params.course_id, params.lesson_id)
@@ -60,14 +46,6 @@ export default class QuizzesController {
       )
       .firstOrFail()
   }
-
-  /**
-   * @store
-   * @summary [Student] Enviar un intento de cuestionario con todas las preguntas vinculadas a la lección
-   * @paramPath course_id - ID del curso (ya resuelto desde el slug por el middleware) - @type(string) @required
-   * @paramPath lesson_id - Slug de la lección - @type(string) @required
-   * @requestBody {"answers": [{"question_id": "uuid", "selected": 1}]}
-   */
   async store({ auth, params, request, response }: HttpContext) {
     const lesson = await resolveLesson(params.course_id, params.lesson_id)
 
@@ -149,14 +127,6 @@ export default class QuizzesController {
     await updateLearnCourseProgress(enrollment)
     return response.created(quiz)
   }
-
-  /**
-   * @update
-   * @summary [Teacher/Admin] Corregir el estado/resultado de un intento
-   * @paramPath course_id - ID del curso (ya resuelto desde el slug por el middleware) - @type(string) @required
-   * @paramPath lesson_id - Slug de la lección - @type(string) @required
-   * @paramPath id - ID del intento - @type(string) @required
-   */
   async update({ params, request }: HttpContext) {
     const data = await request.validateUsing(updateQuizValidator)
     const lesson = await resolveLesson(params.course_id, params.lesson_id)
@@ -172,14 +142,6 @@ export default class QuizzesController {
     await quiz.save()
     return quiz
   }
-
-  /**
-   * @destroy
-   * @summary [Admin] Eliminar un intento de cuestionario
-   * @paramPath course_id - ID del curso (ya resuelto desde el slug por el middleware) - @type(string) @required
-   * @paramPath lesson_id - Slug de la lección - @type(string) @required
-   * @paramPath id - ID del intento - @type(string) @required
-   */
   async destroy({ params }: HttpContext) {
     const lesson = await resolveLesson(params.course_id, params.lesson_id)
     const quiz = await LearnLessonQuestionsQuiz.query()
