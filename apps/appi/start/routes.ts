@@ -88,6 +88,16 @@ router
     // Public: course catalog (active only)
     router.resource('courses', controllers.learn.Courses).only(['index', 'show'])
 
+    // Authenticated user's own learning: enrolled courses and completed lessons
+    router
+      .group(() => {
+        router.get('courses', [controllers.learn.User, 'courses']).as('courses')
+        router.get('lessons', [controllers.learn.User, 'lessons']).as('lessons')
+      })
+      .prefix('user')
+      .as('user')
+      .use(middleware.auth())
+
     // Lessons: public sees active lessons; teachers/admins (course role) see all and can manage
     router.resource('courses.lessons', controllers.learn.Lessons).only(['index', 'show'])
     router

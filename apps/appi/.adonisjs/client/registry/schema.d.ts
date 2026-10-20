@@ -463,6 +463,30 @@ export interface Registry {
       errorResponse: ExtractErrorResponse<Awaited<ReturnType<import('#controllers/learn/courses_controller').default['show']>>>
     }
   }
+  'learn.user.courses': {
+    methods: ["GET","HEAD"]
+    pattern: '/learn/user/courses'
+    types: {
+      body: {}
+      paramsTuple: []
+      params: {}
+      query: {}
+      response: ExtractResponse<Awaited<ReturnType<import('#controllers/learn/user_controller').default['courses']>>>
+      errorResponse: ExtractErrorResponse<Awaited<ReturnType<import('#controllers/learn/user_controller').default['courses']>>>
+    }
+  }
+  'learn.user.lessons': {
+    methods: ["GET","HEAD"]
+    pattern: '/learn/user/lessons'
+    types: {
+      body: {}
+      paramsTuple: []
+      params: {}
+      query: {}
+      response: ExtractResponse<Awaited<ReturnType<import('#controllers/learn/user_controller').default['lessons']>>>
+      errorResponse: ExtractErrorResponse<Awaited<ReturnType<import('#controllers/learn/user_controller').default['lessons']>>>
+    }
+  }
   'learn.courses.lessons.index': {
     methods: ["GET","HEAD"]
     pattern: '/learn/courses/:course_id/lessons'

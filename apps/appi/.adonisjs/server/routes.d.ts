@@ -42,6 +42,8 @@ export type ScannedRoutes = {
     'store.payments.show': { paramsTuple: [ParamValue]; params: {'id': ParamValue} }
     'learn.courses.index': { paramsTuple?: []; params?: {} }
     'learn.courses.show': { paramsTuple: [ParamValue]; params: {'id': ParamValue} }
+    'learn.user.courses': { paramsTuple?: []; params?: {} }
+    'learn.user.lessons': { paramsTuple?: []; params?: {} }
     'learn.courses.lessons.index': { paramsTuple: [ParamValue]; params: {'course_id': ParamValue} }
     'learn.courses.lessons.show': { paramsTuple: [ParamValue,ParamValue]; params: {'course_id': ParamValue,'id': ParamValue} }
     'learn.courses.lessons.store': { paramsTuple: [ParamValue]; params: {'course_id': ParamValue} }
@@ -168,6 +170,8 @@ export type ScannedRoutes = {
     'store.payments.show': { paramsTuple: [ParamValue]; params: {'id': ParamValue} }
     'learn.courses.index': { paramsTuple?: []; params?: {} }
     'learn.courses.show': { paramsTuple: [ParamValue]; params: {'id': ParamValue} }
+    'learn.user.courses': { paramsTuple?: []; params?: {} }
+    'learn.user.lessons': { paramsTuple?: []; params?: {} }
     'learn.courses.lessons.index': { paramsTuple: [ParamValue]; params: {'course_id': ParamValue} }
     'learn.courses.lessons.show': { paramsTuple: [ParamValue,ParamValue]; params: {'course_id': ParamValue,'id': ParamValue} }
     'learn.courses.questions.index': { paramsTuple: [ParamValue]; params: {'course_id': ParamValue} }
@@ -238,6 +242,8 @@ export type ScannedRoutes = {
     'store.payments.show': { paramsTuple: [ParamValue]; params: {'id': ParamValue} }
     'learn.courses.index': { paramsTuple?: []; params?: {} }
     'learn.courses.show': { paramsTuple: [ParamValue]; params: {'id': ParamValue} }
+    'learn.user.courses': { paramsTuple?: []; params?: {} }
+    'learn.user.lessons': { paramsTuple?: []; params?: {} }
     'learn.courses.lessons.index': { paramsTuple: [ParamValue]; params: {'course_id': ParamValue} }
     'learn.courses.lessons.show': { paramsTuple: [ParamValue,ParamValue]; params: {'course_id': ParamValue,'id': ParamValue} }
     'learn.courses.questions.index': { paramsTuple: [ParamValue]; params: {'course_id': ParamValue} }

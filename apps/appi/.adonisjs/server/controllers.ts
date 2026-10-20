@@ -46,6 +46,7 @@ export const controllers = {
     Lessons: () => import('#controllers/learn/lessons_controller'),
     Questions: () => import('#controllers/learn/questions_controller'),
     Quizzes: () => import('#controllers/learn/quizzes_controller'),
+    User: () => import('#controllers/learn/user_controller'),
   },
   Sites: () => import('#controllers/sites_controller'),
   social: {

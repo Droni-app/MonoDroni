@@ -234,6 +234,18 @@ const routes = {
     tokens: [{"old":"/learn/courses/:id","type":0,"val":"learn","end":""},{"old":"/learn/courses/:id","type":0,"val":"courses","end":""},{"old":"/learn/courses/:id","type":1,"val":"id","end":""}],
     types: placeholder as Registry['learn.courses.show']['types'],
   },
+  'learn.user.courses': {
+    methods: ["GET","HEAD"],
+    pattern: '/learn/user/courses',
+    tokens: [{"old":"/learn/user/courses","type":0,"val":"learn","end":""},{"old":"/learn/user/courses","type":0,"val":"user","end":""},{"old":"/learn/user/courses","type":0,"val":"courses","end":""}],
+    types: placeholder as Registry['learn.user.courses']['types'],
+  },
+  'learn.user.lessons': {
+    methods: ["GET","HEAD"],
+    pattern: '/learn/user/lessons',
+    tokens: [{"old":"/learn/user/lessons","type":0,"val":"learn","end":""},{"old":"/learn/user/lessons","type":0,"val":"user","end":""},{"old":"/learn/user/lessons","type":0,"val":"lessons","end":""}],
+    types: placeholder as Registry['learn.user.lessons']['types'],
+  },
   'learn.courses.lessons.index': {
     methods: ["GET","HEAD"],
     pattern: '/learn/courses/:course_id/lessons',

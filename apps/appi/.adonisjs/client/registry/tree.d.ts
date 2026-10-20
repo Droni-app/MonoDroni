@@ -104,6 +104,10 @@ export interface ApiDefinition {
         show: typeof routes['learn.courses.enrollments.show']
       }
     }
+    user: {
+      courses: typeof routes['learn.user.courses']
+      lessons: typeof routes['learn.user.lessons']
+    }
   }
   admin: {
     content: {
