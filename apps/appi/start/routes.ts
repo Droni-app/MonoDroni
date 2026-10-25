@@ -114,14 +114,21 @@ router
     // Question bank: teacher/admin only, no public access
     router
       .resource('courses.questions', controllers.learn.Questions)
-      .only(['index', 'show', 'update'])
+      .only(['index', 'show', 'store', 'update'])
       .use('*', middleware.auth())
       .use('*', middleware.courseRole({ roles: ['teacher', 'admin'] }))
     router
       .resource('courses.questions', controllers.learn.Questions)
-      .only(['store', 'destroy'])
+      .only(['destroy'])
       .use('*', middleware.auth())
       .use('*', middleware.courseRole({ roles: ['admin'] }))
+
+    // Lesson exam questions: teachers/admins link questions from the course bank to a lesson
+    router
+      .resource('courses.lessons.exam-questions', controllers.learn.LessonExamQuestions)
+      .only(['index', 'store', 'destroy'])
+      .use('*', middleware.auth())
+      .use('*', middleware.courseRole({ roles: ['teacher', 'admin'] }))
 
     // Enrollments: any authenticated user can self-enroll when auto_enroll is on;
     // roster visibility is restricted to the course's teachers/admins

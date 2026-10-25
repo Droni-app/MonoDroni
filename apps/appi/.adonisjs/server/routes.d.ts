@@ -50,10 +50,13 @@ export type ScannedRoutes = {
     'learn.courses.lessons.update': { paramsTuple: [ParamValue,ParamValue]; params: {'course_id': ParamValue,'id': ParamValue} }
     'learn.courses.lessons.destroy': { paramsTuple: [ParamValue,ParamValue]; params: {'course_id': ParamValue,'id': ParamValue} }
     'learn.courses.questions.index': { paramsTuple: [ParamValue]; params: {'course_id': ParamValue} }
+    'learn.courses.questions.store': { paramsTuple: [ParamValue]; params: {'course_id': ParamValue} }
     'learn.courses.questions.show': { paramsTuple: [ParamValue,ParamValue]; params: {'course_id': ParamValue,'id': ParamValue} }
     'learn.courses.questions.update': { paramsTuple: [ParamValue,ParamValue]; params: {'course_id': ParamValue,'id': ParamValue} }
-    'learn.courses.questions.store': { paramsTuple: [ParamValue]; params: {'course_id': ParamValue} }
     'learn.courses.questions.destroy': { paramsTuple: [ParamValue,ParamValue]; params: {'course_id': ParamValue,'id': ParamValue} }
+    'learn.courses.lessons.exam_questions.index': { paramsTuple: [ParamValue,ParamValue]; params: {'course_id': ParamValue,'lesson_id': ParamValue} }
+    'learn.courses.lessons.exam_questions.store': { paramsTuple: [ParamValue,ParamValue]; params: {'course_id': ParamValue,'lesson_id': ParamValue} }
+    'learn.courses.lessons.exam_questions.destroy': { paramsTuple: [ParamValue,ParamValue,ParamValue]; params: {'course_id': ParamValue,'lesson_id': ParamValue,'id': ParamValue} }
     'learn.courses.enrollments.store': { paramsTuple: [ParamValue]; params: {'course_id': ParamValue} }
     'learn.courses.enrollments.index': { paramsTuple: [ParamValue]; params: {'course_id': ParamValue} }
     'learn.courses.enrollments.show': { paramsTuple: [ParamValue,ParamValue]; params: {'course_id': ParamValue,'id': ParamValue} }
@@ -176,6 +179,7 @@ export type ScannedRoutes = {
     'learn.courses.lessons.show': { paramsTuple: [ParamValue,ParamValue]; params: {'course_id': ParamValue,'id': ParamValue} }
     'learn.courses.questions.index': { paramsTuple: [ParamValue]; params: {'course_id': ParamValue} }
     'learn.courses.questions.show': { paramsTuple: [ParamValue,ParamValue]; params: {'course_id': ParamValue,'id': ParamValue} }
+    'learn.courses.lessons.exam_questions.index': { paramsTuple: [ParamValue,ParamValue]; params: {'course_id': ParamValue,'lesson_id': ParamValue} }
     'learn.courses.enrollments.index': { paramsTuple: [ParamValue]; params: {'course_id': ParamValue} }
     'learn.courses.enrollments.show': { paramsTuple: [ParamValue,ParamValue]; params: {'course_id': ParamValue,'id': ParamValue} }
     'learn.courses.lessons.answers.show': { paramsTuple: [ParamValue,ParamValue,ParamValue]; params: {'course_id': ParamValue,'lesson_id': ParamValue,'id': ParamValue} }
@@ -248,6 +252,7 @@ export type ScannedRoutes = {
     'learn.courses.lessons.show': { paramsTuple: [ParamValue,ParamValue]; params: {'course_id': ParamValue,'id': ParamValue} }
     'learn.courses.questions.index': { paramsTuple: [ParamValue]; params: {'course_id': ParamValue} }
     'learn.courses.questions.show': { paramsTuple: [ParamValue,ParamValue]; params: {'course_id': ParamValue,'id': ParamValue} }
+    'learn.courses.lessons.exam_questions.index': { paramsTuple: [ParamValue,ParamValue]; params: {'course_id': ParamValue,'lesson_id': ParamValue} }
     'learn.courses.enrollments.index': { paramsTuple: [ParamValue]; params: {'course_id': ParamValue} }
     'learn.courses.enrollments.show': { paramsTuple: [ParamValue,ParamValue]; params: {'course_id': ParamValue,'id': ParamValue} }
     'learn.courses.lessons.answers.show': { paramsTuple: [ParamValue,ParamValue,ParamValue]; params: {'course_id': ParamValue,'lesson_id': ParamValue,'id': ParamValue} }
@@ -304,6 +309,7 @@ export type ScannedRoutes = {
     'store.payments.store': { paramsTuple?: []; params?: {} }
     'learn.courses.lessons.store': { paramsTuple: [ParamValue]; params: {'course_id': ParamValue} }
     'learn.courses.questions.store': { paramsTuple: [ParamValue]; params: {'course_id': ParamValue} }
+    'learn.courses.lessons.exam_questions.store': { paramsTuple: [ParamValue,ParamValue]; params: {'course_id': ParamValue,'lesson_id': ParamValue} }
     'learn.courses.enrollments.store': { paramsTuple: [ParamValue]; params: {'course_id': ParamValue} }
     'learn.courses.lessons.answers.store': { paramsTuple: [ParamValue,ParamValue]; params: {'course_id': ParamValue,'lesson_id': ParamValue} }
     'learn.courses.lessons.quizzes.store': { paramsTuple: [ParamValue,ParamValue]; params: {'course_id': ParamValue,'lesson_id': ParamValue} }
@@ -327,6 +333,7 @@ export type ScannedRoutes = {
     'store.addresses.destroy': { paramsTuple: [ParamValue]; params: {'id': ParamValue} }
     'learn.courses.lessons.destroy': { paramsTuple: [ParamValue,ParamValue]; params: {'course_id': ParamValue,'id': ParamValue} }
     'learn.courses.questions.destroy': { paramsTuple: [ParamValue,ParamValue]; params: {'course_id': ParamValue,'id': ParamValue} }
+    'learn.courses.lessons.exam_questions.destroy': { paramsTuple: [ParamValue,ParamValue,ParamValue]; params: {'course_id': ParamValue,'lesson_id': ParamValue,'id': ParamValue} }
     'learn.courses.lessons.answers.destroy': { paramsTuple: [ParamValue,ParamValue,ParamValue]; params: {'course_id': ParamValue,'lesson_id': ParamValue,'id': ParamValue} }
     'learn.courses.lessons.quizzes.destroy': { paramsTuple: [ParamValue,ParamValue,ParamValue]; params: {'course_id': ParamValue,'lesson_id': ParamValue,'id': ParamValue} }
     'admin.content.posts.destroy': { paramsTuple: [ParamValue]; params: {'id': ParamValue} }

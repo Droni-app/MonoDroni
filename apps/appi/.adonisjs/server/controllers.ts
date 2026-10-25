@@ -43,6 +43,7 @@ export const controllers = {
     Answers: () => import('#controllers/learn/answers_controller'),
     Courses: () => import('#controllers/learn/courses_controller'),
     Enrollments: () => import('#controllers/learn/enrollments_controller'),
+    LessonExamQuestions: () => import('#controllers/learn/lesson_exam_questions_controller'),
     Lessons: () => import('#controllers/learn/lessons_controller'),
     Questions: () => import('#controllers/learn/questions_controller'),
     Quizzes: () => import('#controllers/learn/quizzes_controller'),

@@ -282,6 +282,12 @@ const routes = {
     tokens: [{"old":"/learn/courses/:course_id/questions","type":0,"val":"learn","end":""},{"old":"/learn/courses/:course_id/questions","type":0,"val":"courses","end":""},{"old":"/learn/courses/:course_id/questions","type":1,"val":"course_id","end":""},{"old":"/learn/courses/:course_id/questions","type":0,"val":"questions","end":""}],
     types: placeholder as Registry['learn.courses.questions.index']['types'],
   },
+  'learn.courses.questions.store': {
+    methods: ["POST"],
+    pattern: '/learn/courses/:course_id/questions',
+    tokens: [{"old":"/learn/courses/:course_id/questions","type":0,"val":"learn","end":""},{"old":"/learn/courses/:course_id/questions","type":0,"val":"courses","end":""},{"old":"/learn/courses/:course_id/questions","type":1,"val":"course_id","end":""},{"old":"/learn/courses/:course_id/questions","type":0,"val":"questions","end":""}],
+    types: placeholder as Registry['learn.courses.questions.store']['types'],
+  },
   'learn.courses.questions.show': {
     methods: ["GET","HEAD"],
     pattern: '/learn/courses/:course_id/questions/:id',
@@ -294,17 +300,29 @@ const routes = {
     tokens: [{"old":"/learn/courses/:course_id/questions/:id","type":0,"val":"learn","end":""},{"old":"/learn/courses/:course_id/questions/:id","type":0,"val":"courses","end":""},{"old":"/learn/courses/:course_id/questions/:id","type":1,"val":"course_id","end":""},{"old":"/learn/courses/:course_id/questions/:id","type":0,"val":"questions","end":""},{"old":"/learn/courses/:course_id/questions/:id","type":1,"val":"id","end":""}],
     types: placeholder as Registry['learn.courses.questions.update']['types'],
   },
-  'learn.courses.questions.store': {
-    methods: ["POST"],
-    pattern: '/learn/courses/:course_id/questions',
-    tokens: [{"old":"/learn/courses/:course_id/questions","type":0,"val":"learn","end":""},{"old":"/learn/courses/:course_id/questions","type":0,"val":"courses","end":""},{"old":"/learn/courses/:course_id/questions","type":1,"val":"course_id","end":""},{"old":"/learn/courses/:course_id/questions","type":0,"val":"questions","end":""}],
-    types: placeholder as Registry['learn.courses.questions.store']['types'],
-  },
   'learn.courses.questions.destroy': {
     methods: ["DELETE"],
     pattern: '/learn/courses/:course_id/questions/:id',
     tokens: [{"old":"/learn/courses/:course_id/questions/:id","type":0,"val":"learn","end":""},{"old":"/learn/courses/:course_id/questions/:id","type":0,"val":"courses","end":""},{"old":"/learn/courses/:course_id/questions/:id","type":1,"val":"course_id","end":""},{"old":"/learn/courses/:course_id/questions/:id","type":0,"val":"questions","end":""},{"old":"/learn/courses/:course_id/questions/:id","type":1,"val":"id","end":""}],
     types: placeholder as Registry['learn.courses.questions.destroy']['types'],
+  },
+  'learn.courses.lessons.exam_questions.index': {
+    methods: ["GET","HEAD"],
+    pattern: '/learn/courses/:course_id/lessons/:lesson_id/exam-questions',
+    tokens: [{"old":"/learn/courses/:course_id/lessons/:lesson_id/exam-questions","type":0,"val":"learn","end":""},{"old":"/learn/courses/:course_id/lessons/:lesson_id/exam-questions","type":0,"val":"courses","end":""},{"old":"/learn/courses/:course_id/lessons/:lesson_id/exam-questions","type":1,"val":"course_id","end":""},{"old":"/learn/courses/:course_id/lessons/:lesson_id/exam-questions","type":0,"val":"lessons","end":""},{"old":"/learn/courses/:course_id/lessons/:lesson_id/exam-questions","type":1,"val":"lesson_id","end":""},{"old":"/learn/courses/:course_id/lessons/:lesson_id/exam-questions","type":0,"val":"exam-questions","end":""}],
+    types: placeholder as Registry['learn.courses.lessons.exam_questions.index']['types'],
+  },
+  'learn.courses.lessons.exam_questions.store': {
+    methods: ["POST"],
+    pattern: '/learn/courses/:course_id/lessons/:lesson_id/exam-questions',
+    tokens: [{"old":"/learn/courses/:course_id/lessons/:lesson_id/exam-questions","type":0,"val":"learn","end":""},{"old":"/learn/courses/:course_id/lessons/:lesson_id/exam-questions","type":0,"val":"courses","end":""},{"old":"/learn/courses/:course_id/lessons/:lesson_id/exam-questions","type":1,"val":"course_id","end":""},{"old":"/learn/courses/:course_id/lessons/:lesson_id/exam-questions","type":0,"val":"lessons","end":""},{"old":"/learn/courses/:course_id/lessons/:lesson_id/exam-questions","type":1,"val":"lesson_id","end":""},{"old":"/learn/courses/:course_id/lessons/:lesson_id/exam-questions","type":0,"val":"exam-questions","end":""}],
+    types: placeholder as Registry['learn.courses.lessons.exam_questions.store']['types'],
+  },
+  'learn.courses.lessons.exam_questions.destroy': {
+    methods: ["DELETE"],
+    pattern: '/learn/courses/:course_id/lessons/:lesson_id/exam-questions/:id',
+    tokens: [{"old":"/learn/courses/:course_id/lessons/:lesson_id/exam-questions/:id","type":0,"val":"learn","end":""},{"old":"/learn/courses/:course_id/lessons/:lesson_id/exam-questions/:id","type":0,"val":"courses","end":""},{"old":"/learn/courses/:course_id/lessons/:lesson_id/exam-questions/:id","type":1,"val":"course_id","end":""},{"old":"/learn/courses/:course_id/lessons/:lesson_id/exam-questions/:id","type":0,"val":"lessons","end":""},{"old":"/learn/courses/:course_id/lessons/:lesson_id/exam-questions/:id","type":1,"val":"lesson_id","end":""},{"old":"/learn/courses/:course_id/lessons/:lesson_id/exam-questions/:id","type":0,"val":"exam-questions","end":""},{"old":"/learn/courses/:course_id/lessons/:lesson_id/exam-questions/:id","type":1,"val":"id","end":""}],
+    types: placeholder as Registry['learn.courses.lessons.exam_questions.destroy']['types'],
   },
   'learn.courses.enrollments.store': {
     methods: ["POST"],

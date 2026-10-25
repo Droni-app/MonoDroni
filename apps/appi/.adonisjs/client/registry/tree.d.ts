@@ -76,6 +76,11 @@ export interface ApiDefinition {
         store: typeof routes['learn.courses.lessons.store']
         update: typeof routes['learn.courses.lessons.update']
         destroy: typeof routes['learn.courses.lessons.destroy']
+        examQuestions: {
+          index: typeof routes['learn.courses.lessons.exam_questions.index']
+          store: typeof routes['learn.courses.lessons.exam_questions.store']
+          destroy: typeof routes['learn.courses.lessons.exam_questions.destroy']
+        }
         answers: {
           store: typeof routes['learn.courses.lessons.answers.store']
           show: typeof routes['learn.courses.lessons.answers.show']
@@ -93,9 +98,9 @@ export interface ApiDefinition {
       }
       questions: {
         index: typeof routes['learn.courses.questions.index']
+        store: typeof routes['learn.courses.questions.store']
         show: typeof routes['learn.courses.questions.show']
         update: typeof routes['learn.courses.questions.update']
-        store: typeof routes['learn.courses.questions.store']
         destroy: typeof routes['learn.courses.questions.destroy']
       }
       enrollments: {
