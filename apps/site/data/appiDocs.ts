@@ -1180,13 +1180,38 @@ const learnModule: ApiModule = {
     {
       id: 'question-bank',
       title: 'Banco de preguntas del curso',
-      description: 'Preguntas de selección múltiple reutilizables entre lecciones. appi lleva estadísticas de aciertos (wons), fallos (losses) y dificultad (% de fallos).',
+      description: 'Preguntas de selección múltiple reutilizables entre lecciones. appi lleva estadísticas de aciertos (wons), fallos (losses) y dificultad (% de fallos). Los teachers/admins del curso crean preguntas en el banco y las vinculan a cada lección para armar su cuestionario.',
       endpoints: [
         { id: 'questions-index', method: 'GET', path: '/learn/courses/:course/questions', summary: 'Listar preguntas', access: 'staff', pathParams: [courseSlug], query: pagination },
         { id: 'questions-show', method: 'GET', path: '/learn/courses/:course/questions/:id', summary: 'Ver una pregunta', access: 'staff', pathParams: [courseSlug, idParam('ID de la pregunta.')] },
-        { id: 'questions-store', method: 'POST', path: '/learn/courses/:course/questions', summary: 'Crear una pregunta', access: 'course-admin', pathParams: [courseSlug], body: questionBody, request: `{ "name": "¿Qué es un prop?", "response_1": "Un dato que recibe el componente", "response_2": "Un evento", "response_correct": 1 }` },
+        { id: 'questions-store', method: 'POST', path: '/learn/courses/:course/questions', summary: 'Crear una pregunta', access: 'staff', pathParams: [courseSlug], body: questionBody, request: `{ "name": "¿Qué es un prop?", "response_1": "Un dato que recibe el componente", "response_2": "Un evento", "response_correct": 1 }` },
         { id: 'questions-update', method: 'PUT', path: '/learn/courses/:course/questions/:id', summary: 'Actualizar una pregunta', access: 'staff', pathParams: [courseSlug, idParam('ID de la pregunta.')], body: questionBody.map((f) => ({ ...f, required: false })) },
         { id: 'questions-destroy', method: 'DELETE', path: '/learn/courses/:course/questions/:id', summary: 'Eliminar una pregunta', access: 'course-admin', pathParams: [courseSlug, idParam('ID de la pregunta.')] },
+        {
+          id: 'exam-questions-index',
+          method: 'GET',
+          path: '/learn/courses/:course/lessons/:lesson/exam-questions',
+          summary: 'Listar preguntas vinculadas a una lección',
+          description: 'Preguntas del banco que forman el cuestionario de la lección. Cada vínculo incluye la pregunta completa (con la respuesta correcta) en question.',
+          access: 'staff',
+          pathParams: [courseSlug, lessonSlug],
+          response: `[
+  { "id": "uuid", "lessonId": "uuid", "questionId": "uuid",
+    "question": { "id": "uuid", "name": "¿Qué es un prop?", "response1": "…", "response2": "…", "responseCorrect": 1, … } }
+]`,
+        },
+        {
+          id: 'exam-questions-store',
+          method: 'POST',
+          path: '/learn/courses/:course/lessons/:lesson/exam-questions',
+          summary: 'Vincular una pregunta al cuestionario de la lección',
+          access: 'staff',
+          pathParams: [courseSlug, lessonSlug],
+          body: [{ name: 'question_id', type: 'string', required: true, description: 'Pregunta del banco del mismo curso.' }],
+          request: `{ "question_id": "uuid" }`,
+          notes: ['Responde 404 si la pregunta no pertenece al curso y 400 si ya está vinculada a la lección.'],
+        },
+        { id: 'exam-questions-destroy', method: 'DELETE', path: '/learn/courses/:course/lessons/:lesson/exam-questions/:id', summary: 'Desvincular una pregunta', description: 'Quita la pregunta del cuestionario de la lección; la pregunta sigue en el banco.', access: 'staff', pathParams: [courseSlug, lessonSlug, idParam('ID del vínculo.')] },
       ],
     },
     {
