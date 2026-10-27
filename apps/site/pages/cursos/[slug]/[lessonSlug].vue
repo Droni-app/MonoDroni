@@ -89,21 +89,88 @@
         <!-- Quiz -->
         <section v-if="lesson.quizQuestions?.length" class="flex flex-col gap-4">
           <UiTitle>Cuestionario</UiTitle>
+          <p class="text-sm text-gray-600 dark:text-gray-300 -mt-2">
+            {{ lesson.quizQuestions.length }} {{ lesson.quizQuestions.length === 1 ? 'pregunta' : 'preguntas' }}
+            <template v-if="lesson.limitDate">
+              · Fecha límite: {{ new Date(lesson.limitDate).toLocaleString() }}
+            </template>
+          </p>
 
           <DuiAlert v-if="!isEnrolled" color="warning">
             Inscríbete al curso para tomar el cuestionario.
           </DuiAlert>
 
+          <DuiAlert v-else-if="!isStudent" color="neutral">
+            Solo los estudiantes del curso pueden presentar el cuestionario.
+          </DuiAlert>
+
+          <!-- Last attempt result + per-question review -->
           <div
             v-else-if="quizResult && !retaking"
+            class="rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-slate-900 p-4 flex flex-col gap-4"
+          >
+            <div class="flex flex-wrap items-center gap-3">
+              <p class="text-lg font-semibold text-gray-800 dark:text-gray-100">
+                Resultado: {{ Number(quizResult.results ?? 0) }}% de aciertos
+              </p>
+              <DuiBadge
+                :label="`${quizCorrectCount} de ${quizResult.answers.length} correctas`"
+                :color="Number(quizResult.results ?? 0) >= 60 ? 'success' : 'warning'"
+              />
+            </div>
+
+            <ul class="flex flex-col gap-2">
+              <li
+                v-for="(question, index) in lesson.quizQuestions"
+                :key="question.id"
+                class="flex items-start gap-2 text-sm"
+              >
+                <i
+                  class="mdi text-lg leading-none"
+                  :class="quizReview[question.id]?.correct
+                    ? 'mdi-check-circle text-green-600 dark:text-green-400'
+                    : 'mdi-close-circle text-red-600 dark:text-red-400'"
+                />
+                <div>
+                  <p class="text-gray-800 dark:text-gray-100">{{ index + 1 }}. {{ question.name }}</p>
+                  <p v-if="quizReview[question.id]" class="text-gray-500 dark:text-gray-400">
+                    Tu respuesta: {{ optionLabel(question, quizReview[question.id]!.selected) }}
+                  </p>
+                </div>
+              </li>
+            </ul>
+
+            <div class="flex flex-wrap items-center gap-3">
+              <DuiButton v-if="!quizExpired" color="secondary" size="sm" class="w-fit" @click="startQuiz">
+                <i class="mdi mdi-refresh mr-1" />
+                Reintentar
+              </DuiButton>
+              <NuxtLink
+                v-if="nextLesson"
+                :to="`/cursos/${course.slug}/${nextLesson.slug}`"
+                class="inline-flex items-center gap-1 text-sm font-medium text-cyan-700 dark:text-cyan-300 hover:underline"
+              >
+                Continuar con la siguiente lección
+                <i class="mdi mdi-chevron-right" />
+              </NuxtLink>
+            </div>
+          </div>
+
+          <DuiAlert v-else-if="quizExpired" color="warning">
+            La fecha límite para este cuestionario ya pasó.
+          </DuiAlert>
+
+          <!-- Lesson finished? Start the quiz -->
+          <div
+            v-else-if="!quizStarted"
             class="rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-slate-900 p-4 flex flex-col gap-3"
           >
-            <p class="text-lg font-semibold text-gray-800 dark:text-gray-100">
-              Resultado: {{ quizResult.results ?? 0 }}% de aciertos
+            <p class="text-gray-700 dark:text-gray-200">
+              ¿Terminaste la lección? Pon a prueba lo aprendido respondiendo las preguntas de esta lección.
             </p>
-            <DuiButton color="secondary" size="sm" class="w-fit" @click="retaking = true">
-              <i class="mdi mdi-refresh mr-1" />
-              Reintentar
+            <DuiButton color="primary" class="w-fit" @click="startQuiz">
+              <i class="mdi mdi-clipboard-check-outline mr-1" />
+              Terminé la lección, presentar cuestionario
             </DuiButton>
           </div>
 
@@ -111,23 +178,40 @@
             <div
               v-for="(question, index) in lesson.quizQuestions"
               :key="question.id"
-              class="rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-slate-900 p-4"
+              class="rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-slate-900 p-4 flex flex-col gap-2"
             >
-              <p class="font-medium text-gray-800 dark:text-gray-100 mb-2">
+              <p class="font-medium text-gray-800 dark:text-gray-100">
                 {{ index + 1 }}. {{ question.name }}
               </p>
+              <p v-if="question.description" class="text-sm text-gray-600 dark:text-gray-300 whitespace-pre-line">
+                {{ question.description }}
+              </p>
+              <img
+                v-if="question.picture"
+                :src="question.picture"
+                :alt="question.name"
+                class="max-h-64 w-fit rounded-lg"
+              >
               <DuiRadio v-model="quizAnswers[question.id]" :options="questionOptions(question)" :name="`question-${question.id}`" />
             </div>
             <DuiAlert v-if="quizError" color="danger">{{ quizError }}</DuiAlert>
-            <DuiButton
-              type="submit"
-              color="primary"
-              class="w-fit"
-              :loading="submittingQuiz"
-              :disabled="!allQuestionsAnswered"
-            >
-              Enviar cuestionario
-            </DuiButton>
+            <div class="flex flex-wrap items-center gap-3">
+              <DuiButton
+                type="submit"
+                color="primary"
+                class="w-fit"
+                :loading="submittingQuiz"
+                :disabled="!allQuestionsAnswered"
+              >
+                Enviar cuestionario
+              </DuiButton>
+              <DuiButton type="button" color="secondary" class="w-fit" :disabled="submittingQuiz" @click="cancelQuiz">
+                Cancelar
+              </DuiButton>
+              <span class="text-sm text-gray-500 dark:text-gray-400">
+                {{ answeredCount }} / {{ lesson.quizQuestions.length }} respondidas
+              </span>
+            </div>
           </form>
         </section>
 
@@ -180,7 +264,7 @@
   </div>
 </template>
 <script setup lang="ts">
-import { reactive, ref, computed } from 'vue'
+import { reactive, ref, computed, watch } from 'vue'
 import MarkdownIt from 'markdown-it'
 import { DuiAlert, DuiBadge, DuiButton, DuiInput, DuiTextarea, DuiRadio } from '@dronico/droni-kit'
 
@@ -256,14 +340,59 @@ async function submitAnswer() {
 }
 
 // --- Quiz ---
-const quizAnswers = reactive<Record<string, string>>({})
+const quizAnswers = ref<Record<string, string>>({})
 const submittingQuiz = ref(false)
 const quizError = ref<string | null>(null)
 const retaking = ref(false)
+const quizStarted = ref(false)
 const quizResult = computed(() => (lesson.value?.myQuiz?.status === 'completed' ? lesson.value.myQuiz : null))
+const isStudent = computed(() => course.value?.enrollment?.role === 'student')
+const quizExpired = computed(() => !!lesson.value?.limitDate && new Date(lesson.value.limitDate) < new Date())
 
+const quizReview = computed<Record<string, LearnQuizGradedAnswer>>(() =>
+  Object.fromEntries((quizResult.value?.answers ?? []).map((a) => [a.question_id, a]))
+)
+const quizCorrectCount = computed(() => quizResult.value?.answers.filter((a) => a.correct).length ?? 0)
+
+const answeredCount = computed(
+  () => lesson.value?.quizQuestions?.filter((q) => !!quizAnswers.value[q.id]).length ?? 0
+)
 const allQuestionsAnswered = computed(
-  () => lesson.value?.quizQuestions?.every((q) => !!quizAnswers[q.id]) ?? false
+  () => !!lesson.value?.quizQuestions?.length && answeredCount.value === lesson.value.quizQuestions.length
+)
+
+function resetQuizAnswers() {
+  quizAnswers.value = {}
+}
+
+function startQuiz() {
+  resetQuizAnswers()
+  quizError.value = null
+  retaking.value = true
+  quizStarted.value = true
+}
+
+function cancelQuiz() {
+  resetQuizAnswers()
+  quizError.value = null
+  retaking.value = false
+  quizStarted.value = false
+}
+
+function optionLabel(question: LearnQuizQuestion, selected: number) {
+  return questionOptions(question).find((o) => o.value === String(selected))?.label ?? '—'
+}
+
+// The page instance is reused across lessons of the same course, so local
+// form state must be reset when the lesson slug changes.
+watch(
+  () => route.params.lessonSlug,
+  () => {
+    cancelQuiz()
+    answerForm.answer = ''
+    answerForm.attachment = ''
+    answerError.value = null
+  }
 )
 
 function questionOptions(question: LearnQuizQuestion) {
@@ -285,13 +414,14 @@ async function submitQuiz() {
     await $fetch(`/api/appi/learn/courses/${course.value.slug}/lessons/${lesson.value.slug}/quizzes`, {
       method: 'POST',
       body: {
-        answers: Object.entries(quizAnswers).map(([question_id, selected]) => ({
+        answers: Object.entries(quizAnswers.value).map(([question_id, selected]) => ({
           question_id,
           selected: Number(selected),
         })),
       },
     })
     retaking.value = false
+    quizStarted.value = false
     await refreshLesson()
   } catch (e: any) {
     quizError.value = extractApiErrorMessage(e, 'No se pudo enviar el cuestionario.')
