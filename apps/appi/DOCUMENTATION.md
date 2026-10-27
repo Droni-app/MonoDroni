@@ -151,7 +151,7 @@ Archivos subidos por usuarios y almacenados en la nube.
 | `size` | integer | Tamaño en bytes |
 | `mime` | string | Tipo MIME (ej: `"image/png"`) |
 
-**Restricciones:** Máximo 10 MB. Formatos permitidos: `jpg`, `png`, `pdf`, `doc`, `docx`, `xls`, `xlsx`, `zip`, `txt`, `md`.
+**Restricciones:** Máximo 10 MB. Formatos permitidos: `jpg`, `png`, `webp`, `pdf`, `doc`, `docx`, `xls`, `xlsx`, `zip`, `txt`, `md`.
 
 ---
 
@@ -356,7 +356,7 @@ Sube un archivo al almacenamiento en la nube.
 | Campo | Requerido | Descripción |
 |-------|-----------|-------------|
 | `name` | Sí | Nombre descriptivo del archivo |
-| `file` | Sí | Archivo binario (máx 10 MB, formatos: jpg, png, pdf, doc, docx, xls, xlsx, zip, txt, md) |
+| `file` | Sí | Archivo binario (máx 10 MB, formatos: jpg, png, webp, pdf, doc, docx, xls, xlsx, zip, txt, md) |
 
 El archivo se almacena en S3 bajo la ruta `{siteId}/{userId}/{tamaño}-{slug-nombre}.{ext}`.
 
