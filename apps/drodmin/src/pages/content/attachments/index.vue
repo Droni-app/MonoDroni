@@ -22,7 +22,11 @@ watch(q, () => {
   searchTimer = setTimeout(() => fetch(1), 350)
 })
 
-const isImage = (mime: string) => mime.toLowerCase().startsWith('image/')
+const isImage = (attachment: Attachment) =>
+  attachment.mime.toLowerCase().startsWith('image/') ||
+  attachment.mime.toLowerCase() === 'webp' ||
+  /\.webp$/i.test(attachment.name) ||
+  /\.webp$/i.test(attachment.path)
 
 async function copyUrl(url?: string) {
   if (!url) return
@@ -118,7 +122,7 @@ onMounted(() => fetch())
       class="overflow-hidden rounded-xl border border-slate-200 bg-white dark:border-slate-700 dark:bg-slate-800"
     >
       <a :href="attachment.url" target="_blank" rel="noopener" class="flex h-40 items-center justify-center bg-slate-100 dark:bg-slate-700">
-        <img v-if="isImage(attachment.mime) && attachment.url" :src="attachment.url" :alt="attachment.name" class="h-full w-full object-cover" loading="lazy" />
+        <img v-if="isImage(attachment) && attachment.url" :src="attachment.url" :alt="attachment.name" class="h-full w-full object-cover" loading="lazy" />
         <i v-else class="mdi mdi-file-document-outline text-5xl text-slate-400" />
       </a>
       <div class="p-3">

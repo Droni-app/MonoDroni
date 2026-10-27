@@ -6,6 +6,7 @@ export const storeAttachmentValidator = vine.create({
     size: '10mb',
     extnames: [
       'jpg',
+      'jpeg',
       'png',
       'webp',
       'pdf',
