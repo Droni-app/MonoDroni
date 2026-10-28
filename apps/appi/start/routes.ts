@@ -29,6 +29,7 @@ router.get('auth/google/url', [controllers.Auth, 'getGoogleUrl'])
 router.get('auth/google/handle', [controllers.Auth, 'handleCallback'])
 router.post('auth/logout', [controllers.Auth, 'logout'])
 router.get('auth/me', [controllers.Auth, 'me'])
+router.get('auth/sites', [controllers.Auth, 'sites']).use(middleware.auth())
 router.resource('sites', controllers.Sites).only(['index', 'show'])
 router
   .group(() => {
@@ -191,8 +192,15 @@ router
 
 // MCP (Model Context Protocol): one stateless server per domain module, see app/services/mcp.
 // Tools replay calls against the routes below, so permissions stay in their middleware.
-router.post('mcp/:siteId/:module', [controllers.Mcp, 'handle'])
-router.route('mcp/:siteId/:module', ['GET', 'DELETE'], [controllers.Mcp, 'methodNotAllowed'])
+// Without :siteId every tool takes a site_id argument, so one connector works across sites.
+router.post('mcp/:siteId/:module', [controllers.Mcp, 'handle']).as('mcp.site')
+router.post('mcp/:module', [controllers.Mcp, 'handle']).as('mcp.multi_site')
+router
+  .route('mcp/:siteId/:module', ['GET', 'DELETE'], [controllers.Mcp, 'methodNotAllowed'])
+  .as('mcp.site.not_allowed')
+router
+  .route('mcp/:module', ['GET', 'DELETE'], [controllers.Mcp, 'methodNotAllowed'])
+  .as('mcp.multi_site.not_allowed')
 
 // Admin routes
 router

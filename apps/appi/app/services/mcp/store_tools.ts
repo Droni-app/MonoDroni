@@ -1,7 +1,6 @@
-import type { McpServer } from '@modelcontextprotocol/sdk/server/mcp.js'
 import { z } from 'zod'
 import type { AppiCall } from '#services/mcp/appi_client'
-import { pagination, path } from '#services/mcp/shared'
+import { pagination, path, type ToolServer } from '#services/mcp/shared'
 
 const addressFields = {
   address_line2: z.string().nullable().optional().describe('Complemento (apto, torre...)'),
@@ -22,7 +21,7 @@ const addressSnapshot = z
  * Customer-facing store tools: public catalog + the authenticated user's own
  * addresses, orders and payments (`store/*`).
  */
-export function registerStoreTools(server: McpServer, call: AppiCall) {
+export function registerStoreTools(server: ToolServer, call: AppiCall) {
   server.registerTool(
     'list_products',
     {
@@ -235,7 +234,7 @@ const shippingRuleFields = {
  * Owner-only store tools (`admin/store/*`); the adminSite middleware on each
  * target route rejects anyone who isn't the site owner.
  */
-export function registerStoreAdminTools(server: McpServer, call: AppiCall) {
+export function registerStoreAdminTools(server: ToolServer, call: AppiCall) {
   // Products
 
   server.registerTool(

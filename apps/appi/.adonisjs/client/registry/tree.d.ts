@@ -11,6 +11,7 @@ export interface ApiDefinition {
     handleCallback: typeof routes['auth.handle_callback']
     logout: typeof routes['auth.logout']
     me: typeof routes['auth.me']
+    sites: typeof routes['auth.sites']
   }
   sites: {
     index: typeof routes['sites.index']
@@ -114,8 +115,13 @@ export interface ApiDefinition {
       lessons: typeof routes['learn.user.lessons']
     }
   }
-  mcp: typeof routes['mcp'] & {
-    methodNotAllowed: typeof routes['mcp.method_not_allowed']
+  mcp: {
+    site: typeof routes['mcp.site'] & {
+      notAllowed: typeof routes['mcp.site.not_allowed']
+    }
+    multiSite: typeof routes['mcp.multi_site'] & {
+      notAllowed: typeof routes['mcp.multi_site.not_allowed']
+    }
   }
   admin: {
     content: {

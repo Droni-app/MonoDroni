@@ -1,4 +1,11 @@
+import type { McpServer } from '@modelcontextprotocol/sdk/server/mcp.js'
 import { z } from 'zod'
+
+/**
+ * What a module's register function needs: just registerTool. In site-agnostic
+ * mode it's a wrapper that injects the site_id argument (see multi_site.ts).
+ */
+export type ToolServer = Pick<McpServer, 'registerTool'>
 
 export const pagination = {
   page: z.number().int().min(1).optional().describe('Número de página (default 1)'),

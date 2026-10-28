@@ -189,6 +189,17 @@ export default class AuthController {
   }
 
   /**
+   * @sites
+   * @summary Listar los sitios del usuario autenticado con su rol en cada uno (no requiere x-site-id)
+   * @responseBody 200 - [{"id": "uuid", "siteId": "uuid", "userId": "uuid", "role": "owner|user", "site": {"id": "uuid", "name": "string", "url": "string", "logo": "string|null", "description": "string|null"}}]
+   * @responseBody 401 - {"message": "Unauthorized"}
+   */
+  async sites({ auth }: HttpContext) {
+    const user = auth.getUserOrFail()
+    return Enrollment.query().where('user_id', user.id).preload('site').orderBy('created_at', 'asc')
+  }
+
+  /**
    * @getGoogleUrl
    * @summary Obtener URL de autenticación con Google OAuth
    * @paramQuery callbackUrl - URL de callback que Google debe usar para regresar al cliente - @type(string) @required

@@ -3,6 +3,7 @@ import { McpServer } from '@modelcontextprotocol/sdk/server/mcp.js'
 import { StreamableHTTPServerTransport } from '@modelcontextprotocol/sdk/server/streamableHttp.js'
 import { appiClient } from '#services/mcp/appi_client'
 import { mcpModules } from '#services/mcp/modules'
+import { MULTI_SITE_INSTRUCTIONS, multiSite } from '#services/mcp/multi_site'
 
 export default class McpController {
   /**
@@ -10,15 +11,30 @@ export default class McpController {
    * The transport writes straight to the raw Node response, so Adonis skips its own.
    */
   async handle(ctx: HttpContext) {
-    const { params, request, response } = ctx
+    const { params, response } = ctx
     const register = mcpModules[params.module]
     if (!register) {
       return response.notFound({ message: `Unknown MCP module "${params.module}"` })
     }
 
-    const server = new McpServer({ name: `appi-${params.module}`, version: '1.0.0' })
-    register(server, appiClient(ctx))
+    // /mcp/:siteId/:module pins one site (resolved by SiteMiddleware); /mcp/:module
+    // serves every site the caller can reach, with site_id as a per-tool argument
+    if (params.siteId) {
+      const server = new McpServer({ name: `appi-${params.module}`, version: '1.0.0' })
+      register(server, appiClient(ctx, ctx.site.id))
+      return this.serve(ctx, server)
+    }
 
+    const server = new McpServer(
+      { name: `appi-${params.module}`, version: '1.0.0' },
+      { instructions: MULTI_SITE_INSTRUCTIONS }
+    )
+    const scoped = multiSite(server, ctx)
+    register(scoped.server, scoped.call)
+    return this.serve(ctx, server)
+  }
+
+  private async serve({ request, response }: HttpContext, server: McpServer) {
     const transport = new StreamableHTTPServerTransport({
       sessionIdGenerator: undefined,
       enableJsonResponse: true,

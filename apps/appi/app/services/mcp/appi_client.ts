@@ -15,13 +15,16 @@ export type AppiCall = (
  * request against appi's own routes (loopback), forwarding the caller's bearer
  * token and site. That way auth/adminSite/enrolledUser middleware, Vine
  * validators and controllers stay the single source of truth for permissions.
+ * `siteId` is omitted only for site-agnostic routes such as auth/sites.
  */
-export function appiClient(ctx: HttpContext): AppiCall {
+export function appiClient(ctx: HttpContext, siteId?: string): AppiCall {
   const baseUrl = env.get('APPI_INTERNAL_URL') ?? `http://127.0.0.1:${env.get('PORT')}`
   const headers: Record<string, string> = {
     'accept': 'application/json',
     'content-type': 'application/json',
-    'x-site-id': ctx.site.id,
+  }
+  if (siteId) {
+    headers['x-site-id'] = siteId
   }
   const authorization = ctx.request.header('authorization')
   if (authorization) {

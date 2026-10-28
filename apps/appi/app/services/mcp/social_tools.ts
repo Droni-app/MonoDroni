@@ -1,7 +1,6 @@
-import type { McpServer } from '@modelcontextprotocol/sdk/server/mcp.js'
 import { z } from 'zod'
 import type { AppiCall } from '#services/mcp/appi_client'
-import { pagination, path } from '#services/mcp/shared'
+import { pagination, path, type ToolServer } from '#services/mcp/shared'
 import { COMMENTABLE_TYPES } from '#validators/social/comment'
 
 const commentableType = z
@@ -11,7 +10,7 @@ const commentableType = z
 /**
  * Tools for the social module: public `social/*` and owner-only `admin/social/*`.
  */
-export function registerSocialTools(server: McpServer, call: AppiCall) {
+export function registerSocialTools(server: ToolServer, call: AppiCall) {
   // Public
 
   server.registerTool(

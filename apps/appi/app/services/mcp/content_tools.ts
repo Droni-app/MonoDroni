@@ -1,7 +1,6 @@
-import type { McpServer } from '@modelcontextprotocol/sdk/server/mcp.js'
 import { z } from 'zod'
 import type { AppiCall } from '#services/mcp/appi_client'
-import { pagination, path } from '#services/mcp/shared'
+import { pagination, path, type ToolServer } from '#services/mcp/shared'
 
 const postFields = {
   description: z.string().nullable().optional().describe('Resumen corto del post'),
@@ -17,7 +16,7 @@ const postFields = {
  * start/routes.ts (public `content/*` and owner-only `admin/content/*`).
  * File uploads (multipart) and bulk imports are intentionally not exposed.
  */
-export function registerContentTools(server: McpServer, call: AppiCall) {
+export function registerContentTools(server: ToolServer, call: AppiCall) {
   // Public
 
   server.registerTool(

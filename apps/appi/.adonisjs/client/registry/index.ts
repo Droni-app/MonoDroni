@@ -54,6 +54,12 @@ const routes = {
     tokens: [{"old":"/auth/me","type":0,"val":"auth","end":""},{"old":"/auth/me","type":0,"val":"me","end":""}],
     types: placeholder as Registry['auth.me']['types'],
   },
+  'auth.sites': {
+    methods: ["GET","HEAD"],
+    pattern: '/auth/sites',
+    tokens: [{"old":"/auth/sites","type":0,"val":"auth","end":""},{"old":"/auth/sites","type":0,"val":"sites","end":""}],
+    types: placeholder as Registry['auth.sites']['types'],
+  },
   'sites.index': {
     methods: ["GET","HEAD"],
     pattern: '/sites',
@@ -402,17 +408,29 @@ const routes = {
     tokens: [{"old":"/learn/courses/:course_id/lessons/:lesson_id/quizzes/:id","type":0,"val":"learn","end":""},{"old":"/learn/courses/:course_id/lessons/:lesson_id/quizzes/:id","type":0,"val":"courses","end":""},{"old":"/learn/courses/:course_id/lessons/:lesson_id/quizzes/:id","type":1,"val":"course_id","end":""},{"old":"/learn/courses/:course_id/lessons/:lesson_id/quizzes/:id","type":0,"val":"lessons","end":""},{"old":"/learn/courses/:course_id/lessons/:lesson_id/quizzes/:id","type":1,"val":"lesson_id","end":""},{"old":"/learn/courses/:course_id/lessons/:lesson_id/quizzes/:id","type":0,"val":"quizzes","end":""},{"old":"/learn/courses/:course_id/lessons/:lesson_id/quizzes/:id","type":1,"val":"id","end":""}],
     types: placeholder as Registry['learn.courses.lessons.quizzes.destroy']['types'],
   },
-  'mcp': {
+  'mcp.site': {
     methods: ["POST"],
     pattern: '/mcp/:siteId/:module',
     tokens: [{"old":"/mcp/:siteId/:module","type":0,"val":"mcp","end":""},{"old":"/mcp/:siteId/:module","type":1,"val":"siteId","end":""},{"old":"/mcp/:siteId/:module","type":1,"val":"module","end":""}],
-    types: placeholder as Registry['mcp']['types'],
+    types: placeholder as Registry['mcp.site']['types'],
   },
-  'mcp.method_not_allowed': {
+  'mcp.multi_site': {
+    methods: ["POST"],
+    pattern: '/mcp/:module',
+    tokens: [{"old":"/mcp/:module","type":0,"val":"mcp","end":""},{"old":"/mcp/:module","type":1,"val":"module","end":""}],
+    types: placeholder as Registry['mcp.multi_site']['types'],
+  },
+  'mcp.site.not_allowed': {
     methods: ["GET","DELETE"],
     pattern: '/mcp/:siteId/:module',
     tokens: [{"old":"/mcp/:siteId/:module","type":0,"val":"mcp","end":""},{"old":"/mcp/:siteId/:module","type":1,"val":"siteId","end":""},{"old":"/mcp/:siteId/:module","type":1,"val":"module","end":""}],
-    types: placeholder as Registry['mcp.method_not_allowed']['types'],
+    types: placeholder as Registry['mcp.site.not_allowed']['types'],
+  },
+  'mcp.multi_site.not_allowed': {
+    methods: ["GET","DELETE"],
+    pattern: '/mcp/:module',
+    tokens: [{"old":"/mcp/:module","type":0,"val":"mcp","end":""},{"old":"/mcp/:module","type":1,"val":"module","end":""}],
+    types: placeholder as Registry['mcp.multi_site.not_allowed']['types'],
   },
   'admin.content.posts.import': {
     methods: ["POST"],

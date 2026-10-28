@@ -103,6 +103,18 @@ export interface Registry {
       errorResponse: ExtractErrorResponse<Awaited<ReturnType<import('#controllers/auth_controller').default['me']>>>
     }
   }
+  'auth.sites': {
+    methods: ["GET","HEAD"]
+    pattern: '/auth/sites'
+    types: {
+      body: {}
+      paramsTuple: []
+      params: {}
+      query: {}
+      response: ExtractResponse<Awaited<ReturnType<import('#controllers/auth_controller').default['sites']>>>
+      errorResponse: ExtractErrorResponse<Awaited<ReturnType<import('#controllers/auth_controller').default['sites']>>>
+    }
+  }
   'sites.index': {
     methods: ["GET","HEAD"]
     pattern: '/sites'
@@ -799,7 +811,7 @@ export interface Registry {
       errorResponse: ExtractErrorResponse<Awaited<ReturnType<import('#controllers/learn/quizzes_controller').default['destroy']>>>
     }
   }
-  'mcp': {
+  'mcp.site': {
     methods: ["POST"]
     pattern: '/mcp/:siteId/:module'
     types: {
@@ -811,13 +823,37 @@ export interface Registry {
       errorResponse: ExtractErrorResponse<Awaited<ReturnType<import('#controllers/mcp_controller').default['handle']>>>
     }
   }
-  'mcp.method_not_allowed': {
+  'mcp.multi_site': {
+    methods: ["POST"]
+    pattern: '/mcp/:module'
+    types: {
+      body: {}
+      paramsTuple: [ParamValue]
+      params: { module: ParamValue }
+      query: {}
+      response: ExtractResponse<Awaited<ReturnType<import('#controllers/mcp_controller').default['handle']>>>
+      errorResponse: ExtractErrorResponse<Awaited<ReturnType<import('#controllers/mcp_controller').default['handle']>>>
+    }
+  }
+  'mcp.site.not_allowed': {
     methods: ["GET","DELETE"]
     pattern: '/mcp/:siteId/:module'
     types: {
       body: {}
       paramsTuple: [ParamValue, ParamValue]
       params: { siteId: ParamValue; module: ParamValue }
+      query: {}
+      response: ExtractResponse<Awaited<ReturnType<import('#controllers/mcp_controller').default['methodNotAllowed']>>>
+      errorResponse: ExtractErrorResponse<Awaited<ReturnType<import('#controllers/mcp_controller').default['methodNotAllowed']>>>
+    }
+  }
+  'mcp.multi_site.not_allowed': {
+    methods: ["GET","DELETE"]
+    pattern: '/mcp/:module'
+    types: {
+      body: {}
+      paramsTuple: [ParamValue]
+      params: { module: ParamValue }
       query: {}
       response: ExtractResponse<Awaited<ReturnType<import('#controllers/mcp_controller').default['methodNotAllowed']>>>
       errorResponse: ExtractErrorResponse<Awaited<ReturnType<import('#controllers/mcp_controller').default['methodNotAllowed']>>>

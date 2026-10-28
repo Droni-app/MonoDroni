@@ -11,7 +11,10 @@ export default class SiteMiddleware {
       ctx.request.url().startsWith('/auth/verify-email') ||
       ctx.request.url() === '/201aae24c561528ec1542b94df7e1db9.txt' ||
       ctx.request.url() === '/docs' ||
-      ctx.request.url() === '/openapi.json'
+      ctx.request.url() === '/openapi.json' ||
+      // Site-agnostic: lists the user's sites, and the multi-site MCP picks one per tool call
+      ctx.request.url() === '/auth/sites' ||
+      ctx.route?.pattern === '/mcp/:module'
     ) {
       return await next()
     }

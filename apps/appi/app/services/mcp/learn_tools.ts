@@ -1,7 +1,6 @@
-import type { McpServer } from '@modelcontextprotocol/sdk/server/mcp.js'
 import { z } from 'zod'
 import type { AppiCall } from '#services/mcp/appi_client'
-import { pagination, path } from '#services/mcp/shared'
+import { pagination, path, type ToolServer } from '#services/mcp/shared'
 
 const courseSlug = z.string().describe('Slug del curso')
 const lessonSlug = z.string().describe('Slug de la lección')
@@ -52,7 +51,7 @@ const enrollmentStatus = z.enum(['pending', 'active', 'completed', 'canceled'])
  * by slug; permissions come from the course-level role (learn_enrollments.role)
  * checked by the courseRole middleware on each target route.
  */
-export function registerLearnTools(server: McpServer, call: AppiCall) {
+export function registerLearnTools(server: ToolServer, call: AppiCall) {
   // Catalog & own learning
 
   server.registerTool(
@@ -523,7 +522,7 @@ const courseFields = {
  * Site owner tools (`admin/learn/*`): everything addressed by real id, gated
  * by the adminSite middleware instead of course-level roles.
  */
-export function registerLearnAdminTools(server: McpServer, call: AppiCall) {
+export function registerLearnAdminTools(server: ToolServer, call: AppiCall) {
   // Courses
 
   server.registerTool(

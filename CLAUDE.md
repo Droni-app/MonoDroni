@@ -66,7 +66,7 @@ The `learn` module (courses/lessons/questions/answers/quizzes/enrollments — `a
 
 ### MCP endpoint in appi
 
-`POST /mcp/:siteId/:module` (`app/controllers/mcp_controller.ts`, tools in `app/services/mcp/`) is a stateless MCP server per module: `content`, `social`, `store`, `store-admin`, `learn`, `learn-admin`. Tools never touch models — `appi_client.ts` replays each call over loopback against appi's own routes, forwarding the caller's bearer token, so route middleware/validators stay the only permission layer. When adding or changing a route, update the matching `*_tools.ts`; when a module grows past ~30 tools, split it like `store`/`store-admin`.
+`POST /mcp/:siteId/:module` (`app/controllers/mcp_controller.ts`, tools in `app/services/mcp/`) is a stateless MCP server per module: `content`, `social`, `store`, `store-admin`, `learn`, `learn-admin`. `POST /mcp/:module` is the multi-site variant: `multi_site.ts` wraps each module so every tool takes a `site_id` argument (plus a `list_my_sites` tool backed by `GET /auth/sites`); module tool files are written once and don't know which mode they run in. Tools never touch models — `appi_client.ts` replays each call over loopback against appi's own routes, forwarding the caller's bearer token, so route middleware/validators stay the only permission layer. When adding or changing a route, update the matching `*_tools.ts`; when a module grows past ~30 tools, split it like `store`/`store-admin`.
 
 ### Gotchas discovered while building this
 
