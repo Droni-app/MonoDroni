@@ -182,6 +182,25 @@ const authModule: ApiModule = {
   "user": { "id": "uuid", "fullName": "Ada Lovelace", "email": "ada@example.com", "avatar": null, "emailVerifiedAt": "2026-01-01T00:00:00.000Z" },
   "enrollment": { "id": "uuid", "role": "user" }
 }`,
+          notes: ['Si el usuario aún no estaba inscrito en el sitio del header x-site-id, esta llamada lo inscribe con rol user.'],
+        },
+        {
+          id: 'sites',
+          method: 'GET',
+          path: '/auth/sites',
+          summary: 'Sitios del usuario',
+          description: 'Lista todos los sitios en los que está inscrito el usuario, con su rol en cada uno. A diferencia del resto de rutas, no necesita x-site-id: úsala para construir un selector de sitio.',
+          access: 'auth',
+          response: `[
+  {
+    "id": "uuid",
+    "siteId": "uuid",
+    "userId": "uuid",
+    "role": "owner",
+    "site": { "id": "uuid", "name": "Mi sitio", "url": "https://misitio.com", "logo": null, "description": null }
+  }
+]`,
+          notes: ['No requiere el header x-site-id y no modifica ninguna inscripción.'],
         },
         {
           id: 'logout',

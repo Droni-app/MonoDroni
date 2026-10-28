@@ -7,6 +7,13 @@
     >
       <i class="mdi mdi-rocket-launch-outline" /> Primeros pasos
     </NuxtLink>
+    <NuxtLink
+      to="/proyectos/appi#mcp"
+      class="flex items-center gap-2 px-3 py-2 rounded-lg transition"
+      :class="linkClass(false)"
+    >
+      <i class="mdi mdi-robot-outline" /> Usar con IA (MCP)
+    </NuxtLink>
     <div v-for="mod in appiModules" :key="mod.slug">
       <NuxtLink
         :to="`/proyectos/appi/${mod.slug}`"
