@@ -47,11 +47,12 @@ export default class AnswersController {
       .where('course_id', course.id)
       .where('id', params.lesson_id)
       .firstOrFail()
-    const data = await request.validateUsing(storeAnswerValidator)
+    // user_id only locates the enrollment; answers key off learn_enrollment_id
+    const { user_id: userId, ...data } = await request.validateUsing(storeAnswerValidator)
 
     const enrollment = await LearnEnrollment.query()
       .where('course_id', course.id)
-      .where('user_id', data.user_id)
+      .where('user_id', userId)
       .first()
     if (!enrollment) {
       return response.badRequest({ message: 'Este usuario no está inscrito en el curso.' })
