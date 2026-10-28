@@ -49,6 +49,7 @@ export const controllers = {
     Quizzes: () => import('#controllers/learn/quizzes_controller'),
     User: () => import('#controllers/learn/user_controller'),
   },
+  Mcp: () => import('#controllers/mcp_controller'),
   Sites: () => import('#controllers/sites_controller'),
   social: {
     Comments: () => import('#controllers/social/comments_controller'),

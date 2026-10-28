@@ -189,6 +189,11 @@ router
   .prefix('learn')
   .as('learn')
 
+// MCP (Model Context Protocol): one stateless server per domain module, see app/services/mcp.
+// Tools replay calls against the routes below, so permissions stay in their middleware.
+router.post('mcp/:siteId/:module', [controllers.Mcp, 'handle'])
+router.route('mcp/:siteId/:module', ['GET', 'DELETE'], [controllers.Mcp, 'methodNotAllowed'])
+
 // Admin routes
 router
   .group(() => {

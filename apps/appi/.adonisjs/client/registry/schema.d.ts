@@ -799,6 +799,30 @@ export interface Registry {
       errorResponse: ExtractErrorResponse<Awaited<ReturnType<import('#controllers/learn/quizzes_controller').default['destroy']>>>
     }
   }
+  'mcp': {
+    methods: ["POST"]
+    pattern: '/mcp/:siteId/:module'
+    types: {
+      body: {}
+      paramsTuple: [ParamValue, ParamValue]
+      params: { siteId: ParamValue; module: ParamValue }
+      query: {}
+      response: ExtractResponse<Awaited<ReturnType<import('#controllers/mcp_controller').default['handle']>>>
+      errorResponse: ExtractErrorResponse<Awaited<ReturnType<import('#controllers/mcp_controller').default['handle']>>>
+    }
+  }
+  'mcp.method_not_allowed': {
+    methods: ["GET","DELETE"]
+    pattern: '/mcp/:siteId/:module'
+    types: {
+      body: {}
+      paramsTuple: [ParamValue, ParamValue]
+      params: { siteId: ParamValue; module: ParamValue }
+      query: {}
+      response: ExtractResponse<Awaited<ReturnType<import('#controllers/mcp_controller').default['methodNotAllowed']>>>
+      errorResponse: ExtractErrorResponse<Awaited<ReturnType<import('#controllers/mcp_controller').default['methodNotAllowed']>>>
+    }
+  }
   'admin.content.posts.import': {
     methods: ["POST"]
     pattern: '/admin/content/posts/import'

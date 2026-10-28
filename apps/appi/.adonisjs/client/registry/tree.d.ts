@@ -114,6 +114,9 @@ export interface ApiDefinition {
       lessons: typeof routes['learn.user.lessons']
     }
   }
+  mcp: typeof routes['mcp'] & {
+    methodNotAllowed: typeof routes['mcp.method_not_allowed']
+  }
   admin: {
     content: {
       posts: {

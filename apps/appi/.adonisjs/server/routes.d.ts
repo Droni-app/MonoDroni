@@ -70,6 +70,8 @@ export type ScannedRoutes = {
     'learn.courses.lessons.quizzes.index': { paramsTuple: [ParamValue,ParamValue]; params: {'course_id': ParamValue,'lesson_id': ParamValue} }
     'learn.courses.lessons.quizzes.update': { paramsTuple: [ParamValue,ParamValue,ParamValue]; params: {'course_id': ParamValue,'lesson_id': ParamValue,'id': ParamValue} }
     'learn.courses.lessons.quizzes.destroy': { paramsTuple: [ParamValue,ParamValue,ParamValue]; params: {'course_id': ParamValue,'lesson_id': ParamValue,'id': ParamValue} }
+    'mcp': { paramsTuple: [ParamValue,ParamValue]; params: {'siteId': ParamValue,'module': ParamValue} }
+    'mcp.method_not_allowed': { paramsTuple: [ParamValue,ParamValue]; params: {'siteId': ParamValue,'module': ParamValue} }
     'admin.content.posts.import': { paramsTuple?: []; params?: {} }
     'admin.content.posts.index': { paramsTuple?: []; params?: {} }
     'admin.content.posts.store': { paramsTuple?: []; params?: {} }
@@ -186,6 +188,7 @@ export type ScannedRoutes = {
     'learn.courses.lessons.answers.index': { paramsTuple: [ParamValue,ParamValue]; params: {'course_id': ParamValue,'lesson_id': ParamValue} }
     'learn.courses.lessons.quizzes.show': { paramsTuple: [ParamValue,ParamValue,ParamValue]; params: {'course_id': ParamValue,'lesson_id': ParamValue,'id': ParamValue} }
     'learn.courses.lessons.quizzes.index': { paramsTuple: [ParamValue,ParamValue]; params: {'course_id': ParamValue,'lesson_id': ParamValue} }
+    'mcp.method_not_allowed': { paramsTuple: [ParamValue,ParamValue]; params: {'siteId': ParamValue,'module': ParamValue} }
     'admin.content.posts.index': { paramsTuple?: []; params?: {} }
     'admin.content.posts.show': { paramsTuple: [ParamValue]; params: {'id': ParamValue} }
     'admin.content.posts.attributes.index': { paramsTuple: [ParamValue]; params: {'post_id': ParamValue} }
@@ -313,6 +316,7 @@ export type ScannedRoutes = {
     'learn.courses.enrollments.store': { paramsTuple: [ParamValue]; params: {'course_id': ParamValue} }
     'learn.courses.lessons.answers.store': { paramsTuple: [ParamValue,ParamValue]; params: {'course_id': ParamValue,'lesson_id': ParamValue} }
     'learn.courses.lessons.quizzes.store': { paramsTuple: [ParamValue,ParamValue]; params: {'course_id': ParamValue,'lesson_id': ParamValue} }
+    'mcp': { paramsTuple: [ParamValue,ParamValue]; params: {'siteId': ParamValue,'module': ParamValue} }
     'admin.content.posts.import': { paramsTuple?: []; params?: {} }
     'admin.content.posts.store': { paramsTuple?: []; params?: {} }
     'admin.content.posts.attributes.store': { paramsTuple: [ParamValue]; params: {'post_id': ParamValue} }
@@ -336,6 +340,7 @@ export type ScannedRoutes = {
     'learn.courses.lessons.exam_questions.destroy': { paramsTuple: [ParamValue,ParamValue,ParamValue]; params: {'course_id': ParamValue,'lesson_id': ParamValue,'id': ParamValue} }
     'learn.courses.lessons.answers.destroy': { paramsTuple: [ParamValue,ParamValue,ParamValue]; params: {'course_id': ParamValue,'lesson_id': ParamValue,'id': ParamValue} }
     'learn.courses.lessons.quizzes.destroy': { paramsTuple: [ParamValue,ParamValue,ParamValue]; params: {'course_id': ParamValue,'lesson_id': ParamValue,'id': ParamValue} }
+    'mcp.method_not_allowed': { paramsTuple: [ParamValue,ParamValue]; params: {'siteId': ParamValue,'module': ParamValue} }
     'admin.content.posts.destroy': { paramsTuple: [ParamValue]; params: {'id': ParamValue} }
     'admin.content.posts.attributes.destroy': { paramsTuple: [ParamValue,ParamValue]; params: {'post_id': ParamValue,'id': ParamValue} }
     'admin.content.attachments.destroy': { paramsTuple: [ParamValue]; params: {'id': ParamValue} }

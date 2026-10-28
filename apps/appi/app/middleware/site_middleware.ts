@@ -4,7 +4,8 @@ import Site from '#models/site'
 
 export default class SiteMiddleware {
   async handle(ctx: HttpContext, next: NextFn) {
-    const siteId = ctx.request.header('x-site-id') ?? null
+    // MCP clients can't always send custom headers, so /mcp/:siteId/:module carries it in the URL
+    const siteId = ctx.request.header('x-site-id') ?? ctx.params.siteId ?? null
     // exclude routes that don't require site context, such as email verification and domain validation
     if (
       ctx.request.url().startsWith('/auth/verify-email') ||

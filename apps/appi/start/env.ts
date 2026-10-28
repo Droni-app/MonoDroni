@@ -67,5 +67,13 @@ export default await Env.create(new URL('../', import.meta.url), {
   |----------------------------------------------------------
   */
   GOOGLE_CLIENT_ID: Env.schema.string(),
-  GOOGLE_CLIENT_SECRET: Env.schema.string()
+  GOOGLE_CLIENT_SECRET: Env.schema.string(),
+
+  /*
+  |----------------------------------------------------------
+  | Base URL the MCP endpoint uses to call appi's own routes
+  | (defaults to http://127.0.0.1:$PORT)
+  |----------------------------------------------------------
+  */
+  APPI_INTERNAL_URL: Env.schema.string.optional({ format: 'url', tld: false }),
 })
