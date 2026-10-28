@@ -1,17 +1,7 @@
 import type { McpServer } from '@modelcontextprotocol/sdk/server/mcp.js'
 import { z } from 'zod'
 import type { AppiCall } from '#services/mcp/appi_client'
-
-const pagination = {
-  page: z.number().int().min(1).optional().describe('Número de página (default 1)'),
-  per_page: z
-    .number()
-    .int()
-    .min(1)
-    .max(100)
-    .optional()
-    .describe('Resultados por página (default 10)'),
-}
+import { pagination, path } from '#services/mcp/shared'
 
 const postFields = {
   description: z.string().nullable().optional().describe('Resumen corto del post'),
@@ -56,7 +46,7 @@ export function registerContentTools(server: McpServer, call: AppiCall) {
       inputSchema: { slug: z.string().describe('Slug del post') },
       annotations: { readOnlyHint: true },
     },
-    ({ slug }) => call('GET', `content/posts/${encodeURIComponent(slug)}`)
+    ({ slug }) => call('GET', path`content/posts/${slug}`)
   )
 
   server.registerTool(
@@ -78,7 +68,7 @@ export function registerContentTools(server: McpServer, call: AppiCall) {
       inputSchema: { id: z.string().describe('ID del attachment') },
       annotations: { destructiveHint: true },
     },
-    ({ id }) => call('DELETE', `content/attachments/${encodeURIComponent(id)}`)
+    ({ id }) => call('DELETE', path`content/attachments/${id}`)
   )
 
   // Admin (site owner only — enforced by the adminSite middleware on the target route)
@@ -106,7 +96,7 @@ export function registerContentTools(server: McpServer, call: AppiCall) {
       inputSchema: { id: z.string().describe('ID del post') },
       annotations: { readOnlyHint: true },
     },
-    ({ id }) => call('GET', `admin/content/posts/${encodeURIComponent(id)}`)
+    ({ id }) => call('GET', path`admin/content/posts/${id}`)
   )
 
   server.registerTool(
@@ -137,7 +127,7 @@ export function registerContentTools(server: McpServer, call: AppiCall) {
       },
       annotations: { idempotentHint: true },
     },
-    ({ id, ...body }) => call('PUT', `admin/content/posts/${encodeURIComponent(id)}`, { body })
+    ({ id, ...body }) => call('PUT', path`admin/content/posts/${id}`, { body })
   )
 
   server.registerTool(
@@ -148,7 +138,7 @@ export function registerContentTools(server: McpServer, call: AppiCall) {
       inputSchema: { id: z.string().describe('ID del post') },
       annotations: { destructiveHint: true },
     },
-    ({ id }) => call('DELETE', `admin/content/posts/${encodeURIComponent(id)}`)
+    ({ id }) => call('DELETE', path`admin/content/posts/${id}`)
   )
 
   server.registerTool(
@@ -159,8 +149,7 @@ export function registerContentTools(server: McpServer, call: AppiCall) {
       inputSchema: { post_id: z.string().describe('ID del post') },
       annotations: { readOnlyHint: true },
     },
-    ({ post_id: postId }) =>
-      call('GET', `admin/content/posts/${encodeURIComponent(postId)}/attributes`)
+    ({ post_id: postId }) => call('GET', path`admin/content/posts/${postId}/attributes`)
   )
 
   server.registerTool(
@@ -176,7 +165,7 @@ export function registerContentTools(server: McpServer, call: AppiCall) {
       },
     },
     ({ post_id: postId, ...body }) =>
-      call('POST', `admin/content/posts/${encodeURIComponent(postId)}/attributes`, { body })
+      call('POST', path`admin/content/posts/${postId}/attributes`, { body })
   )
 
   server.registerTool(
@@ -191,10 +180,7 @@ export function registerContentTools(server: McpServer, call: AppiCall) {
       annotations: { destructiveHint: true },
     },
     ({ post_id: postId, id }) =>
-      call(
-        'DELETE',
-        `admin/content/posts/${encodeURIComponent(postId)}/attributes/${encodeURIComponent(id)}`
-      )
+      call('DELETE', path`admin/content/posts/${postId}/attributes/${id}`)
   )
 
   server.registerTool(
@@ -216,6 +202,6 @@ export function registerContentTools(server: McpServer, call: AppiCall) {
       inputSchema: { id: z.string().describe('ID del attachment') },
       annotations: { destructiveHint: true },
     },
-    ({ id }) => call('DELETE', `admin/content/attachments/${encodeURIComponent(id)}`)
+    ({ id }) => call('DELETE', path`admin/content/attachments/${id}`)
   )
 }

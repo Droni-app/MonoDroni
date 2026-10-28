@@ -29,8 +29,15 @@ export default class McpController {
     })
 
     await server.connect(transport)
-    // The bodyparser already consumed the stream, so hand over the parsed JSON-RPC body
-    await transport.handleRequest(request.request, response.response, request.body())
+    // The bodyparser already consumed the stream, so hand over the JSON-RPC body. Re-parse
+    // the raw text: request.body() has convertEmptyStringsToNull applied, which would turn
+    // tool arguments like "" into null
+    const raw = request.raw()
+    await transport.handleRequest(
+      request.request,
+      response.response,
+      raw ? JSON.parse(raw) : undefined
+    )
   }
 
   /**
