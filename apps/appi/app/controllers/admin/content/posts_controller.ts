@@ -25,7 +25,10 @@ export default class PostsController {
     const posts = await ContentPost.query()
       .where('site_id', site.id)
       .if(q, (query) => {
-        query.where('name', 'like', `%${q}%`).orWhere('description', 'like', `%${q}%`)
+        // Grouped so the OR can't escape the site_id filter
+        query.where((builder) => {
+          builder.where('name', 'like', `%${q}%`).orWhere('description', 'like', `%${q}%`)
+        })
       })
       .orderBy('created_at', 'desc')
       .paginate(page, perPage)
@@ -96,10 +99,12 @@ export default class PostsController {
       .where('site_id', site.id)
       .where('id', params.id)
       .firstOrFail()
-    post.merge({
-      ...data,
-      tags: data.tags ? JSON.stringify(data.tags) : null,
-    })
+    const { tags, ...fields } = data
+    post.merge(fields)
+    // Partial update: only touch tags when the key was sent (null clears them)
+    if (tags !== undefined) {
+      post.tags = tags ? JSON.stringify(tags) : null
+    }
     await post.save()
     return post
   }

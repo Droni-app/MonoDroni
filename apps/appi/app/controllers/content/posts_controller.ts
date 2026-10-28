@@ -27,7 +27,7 @@ export default class PostsController {
 
     if (q) {
       query.where((builder) => {
-        builder.whereLike('name', `%${q}%`).orWhereLike('description', `%${q}%`)
+        builder.whereILike('name', `%${q}%`).orWhereILike('description', `%${q}%`)
       })
     }
 

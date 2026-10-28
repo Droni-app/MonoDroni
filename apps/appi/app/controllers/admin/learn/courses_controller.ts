@@ -22,7 +22,7 @@ export default class CoursesController {
       .where('site_id', site.id)
       .if(q, (query) => {
         query.where((builder) => {
-          builder.whereLike('name', `%${q}%`).orWhereLike('description', `%${q}%`)
+          builder.whereILike('name', `%${q}%`).orWhereILike('description', `%${q}%`)
         })
       })
       .if(group, (query) => query.where('group', group))
