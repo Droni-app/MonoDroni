@@ -319,6 +319,52 @@ test.group('OAuth for MCP connectors', (group) => {
     assert.include(sites.body().result.content[0].text, site.id)
   })
 
+  test('the all module serves the tools of every module', async ({
+    client,
+    assert,
+  }: TestContext) => {
+    const resource = `${BASE}/mcp/all`
+    const { user, tokens } = await connect(client, { resource })
+
+    const listTools = async (path: string, token: string) => {
+      const response = await client
+        .post(path)
+        .header('accept', 'application/json, text/event-stream')
+        .header('authorization', `Bearer ${token}`)
+        .json({ jsonrpc: '2.0', id: 2, method: 'tools/list', params: {} })
+      response.assertStatus(200)
+      return response.body().result.tools as { name: string }[]
+    }
+
+    const allTools = await listTools('/mcp/all', tokens.access_token)
+    const tools = allTools.map((tool) => tool.name)
+    assert.includeMembers(tools, ['list_my_sites', 'list_posts', 'admin_create_post'])
+    assert.lengthOf(new Set(tools), tools.length)
+
+    const moduleTools = await Promise.all(
+      ['content', 'social', 'store', 'store-admin', 'learn', 'learn-admin'].map(async (module) => {
+        const { tokens: moduleTokens } = await connect(client, {
+          resource: `${BASE}/mcp/${module}`,
+        })
+        return listTools(`/mcp/${module}`, moduleTokens.access_token)
+      })
+    )
+    const expected = new Set(moduleTools.flat().map((tool) => tool.name))
+    assert.sameMembers(tools, [...expected])
+
+    // The token stays bound to the URL it was granted for
+    const other = await mcpPost(client, '/mcp/content', tokens.access_token)
+    other.assertStatus(401)
+
+    const consentClient = await createClient()
+    const consent = await client
+      .get(`/oauth/authorize?${authorizeQuery(consentClient.id, pkce().challenge, { resource })}`)
+      .withGuard('web')
+      .loginAs(user)
+    consent.assertStatus(200)
+    assert.include(consent.text(), 'todos los módulos')
+  })
+
   test('a code needs the right verifier and works only once', async ({
     client,
     assert,
