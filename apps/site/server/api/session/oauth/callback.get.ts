@@ -14,17 +14,26 @@ export default defineEventHandler(async (event) => {
   const query = getQuery(event)
   const flow = consumeOauthFlow(event)
   const redirect = safeRedirectPath(flow?.redirect)
-  const failed = () => sendRedirect(event, `/login?${new URLSearchParams({ error: 'login', redirect })}`)
+  const failed = (reason: string) => {
+    console.error(`appi oauth callback failed: ${reason}`)
+    return sendRedirect(event, `/login?${new URLSearchParams({ error: 'login', redirect })}`)
+  }
 
-  if (!flow || query.state !== flow.state) {
-    return failed()
+  if (!flow) {
+    return failed('no flow cookie')
+  }
+  if (query.state !== flow.state) {
+    return failed('state mismatch')
   }
   // The user went back from appi's page: /login would send them straight there again
   if (query.error === 'access_denied') {
     return sendRedirect(event, redirect)
   }
-  if (query.error || typeof query.code !== 'string') {
-    return failed()
+  if (query.error) {
+    return failed(`error param: ${String(query.error).slice(0, 64)}`)
+  }
+  if (typeof query.code !== 'string') {
+    return failed('no code')
   }
 
   try {
@@ -44,8 +53,8 @@ export default defineEventHandler(async (event) => {
     )
     setAppiToken(event, tokens.access_token)
   } catch (e) {
-    console.error('appi oauth token exchange failed:', e instanceof Error ? e.message : e)
-    return failed()
+    const oauthError = (e as { data?: { error?: unknown } }).data?.error
+    return failed(`token exchange: ${e instanceof Error ? e.message : e} (${String(oauthError)})`)
   }
 
   return sendRedirect(event, redirect)
