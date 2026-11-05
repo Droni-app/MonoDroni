@@ -150,8 +150,6 @@ export default class AuthorizationController {
       return this.renderError(ctx, 'La sesión de esta página expiró. Vuelve a iniciar la conexión.')
     }
 
-    // Must stay a POST: ally redirects with forwardQueryString on, which would append a
-    // query string to this URL, inside its last parameter (Google's redirect_uri)
     session.put('oauth.pending', String(request.input('params') ?? ''))
     return ally.use('google').redirect((googleRequest) => {
       googleRequest.clearParam('redirect_uri')

@@ -47,11 +47,12 @@ export const http = defineConfig({
    */
   redirect: {
     /**
-     * When enabled, all redirects automatically carry over the current
-     * request's query string parameters to the redirect destination.
-     * Use withQs(false) to opt out for a specific redirect.
+     * Must stay off: forwarding appends the current query string to every redirect, even
+     * to a URL that already has one, which breaks OAuth redirects and leaks signed URLs.
+     * On http-server 8, which production's lockfile pins, redirect(url, false) doesn't
+     * opt out of it.
      */
-    forwardQueryString: true,
+    forwardQueryString: false,
   },
 
   /**
