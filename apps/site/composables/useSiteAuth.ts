@@ -1,12 +1,5 @@
 type AuthStatus = 'loading' | 'authenticated' | 'unauthenticated'
 
-type RegisterInput = {
-  fullName: string
-  email: string
-  password: string
-  passwordConfirmation: string
-}
-
 export function useSiteAuth() {
   const status = useState<AuthStatus>('site-auth-status', () => 'loading')
   const user = useState<User | null>('site-auth-user', () => null)
@@ -42,13 +35,6 @@ export function useSiteAuth() {
     })
   }
 
-  async function register(payload: RegisterInput) {
-    return await $fetch('/api/session/register', {
-      method: 'POST',
-      body: payload,
-    })
-  }
-
   async function logout() {
     await $fetch('/api/session/logout', { method: 'POST' })
     user.value = null
@@ -65,7 +51,6 @@ export function useSiteAuth() {
     init,
     refreshMe,
     login,
-    register,
     logout,
   }
 }

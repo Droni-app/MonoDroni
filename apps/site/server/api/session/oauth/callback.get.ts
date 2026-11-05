@@ -14,20 +14,17 @@ export default defineEventHandler(async (event) => {
   const query = getQuery(event)
   const flow = consumeOauthFlow(event)
   const redirect = safeRedirectPath(flow?.redirect)
-  const loginPage = (error?: string) =>
-    sendRedirect(
-      event,
-      `/login?${new URLSearchParams({ ...(error ? { error } : {}), redirect })}`,
-    )
+  const failed = () => sendRedirect(event, `/login?${new URLSearchParams({ error: 'login', redirect })}`)
 
   if (!flow || query.state !== flow.state) {
-    return loginPage('login')
+    return failed()
   }
-  if (query.error) {
-    return loginPage(query.error === 'access_denied' ? undefined : 'login')
+  // The user went back from appi's page: /login would send them straight there again
+  if (query.error === 'access_denied') {
+    return sendRedirect(event, redirect)
   }
-  if (typeof query.code !== 'string') {
-    return loginPage('login')
+  if (query.error || typeof query.code !== 'string') {
+    return failed()
   }
 
   try {
@@ -48,7 +45,7 @@ export default defineEventHandler(async (event) => {
     setAppiToken(event, tokens.access_token)
   } catch (e) {
     console.error('appi oauth token exchange failed:', e instanceof Error ? e.message : e)
-    return loginPage('login')
+    return failed()
   }
 
   return sendRedirect(event, redirect)
