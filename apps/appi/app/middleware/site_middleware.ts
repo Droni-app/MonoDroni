@@ -15,6 +15,8 @@ export default class SiteMiddleware {
       ctx.request.url() === '/openapi.json' ||
       // Site-agnostic: lists the user's sites, and the multi-site MCP picks one per tool call
       ctx.request.url() === '/auth/sites' ||
+      // Revokes the token itself, and drodmin can log out before picking a site
+      ctx.request.url() === '/auth/logout' ||
       // OAuth for MCP connectors happens at the user level, before any site is involved
       ctx.request.url().startsWith('/oauth/') ||
       ctx.request.url().startsWith('/.well-known/') ||

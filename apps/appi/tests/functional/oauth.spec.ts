@@ -678,6 +678,65 @@ test.group('OAuth for first-party clients', (group) => {
       redirect_uri: REDIRECT_URI,
     })
 
+  test('a secretless client without a site gets a token through PKCE alone', async ({
+    client,
+    assert,
+  }: TestContext) => {
+    const user = await createUser()
+    const oauthClient = await OauthClient.create({
+      id: crypto.randomUUID(),
+      type: 'first_party',
+      name: 'Panel de prueba',
+      redirectUris: [REDIRECT_URI],
+      grantTypes: ['authorization_code'],
+      tokenEndpointAuthMethod: 'none',
+    })
+    const { verifier, challenge } = pkce()
+
+    const page = await client.get(
+      `/oauth/authorize?${authorizeQuery(oauthClient.id, challenge, { resource: '' })}`
+    )
+    page.assertStatus(200)
+    assert.include(page.text(), 'Panel de prueba')
+
+    const wrongUri = await client.get(
+      `/oauth/authorize?${authorizeQuery(oauthClient.id, challenge, {
+        resource: '',
+        redirect_uri: 'https://evil.example/cb',
+      })}`
+    )
+    wrongUri.assertStatus(400)
+
+    const response = await login(client, user, oauthClient.id, challenge)
+    response.assertStatus(303)
+    assert.notProperty(response.session(), 'auth_web')
+    const code = new URL(response.header('location')).searchParams.get('code')
+
+    const body = {
+      grant_type: 'authorization_code',
+      client_id: oauthClient.id,
+      code,
+      redirect_uri: REDIRECT_URI,
+    }
+    const noVerifier = await client.post('/oauth/token').form(body)
+    noVerifier.assertStatus(400)
+
+    const tokens = await client.post('/oauth/token').form({ ...body, code_verifier: verifier })
+    tokens.assertStatus(200)
+    assert.match(tokens.body().access_token, /^oat_/)
+    assert.notProperty(tokens.body(), 'refresh_token')
+
+    const authHeader = `Bearer ${tokens.body().access_token}`
+    const sites = await client.get('/auth/sites').header('authorization', authHeader)
+    sites.assertStatus(200)
+
+    // Logging out needs no site: drodmin can do it from its site picker
+    const logout = await client.post('/auth/logout').header('authorization', authHeader)
+    logout.assertStatus(200)
+    const revoked = await client.get('/auth/sites').header('authorization', authHeader)
+    revoked.assertStatus(401)
+  })
+
   test('login goes straight back with a code and leaves no session', async ({
     client,
     assert,
