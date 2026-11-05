@@ -7,6 +7,12 @@ import { defineConfig } from '@adonisjs/cors'
  *
  * https://docs.adonisjs.com/guides/security/cors
  */
+/**
+ * Browser-based MCP clients read these from any origin. They only take bearer tokens or
+ * client credentials, never cookies, so the login and consent pages stay out of this list.
+ */
+const PUBLIC_MCP_PATHS = /^\/(mcp\/|\.well-known\/|oauth\/(token|register|revoke)$)/
+
 const corsConfig = defineConfig({
   /**
    * Enable or disable CORS handling globally.
@@ -18,7 +24,10 @@ const corsConfig = defineConfig({
    * In production, keep an explicit allowlist (empty by default, so no
    * cross-origin browser access is allowed until configured).
    */
-  origin: app.inDev ? true : ['https://drodmin.droni.co', 'https://drodmin.droni.vip'],
+  origin: (_, ctx) =>
+    app.inDev || PUBLIC_MCP_PATHS.test(ctx.request.url())
+      ? true
+      : ['https://drodmin.droni.co', 'https://drodmin.droni.vip'],
 
   /**
    * HTTP methods accepted for cross-origin requests.
@@ -34,7 +43,7 @@ const corsConfig = defineConfig({
   /**
    * Response headers exposed to the browser.
    */
-  exposeHeaders: [],
+  exposeHeaders: ['WWW-Authenticate'],
 
   /**
    * Allow cookies/authorization headers on cross-origin requests.

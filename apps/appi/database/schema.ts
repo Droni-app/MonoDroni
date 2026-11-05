@@ -314,6 +314,93 @@ export class LearnQuestionSchema extends BaseModel {
   declare wons: number
 }
 
+export class OauthAuthorizationCodeSchema extends BaseModel {
+  static $columns = ['clientId', 'codeChallenge', 'codeHash', 'createdAt', 'expiresAt', 'grantId', 'id', 'redirectUri', 'resource', 'scope', 'usedAt', 'userId'] as const
+  $columns = OauthAuthorizationCodeSchema.$columns
+  @column()
+  declare clientId: string
+  @column()
+  declare codeChallenge: string
+  @column()
+  declare codeHash: string
+  @column.dateTime({ autoCreate: true })
+  declare createdAt: DateTime | null
+  @column.dateTime()
+  declare expiresAt: DateTime
+  @column()
+  declare grantId: string | null
+  @column({ isPrimary: true })
+  declare id: number
+  @column()
+  declare redirectUri: string
+  @column()
+  declare resource: string | null
+  @column()
+  declare scope: string
+  @column.dateTime()
+  declare usedAt: DateTime | null
+  @column()
+  declare userId: string
+}
+
+export class OauthClientSchema extends BaseModel {
+  static $columns = ['createdAt', 'grantTypes', 'id', 'metadataExpiresAt', 'name', 'redirectUris', 'secretHash', 'siteId', 'tokenEndpointAuthMethod', 'type', 'updatedAt'] as const
+  $columns = OauthClientSchema.$columns
+  @column.dateTime({ autoCreate: true })
+  declare createdAt: DateTime | null
+  @column()
+  declare grantTypes: string
+  @column({ isPrimary: true })
+  declare id: string
+  @column.dateTime()
+  declare metadataExpiresAt: DateTime | null
+  @column()
+  declare name: string
+  @column()
+  declare redirectUris: string
+  @column()
+  declare secretHash: string | null
+  @column()
+  declare siteId: string | null
+  @column()
+  declare tokenEndpointAuthMethod: string
+  @column()
+  declare type: string
+  @column.dateTime({ autoCreate: true, autoUpdate: true })
+  declare updatedAt: DateTime | null
+}
+
+export class OauthGrantSchema extends BaseModel {
+  static $columns = ['accessExpiresAt', 'accessTokenHash', 'clientId', 'createdAt', 'id', 'previousRefreshTokenHash', 'refreshExpiresAt', 'refreshTokenHash', 'resource', 'revokedAt', 'scope', 'updatedAt', 'userId'] as const
+  $columns = OauthGrantSchema.$columns
+  @column.dateTime()
+  declare accessExpiresAt: DateTime
+  @column()
+  declare accessTokenHash: string
+  @column()
+  declare clientId: string
+  @column.dateTime({ autoCreate: true })
+  declare createdAt: DateTime | null
+  @column({ isPrimary: true })
+  declare id: string
+  @column()
+  declare previousRefreshTokenHash: string | null
+  @column.dateTime()
+  declare refreshExpiresAt: DateTime | null
+  @column()
+  declare refreshTokenHash: string | null
+  @column()
+  declare resource: string | null
+  @column.dateTime()
+  declare revokedAt: DateTime | null
+  @column()
+  declare scope: string
+  @column.dateTime({ autoCreate: true, autoUpdate: true })
+  declare updatedAt: DateTime | null
+  @column()
+  declare userId: string
+}
+
 export class SiteSchema extends BaseModel {
   static $columns = ['createdAt', 'description', 'expiresAt', 'id', 'logo', 'name', 'updatedAt', 'url'] as const
   $columns = SiteSchema.$columns

@@ -4,8 +4,9 @@ import Site from '#models/site'
 
 export default class SiteMiddleware {
   async handle(ctx: HttpContext, next: NextFn) {
-    // MCP clients can't always send custom headers, so /mcp/:siteId/:module carries it in the URL
-    const siteId = ctx.request.header('x-site-id') ?? ctx.params.siteId ?? null
+    // MCP clients can't always send custom headers, so /mcp/:siteId/:module carries it in the URL.
+    // The URL wins: connector tokens are bound to it, a header must not move them to another site
+    const siteId = ctx.params.siteId ?? ctx.request.header('x-site-id') ?? null
     // exclude routes that don't require site context, such as email verification and domain validation
     if (
       ctx.request.url().startsWith('/auth/verify-email') ||
@@ -14,6 +15,9 @@ export default class SiteMiddleware {
       ctx.request.url() === '/openapi.json' ||
       // Site-agnostic: lists the user's sites, and the multi-site MCP picks one per tool call
       ctx.request.url() === '/auth/sites' ||
+      // OAuth for MCP connectors happens at the user level, before any site is involved
+      ctx.request.url().startsWith('/oauth/') ||
+      ctx.request.url().startsWith('/.well-known/') ||
       ctx.route?.pattern === '/mcp/:module'
     ) {
       return await next()

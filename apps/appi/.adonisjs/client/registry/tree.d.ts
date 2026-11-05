@@ -123,6 +123,23 @@ export interface ApiDefinition {
       notAllowed: typeof routes['mcp.multi_site.not_allowed']
     }
   }
+  oauth: {
+    metadata: {
+      protectedResource: typeof routes['oauth.metadata.protected_resource']
+      authorizationServer: typeof routes['oauth.metadata.authorization_server']
+    }
+    register: typeof routes['oauth.register']
+    authorize: typeof routes['oauth.authorize'] & {
+      decide: typeof routes['oauth.authorize.decide']
+    }
+    login: typeof routes['oauth.login']
+    logout: typeof routes['oauth.logout']
+    google: typeof routes['oauth.google'] & {
+      callback: typeof routes['oauth.google.callback']
+    }
+    token: typeof routes['oauth.token']
+    revoke: typeof routes['oauth.revoke']
+  }
   admin: {
     content: {
       posts: {

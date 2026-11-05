@@ -45,6 +45,8 @@ Named middleware guards:
 | `/content` | Public content reads (posts by slug, attachments) |
 | `/social` | Comment/topic creation and reads (authenticated) |
 | `/admin` | Site management, content CRUD, moderation (owner only) |
+| `/mcp` | MCP servers per module, OAuth 2.1 bearer tokens only (see root `CLAUDE.md`) |
+| `/oauth`, `/.well-known` | Authorization server for MCP connectors and first-party apps like site (no `x-site-id`) |
 
 ### Domain modules
 

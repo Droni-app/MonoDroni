@@ -859,6 +859,138 @@ export interface Registry {
       errorResponse: ExtractErrorResponse<Awaited<ReturnType<import('#controllers/mcp_controller').default['methodNotAllowed']>>>
     }
   }
+  'oauth.metadata.protected_resource': {
+    methods: ["GET","HEAD"]
+    pattern: '/.well-known/oauth-protected-resource/*'
+    types: {
+      body: {}
+      paramsTuple: [ParamValue]
+      params: { '*': ParamValue[] }
+      query: {}
+      response: ExtractResponse<Awaited<ReturnType<import('#controllers/oauth/metadata_controller').default['protectedResource']>>>
+      errorResponse: ExtractErrorResponse<Awaited<ReturnType<import('#controllers/oauth/metadata_controller').default['protectedResource']>>>
+    }
+  }
+  'oauth.metadata.authorization_server': {
+    methods: ["GET","HEAD"]
+    pattern: '/.well-known/oauth-authorization-server'
+    types: {
+      body: {}
+      paramsTuple: []
+      params: {}
+      query: {}
+      response: ExtractResponse<Awaited<ReturnType<import('#controllers/oauth/metadata_controller').default['authorizationServer']>>>
+      errorResponse: ExtractErrorResponse<Awaited<ReturnType<import('#controllers/oauth/metadata_controller').default['authorizationServer']>>>
+    }
+  }
+  'oauth.register': {
+    methods: ["POST"]
+    pattern: '/oauth/register'
+    types: {
+      body: {}
+      paramsTuple: []
+      params: {}
+      query: {}
+      response: ExtractResponse<Awaited<ReturnType<import('#controllers/oauth/registrations_controller').default['store']>>>
+      errorResponse: ExtractErrorResponse<Awaited<ReturnType<import('#controllers/oauth/registrations_controller').default['store']>>>
+    }
+  }
+  'oauth.authorize': {
+    methods: ["GET","HEAD"]
+    pattern: '/oauth/authorize'
+    types: {
+      body: {}
+      paramsTuple: []
+      params: {}
+      query: {}
+      response: ExtractResponse<Awaited<ReturnType<import('#controllers/oauth/authorization_controller').default['show']>>>
+      errorResponse: ExtractErrorResponse<Awaited<ReturnType<import('#controllers/oauth/authorization_controller').default['show']>>>
+    }
+  }
+  'oauth.authorize.decide': {
+    methods: ["POST"]
+    pattern: '/oauth/authorize'
+    types: {
+      body: {}
+      paramsTuple: []
+      params: {}
+      query: {}
+      response: ExtractResponse<Awaited<ReturnType<import('#controllers/oauth/authorization_controller').default['decide']>>>
+      errorResponse: ExtractErrorResponse<Awaited<ReturnType<import('#controllers/oauth/authorization_controller').default['decide']>>>
+    }
+  }
+  'oauth.login': {
+    methods: ["POST"]
+    pattern: '/oauth/login'
+    types: {
+      body: ExtractBody<InferInput<(typeof import('#validators/user').loginValidator)>>
+      paramsTuple: []
+      params: {}
+      query: ExtractQuery<InferInput<(typeof import('#validators/user').loginValidator)>>
+      response: ExtractResponse<Awaited<ReturnType<import('#controllers/oauth/authorization_controller').default['login']>>>
+      errorResponse: ExtractErrorResponse<Awaited<ReturnType<import('#controllers/oauth/authorization_controller').default['login']>>> | { status: 422; response: { errors: SimpleError[] } }
+    }
+  }
+  'oauth.logout': {
+    methods: ["POST"]
+    pattern: '/oauth/logout'
+    types: {
+      body: {}
+      paramsTuple: []
+      params: {}
+      query: {}
+      response: ExtractResponse<Awaited<ReturnType<import('#controllers/oauth/authorization_controller').default['logout']>>>
+      errorResponse: ExtractErrorResponse<Awaited<ReturnType<import('#controllers/oauth/authorization_controller').default['logout']>>>
+    }
+  }
+  'oauth.google': {
+    methods: ["POST"]
+    pattern: '/oauth/google'
+    types: {
+      body: {}
+      paramsTuple: []
+      params: {}
+      query: {}
+      response: ExtractResponse<Awaited<ReturnType<import('#controllers/oauth/authorization_controller').default['google']>>>
+      errorResponse: ExtractErrorResponse<Awaited<ReturnType<import('#controllers/oauth/authorization_controller').default['google']>>>
+    }
+  }
+  'oauth.google.callback': {
+    methods: ["GET","HEAD"]
+    pattern: '/oauth/google/callback'
+    types: {
+      body: {}
+      paramsTuple: []
+      params: {}
+      query: {}
+      response: ExtractResponse<Awaited<ReturnType<import('#controllers/oauth/authorization_controller').default['googleCallback']>>>
+      errorResponse: ExtractErrorResponse<Awaited<ReturnType<import('#controllers/oauth/authorization_controller').default['googleCallback']>>>
+    }
+  }
+  'oauth.token': {
+    methods: ["POST"]
+    pattern: '/oauth/token'
+    types: {
+      body: {}
+      paramsTuple: []
+      params: {}
+      query: {}
+      response: ExtractResponse<Awaited<ReturnType<import('#controllers/oauth/tokens_controller').default['token']>>>
+      errorResponse: ExtractErrorResponse<Awaited<ReturnType<import('#controllers/oauth/tokens_controller').default['token']>>>
+    }
+  }
+  'oauth.revoke': {
+    methods: ["POST"]
+    pattern: '/oauth/revoke'
+    types: {
+      body: {}
+      paramsTuple: []
+      params: {}
+      query: {}
+      response: ExtractResponse<Awaited<ReturnType<import('#controllers/oauth/tokens_controller').default['revoke']>>>
+      errorResponse: ExtractErrorResponse<Awaited<ReturnType<import('#controllers/oauth/tokens_controller').default['revoke']>>>
+    }
+  }
   'admin.content.posts.import': {
     methods: ["POST"]
     pattern: '/admin/content/posts/import'

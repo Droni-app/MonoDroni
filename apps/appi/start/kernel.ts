@@ -50,4 +50,5 @@ export const middleware = router.named({
   adminSite: () => import('#middleware/admin_site_middleware'),
   enrolledUser: () => import('#middleware/enrolled_user_middleware'),
   courseRole: () => import('#middleware/course_role_middleware'),
+  mcpAuth: () => import('#middleware/mcp_auth_middleware'),
 })
