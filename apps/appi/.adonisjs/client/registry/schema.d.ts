@@ -7,30 +7,6 @@ import type { InferInput, SimpleError } from '@vinejs/vine/types'
 export type ParamValue = string | number | bigint | boolean
 
 export interface Registry {
-  'auth.register': {
-    methods: ["POST"]
-    pattern: '/auth/register'
-    types: {
-      body: ExtractBody<InferInput<(typeof import('#validators/user').signupValidator)>>
-      paramsTuple: []
-      params: {}
-      query: ExtractQuery<InferInput<(typeof import('#validators/user').signupValidator)>>
-      response: ExtractResponse<Awaited<ReturnType<import('#controllers/auth_controller').default['register']>>>
-      errorResponse: ExtractErrorResponse<Awaited<ReturnType<import('#controllers/auth_controller').default['register']>>> | { status: 422; response: { errors: SimpleError[] } }
-    }
-  }
-  'auth.send_verification_email': {
-    methods: ["POST"]
-    pattern: '/auth/send-verification-email'
-    types: {
-      body: ExtractBody<InferInput<(typeof import('#validators/user').sendVerificationEmailValidator)>>
-      paramsTuple: []
-      params: {}
-      query: ExtractQuery<InferInput<(typeof import('#validators/user').sendVerificationEmailValidator)>>
-      response: ExtractResponse<Awaited<ReturnType<import('#controllers/auth_controller').default['sendVerificationEmail']>>>
-      errorResponse: ExtractErrorResponse<Awaited<ReturnType<import('#controllers/auth_controller').default['sendVerificationEmail']>>> | { status: 422; response: { errors: SimpleError[] } }
-    }
-  }
   'auth.validate': {
     methods: ["GET","HEAD"]
     pattern: '/auth/verify-email/:enrollmentId'
@@ -857,6 +833,234 @@ export interface Registry {
       query: {}
       response: ExtractResponse<Awaited<ReturnType<import('#controllers/mcp_controller').default['methodNotAllowed']>>>
       errorResponse: ExtractErrorResponse<Awaited<ReturnType<import('#controllers/mcp_controller').default['methodNotAllowed']>>>
+    }
+  }
+  'oauth.metadata.protected_resource': {
+    methods: ["GET","HEAD"]
+    pattern: '/.well-known/oauth-protected-resource/*'
+    types: {
+      body: {}
+      paramsTuple: [ParamValue]
+      params: { '*': ParamValue[] }
+      query: {}
+      response: ExtractResponse<Awaited<ReturnType<import('#controllers/oauth/metadata_controller').default['protectedResource']>>>
+      errorResponse: ExtractErrorResponse<Awaited<ReturnType<import('#controllers/oauth/metadata_controller').default['protectedResource']>>>
+    }
+  }
+  'oauth.metadata.authorization_server': {
+    methods: ["GET","HEAD"]
+    pattern: '/.well-known/oauth-authorization-server'
+    types: {
+      body: {}
+      paramsTuple: []
+      params: {}
+      query: {}
+      response: ExtractResponse<Awaited<ReturnType<import('#controllers/oauth/metadata_controller').default['authorizationServer']>>>
+      errorResponse: ExtractErrorResponse<Awaited<ReturnType<import('#controllers/oauth/metadata_controller').default['authorizationServer']>>>
+    }
+  }
+  'oauth.register': {
+    methods: ["POST"]
+    pattern: '/oauth/register'
+    types: {
+      body: {}
+      paramsTuple: []
+      params: {}
+      query: {}
+      response: ExtractResponse<Awaited<ReturnType<import('#controllers/oauth/registrations_controller').default['store']>>>
+      errorResponse: ExtractErrorResponse<Awaited<ReturnType<import('#controllers/oauth/registrations_controller').default['store']>>>
+    }
+  }
+  'oauth.authorize': {
+    methods: ["GET","HEAD"]
+    pattern: '/oauth/authorize'
+    types: {
+      body: {}
+      paramsTuple: []
+      params: {}
+      query: {}
+      response: ExtractResponse<Awaited<ReturnType<import('#controllers/oauth/authorization_controller').default['show']>>>
+      errorResponse: ExtractErrorResponse<Awaited<ReturnType<import('#controllers/oauth/authorization_controller').default['show']>>>
+    }
+  }
+  'oauth.authorize.decide': {
+    methods: ["POST"]
+    pattern: '/oauth/authorize'
+    types: {
+      body: {}
+      paramsTuple: []
+      params: {}
+      query: {}
+      response: ExtractResponse<Awaited<ReturnType<import('#controllers/oauth/authorization_controller').default['decide']>>>
+      errorResponse: ExtractErrorResponse<Awaited<ReturnType<import('#controllers/oauth/authorization_controller').default['decide']>>>
+    }
+  }
+  'oauth.login': {
+    methods: ["POST"]
+    pattern: '/oauth/login'
+    types: {
+      body: ExtractBody<InferInput<(typeof import('#validators/user').loginValidator)>>
+      paramsTuple: []
+      params: {}
+      query: ExtractQuery<InferInput<(typeof import('#validators/user').loginValidator)>>
+      response: ExtractResponse<Awaited<ReturnType<import('#controllers/oauth/authorization_controller').default['login']>>>
+      errorResponse: ExtractErrorResponse<Awaited<ReturnType<import('#controllers/oauth/authorization_controller').default['login']>>> | { status: 422; response: { errors: SimpleError[] } }
+    }
+  }
+  'oauth.logout': {
+    methods: ["POST"]
+    pattern: '/oauth/logout'
+    types: {
+      body: {}
+      paramsTuple: []
+      params: {}
+      query: {}
+      response: ExtractResponse<Awaited<ReturnType<import('#controllers/oauth/authorization_controller').default['logout']>>>
+      errorResponse: ExtractErrorResponse<Awaited<ReturnType<import('#controllers/oauth/authorization_controller').default['logout']>>>
+    }
+  }
+  'oauth.signup': {
+    methods: ["GET","HEAD"]
+    pattern: '/oauth/signup'
+    types: {
+      body: {}
+      paramsTuple: []
+      params: {}
+      query: {}
+      response: ExtractResponse<Awaited<ReturnType<import('#controllers/oauth/accounts_controller').default['showSignup']>>>
+      errorResponse: ExtractErrorResponse<Awaited<ReturnType<import('#controllers/oauth/accounts_controller').default['showSignup']>>>
+    }
+  }
+  'oauth.signup.store': {
+    methods: ["POST"]
+    pattern: '/oauth/signup'
+    types: {
+      body: {}
+      paramsTuple: []
+      params: {}
+      query: {}
+      response: ExtractResponse<Awaited<ReturnType<import('#controllers/oauth/accounts_controller').default['signup']>>>
+      errorResponse: ExtractErrorResponse<Awaited<ReturnType<import('#controllers/oauth/accounts_controller').default['signup']>>>
+    }
+  }
+  'oauth.resend_verification': {
+    methods: ["POST"]
+    pattern: '/oauth/resend-verification'
+    types: {
+      body: {}
+      paramsTuple: []
+      params: {}
+      query: {}
+      response: ExtractResponse<Awaited<ReturnType<import('#controllers/oauth/accounts_controller').default['resendVerification']>>>
+      errorResponse: ExtractErrorResponse<Awaited<ReturnType<import('#controllers/oauth/accounts_controller').default['resendVerification']>>>
+    }
+  }
+  'oauth.verify_email': {
+    methods: ["GET","HEAD"]
+    pattern: '/oauth/verify-email/:id'
+    types: {
+      body: {}
+      paramsTuple: [ParamValue]
+      params: { id: ParamValue }
+      query: {}
+      response: ExtractResponse<Awaited<ReturnType<import('#controllers/oauth/accounts_controller').default['verifyEmail']>>>
+      errorResponse: ExtractErrorResponse<Awaited<ReturnType<import('#controllers/oauth/accounts_controller').default['verifyEmail']>>>
+    }
+  }
+  'oauth.forgot_password': {
+    methods: ["GET","HEAD"]
+    pattern: '/oauth/forgot-password'
+    types: {
+      body: {}
+      paramsTuple: []
+      params: {}
+      query: {}
+      response: ExtractResponse<Awaited<ReturnType<import('#controllers/oauth/accounts_controller').default['showForgotPassword']>>>
+      errorResponse: ExtractErrorResponse<Awaited<ReturnType<import('#controllers/oauth/accounts_controller').default['showForgotPassword']>>>
+    }
+  }
+  'oauth.forgot_password.store': {
+    methods: ["POST"]
+    pattern: '/oauth/forgot-password'
+    types: {
+      body: {}
+      paramsTuple: []
+      params: {}
+      query: {}
+      response: ExtractResponse<Awaited<ReturnType<import('#controllers/oauth/accounts_controller').default['forgotPassword']>>>
+      errorResponse: ExtractErrorResponse<Awaited<ReturnType<import('#controllers/oauth/accounts_controller').default['forgotPassword']>>>
+    }
+  }
+  'oauth.reset_password': {
+    methods: ["GET","HEAD"]
+    pattern: '/oauth/reset-password'
+    types: {
+      body: {}
+      paramsTuple: []
+      params: {}
+      query: {}
+      response: ExtractResponse<Awaited<ReturnType<import('#controllers/oauth/accounts_controller').default['showResetPassword']>>>
+      errorResponse: ExtractErrorResponse<Awaited<ReturnType<import('#controllers/oauth/accounts_controller').default['showResetPassword']>>>
+    }
+  }
+  'oauth.reset_password.store': {
+    methods: ["POST"]
+    pattern: '/oauth/reset-password'
+    types: {
+      body: {}
+      paramsTuple: []
+      params: {}
+      query: {}
+      response: ExtractResponse<Awaited<ReturnType<import('#controllers/oauth/accounts_controller').default['resetPassword']>>>
+      errorResponse: ExtractErrorResponse<Awaited<ReturnType<import('#controllers/oauth/accounts_controller').default['resetPassword']>>>
+    }
+  }
+  'oauth.google': {
+    methods: ["POST"]
+    pattern: '/oauth/google'
+    types: {
+      body: {}
+      paramsTuple: []
+      params: {}
+      query: {}
+      response: ExtractResponse<Awaited<ReturnType<import('#controllers/oauth/authorization_controller').default['google']>>>
+      errorResponse: ExtractErrorResponse<Awaited<ReturnType<import('#controllers/oauth/authorization_controller').default['google']>>>
+    }
+  }
+  'oauth.google.callback': {
+    methods: ["GET","HEAD"]
+    pattern: '/oauth/google/callback'
+    types: {
+      body: {}
+      paramsTuple: []
+      params: {}
+      query: {}
+      response: ExtractResponse<Awaited<ReturnType<import('#controllers/oauth/authorization_controller').default['googleCallback']>>>
+      errorResponse: ExtractErrorResponse<Awaited<ReturnType<import('#controllers/oauth/authorization_controller').default['googleCallback']>>>
+    }
+  }
+  'oauth.token': {
+    methods: ["POST"]
+    pattern: '/oauth/token'
+    types: {
+      body: {}
+      paramsTuple: []
+      params: {}
+      query: {}
+      response: ExtractResponse<Awaited<ReturnType<import('#controllers/oauth/tokens_controller').default['token']>>>
+      errorResponse: ExtractErrorResponse<Awaited<ReturnType<import('#controllers/oauth/tokens_controller').default['token']>>>
+    }
+  }
+  'oauth.revoke': {
+    methods: ["POST"]
+    pattern: '/oauth/revoke'
+    types: {
+      body: {}
+      paramsTuple: []
+      params: {}
+      query: {}
+      response: ExtractResponse<Awaited<ReturnType<import('#controllers/oauth/tokens_controller').default['revoke']>>>
+      errorResponse: ExtractErrorResponse<Awaited<ReturnType<import('#controllers/oauth/tokens_controller').default['revoke']>>>
     }
   }
   'admin.content.posts.import': {

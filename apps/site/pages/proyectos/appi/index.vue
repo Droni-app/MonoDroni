@@ -59,8 +59,9 @@
             Para empezar necesitas que creemos tu sitio. Te entregaremos un <code>siteId</code> (UUID) y una cuenta
             con rol <strong>owner</strong>, con la que podrás administrar el contenido desde
             <a href="https://drodmin.droni.co" class="text-pink-600 dark:text-pink-400 underline">drodmin</a>
-            o desde tu propio panel usando los endpoints de administración. Si vas a usar el inicio de sesión con Google,
-            indícanos también las URLs de callback de tu frontend.
+            o desde tu propio panel usando los endpoints de administración. Si tu sitio tendrá usuarios, indícanos
+            también la URL de callback de tu servidor y te entregaremos un <code>client_id</code> y un
+            <code>client_secret</code> de OAuth para ese sitio.
           </p>
           <NuxtLink to="/login" class="inline-flex items-center gap-2 text-sm font-semibold text-pink-600 dark:text-pink-400">
             Solicitar un sitio <i class="mdi mdi-arrow-top-right" />
@@ -98,21 +99,27 @@
           </p>
           <ul class="list-disc pl-6 space-y-1 text-zinc-600 dark:text-zinc-300 mb-4">
             <li>El token del usuario vive en una cookie <code>httpOnly</code>, fuera del alcance de JavaScript del navegador.</li>
-            <li>El <code>siteId</code> y la URL de appi se configuran como variables de entorno del servidor.</li>
+            <li>El <code>siteId</code>, la URL de appi y las credenciales OAuth se configuran como variables de entorno del servidor.</li>
             <li>Puedes cachear respuestas públicas (posts, productos, cursos) para ganar velocidad.</li>
           </ul>
           <p class="text-zinc-600 dark:text-zinc-300 mb-3">Ejemplo con Nuxt 3 — un proxy genérico en <code>server/api/appi/[...path].ts</code>:</p>
           <AppiCode label="server/api/appi/[...path].ts" :code="proxyExample" />
-          <p class="text-zinc-600 dark:text-zinc-300 my-3">Y un endpoint de login que guarda el token en la cookie:</p>
-          <AppiCode label="server/api/session/login.post.ts" :code="loginExample" />
+          <p class="text-zinc-600 dark:text-zinc-300 my-3">
+            El inicio de sesión no se construye en tu sitio: tu botón lleva a las pantallas de appi, que muestran el
+            nombre y el logo de tu sitio. Un endpoint inicia el flujo:
+          </p>
+          <AppiCode label="server/api/session/oauth/start.get.ts" :code="oauthStartExample" />
+          <p class="text-zinc-600 dark:text-zinc-300 my-3">Y tu callback canjea el código y guarda el token en la cookie:</p>
+          <AppiCode label="server/api/session/oauth/callback.get.ts" :code="oauthCallbackExample" />
         </section>
 
         <section id="autenticacion">
           <h2 class="text-2xl font-bold mb-3">4. Usuarios y roles</h2>
           <p class="text-zinc-600 dark:text-zinc-300 mb-3">
-            Un usuario se registra con email y contraseña (y verifica su correo) o entra con Google. El login devuelve
-            un token que debes enviar como <code>Authorization: Bearer</code>. Cada endpoint de esta documentación
-            indica qué nivel de acceso necesita:
+            El inicio de sesión, el registro, la verificación de correo, la recuperación de contraseña y el acceso con
+            Google ocurren en las pantallas de appi, sin que tu sitio reciba contraseñas. Al terminar obtienes un token
+            que debes enviar como <code>Authorization: Bearer</code>. Cada endpoint de esta documentación indica qué
+            nivel de acceso necesita:
           </p>
           <div class="grid gap-2 sm:grid-cols-2">
             <div
@@ -192,7 +199,7 @@
             texto"</em>, <em>"¿qué pedidos siguen pendientes?"</em> o <em>"califica las respuestas de la lección 3"</em>.
           </p>
           <p class="text-zinc-600 dark:text-zinc-300 mb-4">
-            Cada tool del MCP llama al mismo endpoint de la API que documenta esta página, con tu token. Por eso
+            Cada tool del MCP llama al mismo endpoint de la API que documenta esta página, en nombre de tu usuario. Por eso
             aplican exactamente los mismos permisos y validaciones: el asistente solo puede hacer lo que tu usuario
             puede hacer en ese sitio.
           </p>
@@ -249,45 +256,38 @@
             importar cuántos sitios tengas.
           </p>
 
-          <h3 id="mcp-token" class="font-bold mt-6 mb-2">Autenticación: obtén un token</h3>
+          <h3 id="mcp-token" class="font-bold mt-6 mb-2">Autenticación: OAuth</h3>
           <p class="text-zinc-600 dark:text-zinc-300 mb-3">
-            Los servidores MCP usan el mismo token que la API. Haz login con el <code>siteId</code> de un sitio en el
-            que ya estés inscrito y copia el <code>token</code> de la respuesta. Un mismo token sirve para todos tus
-            sitios: lo que cambia por sitio es tu rol.
+            No necesitas copiar ningún token. Agregas la URL del servidor en tu asistente y este abre una ventana de
+            appi donde inicias sesión (con correo o Google) y autorizas el acceso. El asistente guarda sus credenciales
+            y las renueva solo. Funciona con cualquier cliente MCP compatible con OAuth 2.1.
           </p>
-          <AppiCode label="curl" :code="mcpLoginExample" />
           <ul class="list-disc pl-6 space-y-1 text-zinc-600 dark:text-zinc-300 mt-3">
-            <li>Haz un login exclusivo para el MCP: si reutilizas el token de otra sesión y cierras esa sesión, el MCP deja de funcionar.</li>
-            <li>El token no vence. Trátalo como una contraseña y revócalo con <code>POST /auth/logout</code> (enviando ese token) cuando ya no lo uses.</li>
-            <li>Si tu usuario es owner, el token da acceso a las tools <code>admin_*</code>. Para un asistente que solo debe leer o atender clientes, usa una cuenta con rol user.</li>
+            <li>La autorización vale para la URL que agregaste: un conector de <code>content</code> no puede usar <code>store-admin</code>, y uno de un sitio fijo no puede usar otros sitios. Cada servidor se autoriza por separado.</li>
+            <li>Los tokens del conector solo sirven en el MCP, no en la API REST. A la inversa, un token <code>oat_</code> de <code>/auth/login</code> no sirve en el MCP.</li>
+            <li>El token de acceso dura 1 hora. La renovación es automática y dura 90 días desde la última vez que se usó; después tendrás que autorizar de nuevo.</li>
+            <li>Todas las tools requieren autorización, incluso las que leen datos públicos.</li>
+            <li>El asistente tiene tus permisos: si tu usuario es owner, puede usar las tools <code>admin_*</code>. Para un asistente que solo debe leer o atender clientes, autoriza con una cuenta de rol user.</li>
           </ul>
 
           <h3 id="mcp-claude-code" class="font-bold mt-6 mb-2">Conectar con Claude Code</h3>
           <p class="text-zinc-600 dark:text-zinc-300 mb-3">
             Agrega cada servidor con <code>claude mcp add</code>. <code>--scope user</code> lo deja disponible en
-            todos tus proyectos. Comprueba la conexión con <code>/mcp</code> dentro de Claude Code.
+            todos tus proyectos. Después abre <code>/mcp</code> dentro de Claude Code y elige el servidor para iniciar
+            sesión.
           </p>
           <AppiCode label="bash" :code="mcpClaudeCodeExample" />
           <p class="text-zinc-600 dark:text-zinc-300 my-3">
-            Para compartir la configuración en un repositorio, usa un <code>.mcp.json</code> y deja el token en una
-            variable de entorno, nunca en el archivo:
+            Para compartir la configuración en un repositorio, usa un <code>.mcp.json</code>. No lleva credenciales:
+            cada persona autoriza con su propia cuenta.
           </p>
           <AppiCode label=".mcp.json" :code="mcpJsonExample" />
 
-          <h3 id="mcp-desktop" class="font-bold mt-6 mb-2">Conectar con Claude Desktop</h3>
+          <h3 id="mcp-web" class="font-bold mt-6 mb-2">claude.ai, Claude Desktop y otros asistentes</h3>
           <p class="text-zinc-600 dark:text-zinc-300 mb-3">
-            Claude Desktop no permite enviar headers a un servidor remoto, así que se usa
-            <code>mcp-remote</code> como puente. Edita <code>claude_desktop_config.json</code>
-            (Settings → Developer → Edit Config) y reinicia la app:
-          </p>
-          <AppiCode label="claude_desktop_config.json" :code="mcpDesktopExample" />
-
-          <h3 id="mcp-web" class="font-bold mt-6 mb-2">claude.ai y otros clientes web</h3>
-          <p class="text-zinc-600 dark:text-zinc-300 mb-3">
-            Los conectores personalizados de claude.ai (y de otros asistentes web) solo admiten servidores sin
-            autenticación o con OAuth; no dejan configurar un token. Puedes agregar la URL de un módulo y usar las
-            tools públicas (listar posts, productos o cursos), pero las que requieren sesión responderán
-            <code>401</code>. El soporte de OAuth, para iniciar sesión desde el propio conector, aún no está disponible.
+            En los asistentes que admiten conectores remotos, agrega un conector personalizado con la URL del módulo
+            (por ejemplo <code>{{ APPI_BASE_URL }}/mcp/content</code>) y deja vacíos los campos de client ID y secret, si
+            aparecen. El asistente se registra solo y te lleva a la pantalla de autorización de appi.
           </p>
 
           <h3 id="mcp-sitios" class="font-bold mt-6 mb-2">Trabajar con varios sitios</h3>
@@ -398,18 +398,67 @@ export default defineEventHandler(async (event) => {
   })
 })`
 
-const loginExample = `export default defineEventHandler(async (event) => {
-  const config = useRuntimeConfig()
-  const { email, password } = await readBody(event)
+const oauthStartExample = `import { createHash, randomBytes } from 'node:crypto'
 
-  const { user, enrollment, token } = await $fetch<any>('/auth/login', {
-    baseURL: config.appiUrl,
-    method: 'POST',
-    headers: { 'x-site-id': config.appiSiteId, Accept: 'application/json' },
-    body: { email, password },
+// .env → APPI_CLIENT_ID=…  APPI_CLIENT_SECRET=…  APPI_CALLBACK_URL=https://misitio.com/api/session/oauth/callback
+export default defineEventHandler((event) => {
+  const config = useRuntimeConfig()
+  const state = randomBytes(32).toString('base64url')
+  const verifier = randomBytes(32).toString('base64url')
+
+  setCookie(event, 'appi_oauth_flow', JSON.stringify({ state, verifier }), {
+    httpOnly: true,
+    secure: true,
+    sameSite: 'lax',
+    path: '/api/session/oauth',
+    maxAge: 60 * 10,
   })
 
-  setCookie(event, 'appi_token', token, {
+  const params = new URLSearchParams({
+    response_type: 'code',
+    client_id: config.appiClientId,
+    redirect_uri: config.appiCallbackUrl,
+    state,
+    code_challenge: createHash('sha256').update(verifier).digest('base64url'),
+    code_challenge_method: 'S256',
+  })
+
+  return sendRedirect(event, \`\${config.appiUrl}/oauth/authorize?\${params}\`)
+})`
+
+const oauthCallbackExample = `export default defineEventHandler(async (event) => {
+  const config = useRuntimeConfig()
+  const { code, state, error } = getQuery(event)
+  const flow = JSON.parse(getCookie(event, 'appi_oauth_flow') ?? 'null')
+  deleteCookie(event, 'appi_oauth_flow', { path: '/api/session/oauth' })
+
+  // El state evita que otra web complete un inicio de sesión en tu sitio
+  if (!flow || state !== flow.state) {
+    return sendRedirect(event, '/?login=error')
+  }
+  // El usuario pulsó "Volver" en appi: no lo envíes de nuevo a iniciar sesión
+  if (error === 'access_denied') {
+    return sendRedirect(event, '/')
+  }
+  if (error || typeof code !== 'string') {
+    return sendRedirect(event, '/?login=error')
+  }
+
+  const tokens = await $fetch<{ access_token: string }>('/oauth/token', {
+    baseURL: config.appiUrl,
+    method: 'POST',
+    body: new URLSearchParams({
+      grant_type: 'authorization_code',
+      client_id: config.appiClientId,
+      client_secret: config.appiClientSecret,
+      code,
+      code_verifier: flow.verifier,
+      redirect_uri: config.appiCallbackUrl,
+    }),
+  })
+
+  // Nunca devuelvas el token al navegador
+  setCookie(event, 'appi_token', tokens.access_token, {
     httpOnly: true,
     secure: true,
     sameSite: 'lax',
@@ -417,8 +466,7 @@ const loginExample = `export default defineEventHandler(async (event) => {
     maxAge: 60 * 60 * 24 * 7,
   })
 
-  // Nunca devuelvas el token al navegador
-  return { user, enrollment }
+  return sendRedirect(event, '/')
 })`
 
 const paginationExample = `{
@@ -448,11 +496,13 @@ const errorRows = [
   { code: '403', text: 'Autenticado, pero sin el rol necesario (por ejemplo, rol de curso) o fuera de la ventana permitida.' },
   { code: '404', text: 'El recurso no existe, no pertenece a tu sitio o no es tuyo. Las rutas protegidas por rol de sitio también pueden responder 404 en lugar de 403.' },
   { code: '422', text: 'Error de validación del cuerpo o query: revisa errors[].field y errors[].message.' },
+  { code: '429', text: 'Demasiados intentos, por ejemplo de inicio de sesión. El header Retry-After indica cuántos segundos esperar.' },
 ]
 
 const securityTips = [
   'Llama a appi desde tu servidor y guarda el token en una cookie httpOnly, secure y sameSite. No lo pongas en localStorage ni en la URL.',
   'Nunca devuelvas el token al navegador ni lo registres en logs.',
+  'El client_secret solo debe existir en tu servidor. Si se filtra, pídenos uno nuevo.',
   'Mantén las credenciales del owner fuera del frontend público. Si tu sitio necesita acciones de administración, constrúyelas en un panel aparte y protegido.',
   'No confíes en totales calculados en el cliente: appi recalcula precios y descuentos al crear un pedido.',
   'Confirma los pagos con tu pasarela desde tu servidor (webhooks) antes de marcarlos como completados.',
@@ -462,52 +512,24 @@ const securityTips = [
 
 const mcpModuleSlugs = appiMcpServers.map((srv) => srv.slug).join(' ')
 
-const mcpLoginExample = `curl ${APPI_BASE_URL}/auth/login \\
-  -H "x-site-id: $APPI_SITE_ID" \\
-  -H "Content-Type: application/json" \\
-  -H "Accept: application/json" \\
-  -d '{"email": "tu@correo.com", "password": "…"}'
-
-# → { "user": { … }, "enrollment": { … }, "token": "oat_…" }`
-
 const mcpClaudeCodeExample = `# Un módulo, modo varios sitios
 claude mcp add --transport http --scope user appi-content \\
-  ${APPI_BASE_URL}/mcp/content \\
-  --header "Authorization: Bearer $APPI_TOKEN"
+  ${APPI_BASE_URL}/mcp/content
 
 # Todos los módulos de una vez
 for m in ${mcpModuleSlugs}; do
-  claude mcp add --transport http --scope user "appi-$m" \\
-    "${APPI_BASE_URL}/mcp/$m" \\
-    --header "Authorization: Bearer $APPI_TOKEN"
+  claude mcp add --transport http --scope user "appi-$m" "${APPI_BASE_URL}/mcp/$m"
 done
 
 # Modo un sitio fijo
 claude mcp add --transport http --scope user mitienda-store \\
-  ${APPI_BASE_URL}/mcp/<siteId>/store \\
-  --header "Authorization: Bearer $APPI_TOKEN"`
+  ${APPI_BASE_URL}/mcp/<siteId>/store`
 
 const mcpJsonExample = `{
   "mcpServers": {
     "appi-content": {
       "type": "http",
-      "url": "${APPI_BASE_URL}/mcp/content",
-      "headers": { "Authorization": "Bearer \${APPI_TOKEN}" }
-    }
-  }
-}`
-
-const mcpDesktopExample = `{
-  "mcpServers": {
-    "appi-content": {
-      "command": "npx",
-      "args": [
-        "mcp-remote",
-        "${APPI_BASE_URL}/mcp/content",
-        "--header",
-        "Authorization:\${APPI_AUTH}"
-      ],
-      "env": { "APPI_AUTH": "Bearer oat_…" }
+      "url": "${APPI_BASE_URL}/mcp/content"
     }
   }
 }`

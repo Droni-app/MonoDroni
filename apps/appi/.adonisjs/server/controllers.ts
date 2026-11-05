@@ -50,6 +50,13 @@ export const controllers = {
     User: () => import('#controllers/learn/user_controller'),
   },
   Mcp: () => import('#controllers/mcp_controller'),
+  oauth: {
+    Accounts: () => import('#controllers/oauth/accounts_controller'),
+    Authorization: () => import('#controllers/oauth/authorization_controller'),
+    Metadata: () => import('#controllers/oauth/metadata_controller'),
+    Registrations: () => import('#controllers/oauth/registrations_controller'),
+    Tokens: () => import('#controllers/oauth/tokens_controller'),
+  },
   Sites: () => import('#controllers/sites_controller'),
   social: {
     Comments: () => import('#controllers/social/comments_controller'),

@@ -41,14 +41,16 @@ Named middleware guards:
 
 | Prefix | Purpose |
 |--------|---------|
-| `/auth` | Register, login, Google OAuth, email verification, token refresh |
+| `/auth` | Login, Google OAuth, session info, token refresh |
 | `/content` | Public content reads (posts by slug, attachments) |
 | `/social` | Comment/topic creation and reads (authenticated) |
 | `/admin` | Site management, content CRUD, moderation (owner only) |
+| `/mcp` | MCP servers per module, OAuth 2.1 bearer tokens only (see root `CLAUDE.md`) |
+| `/oauth`, `/.well-known` | Authorization server for MCP connectors and first-party apps like site (no `x-site-id`) |
 
 ### Domain modules
 
-- **Auth** — email+password, Google OAuth via `@adonisjs/ally`, signed URL email verification (24h), API token issuance
+- **Auth** — email+password, Google OAuth via `@adonisjs/ally`, API token issuance; signup, email verification and password recovery are pages under `/oauth`
 - **Content** — Posts (markdown/html/plaintext, publish/draft), file attachments to S3/Spaces (max 10 MB), custom key-value post attributes
 - **Social** — Threaded comments (`parent_id`), topics, replies, moderation queue
 

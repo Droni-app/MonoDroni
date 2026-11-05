@@ -12,8 +12,8 @@ export type AppiCall = (
 
 /**
  * MCP tools never touch models directly: each tool call is replayed as an HTTP
- * request against appi's own routes (loopback), forwarding the caller's bearer
- * token and site. That way auth/adminSite/enrolledUser middleware, Vine
+ * request against appi's own routes (loopback), as the authenticated user (see
+ * loopback_credential) and on the caller's site. That way auth/adminSite/enrolledUser middleware, Vine
  * validators and controllers stay the single source of truth for permissions.
  * `siteId` is omitted only for site-agnostic routes such as auth/sites.
  */
@@ -25,10 +25,6 @@ export function appiClient(ctx: HttpContext, siteId?: string): AppiCall {
   }
   if (siteId) {
     headers['x-site-id'] = siteId
-  }
-  const authorization = ctx.request.header('authorization')
-  if (authorization) {
-    headers['authorization'] = authorization
   }
 
   return async (method, path, options = {}) => {
@@ -45,7 +41,7 @@ export function appiClient(ctx: HttpContext, siteId?: string): AppiCall {
     try {
       const res = await fetch(url, {
         method,
-        headers,
+        headers: { ...headers, authorization: `Bearer ${await ctx.mcpCredential.bearer()}` },
         body: options.body === undefined ? undefined : JSON.stringify(options.body),
       })
       const text = await res.text()

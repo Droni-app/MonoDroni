@@ -18,7 +18,7 @@
       <AppiFields v-if="endpoint.query?.length" title="Query string" :fields="endpoint.query" />
       <AppiFields
         v-if="endpoint.body?.length"
-        :title="endpoint.multipart ? 'Cuerpo (multipart/form-data)' : 'Cuerpo (JSON)'"
+        :title="endpoint.form ? 'Cuerpo (application/x-www-form-urlencoded)' : endpoint.multipart ? 'Cuerpo (multipart/form-data)' : 'Cuerpo (JSON)'"
         :fields="endpoint.body"
       />
 

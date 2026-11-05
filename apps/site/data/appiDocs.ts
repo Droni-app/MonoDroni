@@ -35,6 +35,7 @@ export interface ApiEndpoint {
   query?: ApiField[]
   body?: ApiField[]
   multipart?: boolean
+  form?: boolean
   request?: string
   response?: string
   notes?: string[]
@@ -105,56 +106,79 @@ const authModule: ApiModule = {
   slug: 'auth',
   name: 'Autenticación',
   icon: 'mdi mdi-shield-account-outline',
-  summary: 'Registro, inicio de sesión con email o Google, verificación de correo y sesión actual.',
+  summary: 'Inicio de sesión con OAuth, pantallas de cuenta de appi, sesión actual y acceso para paneles propios.',
   intro: [
     'Los usuarios de appi son globales: un mismo email puede participar en varios sitios. Cada vez que un usuario se registra o inicia sesión en tu sitio, appi crea (si no existe) su inscripción al sitio con rol user.',
-    'El login devuelve un token opaco tipo Bearer. Guárdalo del lado del servidor (por ejemplo en una cookie httpOnly) y envíalo en el header Authorization de cada petición que lo requiera.',
+    'En tu sitio, el inicio de sesión es una redirección a appi con tu client_id. Allí el usuario entra con correo o Google, crea su cuenta, verifica su correo o recupera su contraseña, en pantallas con el nombre y el logo de tu sitio. Tu sitio nunca recibe contraseñas.',
+    'Al terminar obtienes un token opaco tipo Bearer. Guárdalo del lado del servidor (por ejemplo en una cookie httpOnly) y envíalo en el header Authorization de cada petición que lo requiera.',
   ],
   groups: [
     {
-      id: 'email',
-      title: 'Email y contraseña',
+      id: 'oauth',
+      title: 'Inicio de sesión con OAuth',
+      description: 'Authorization Code con PKCE. Necesitas el client_id y el client_secret de tu sitio: solicítalos junto con tu siteId, indicando tu URL de callback. Estas rutas no usan x-site-id, porque el cliente ya pertenece a tu sitio.',
       endpoints: [
         {
-          id: 'register',
-          method: 'POST',
-          path: '/auth/register',
-          summary: 'Registrar un usuario',
-          description: 'Crea la cuenta, la inscribe en tu sitio y envía un correo de bienvenida con un enlace de verificación válido por 24 horas. Al abrir el enlace, el usuario queda verificado y es redirigido a la URL configurada para tu sitio.',
+          id: 'oauth-authorize',
+          method: 'GET',
+          path: '/oauth/authorize',
+          summary: 'Enviar al usuario a iniciar sesión',
+          description: 'Redirige el navegador del usuario a esta URL. Cuando termina, appi lo devuelve a tu callback con un code de un solo uso, válido por 5 minutos.',
           access: 'public',
-          body: [
-            { name: 'fullName', type: 'string | null', required: true, description: 'Nombre completo.' },
-            { name: 'email', type: 'string', required: true, description: 'Email válido, máximo 254 caracteres. Debe ser único.' },
-            { name: 'password', type: 'string', required: true, description: 'Entre 8 y 32 caracteres.' },
-            { name: 'passwordConfirmation', type: 'string', required: true, description: 'Debe coincidir con password.' },
+          query: [
+            { name: 'response_type', type: 'string', required: true, description: 'Siempre code.' },
+            { name: 'client_id', type: 'string', required: true, description: 'El client_id de tu sitio.' },
+            { name: 'redirect_uri', type: 'string', required: true, description: 'Tu URL de callback, exactamente como la registraste.' },
+            { name: 'state', type: 'string', required: true, description: 'Valor aleatorio que guardas en una cookie y compruebas en tu callback.' },
+            { name: 'code_challenge', type: 'string', required: true, description: 'SHA-256 en base64url de un verificador aleatorio que guardas en tu servidor o en una cookie httpOnly.' },
+            { name: 'code_challenge_method', type: 'string', required: true, description: 'Siempre S256.' },
           ],
-          request: `{
-  "fullName": "Ada Lovelace",
-  "email": "ada@example.com",
-  "password": "unaClaveSegura",
-  "passwordConfirmation": "unaClaveSegura"
-}`,
-          response: `{
-  "user": { "id": "uuid", "fullName": "Ada Lovelace", "email": "ada@example.com", "avatar": null },
-  "enrollment": { "id": "uuid", "siteId": "uuid", "userId": "uuid", "role": "user" }
-}`,
-          notes: ['El usuario no puede iniciar sesión hasta verificar su correo.'],
+          response: `HTTP/1.1 303 See Other
+Location: https://misitio.com/callback?code=…&state=…&iss=https://appi.droni.co`,
+          notes: [
+            'Si el usuario pulsa "Volver" en appi, tu callback recibe error=access_denied en lugar de code.',
+            'La página pide siempre las credenciales: appi no guarda sesión para tu sitio, así que cerrar sesión en tu sitio basta para salir.',
+          ],
         },
         {
-          id: 'resend-verification',
+          id: 'oauth-token',
           method: 'POST',
-          path: '/auth/send-verification-email',
-          summary: 'Reenviar correo de verificación',
+          path: '/oauth/token',
+          summary: 'Canjear el code por un token',
+          description: 'Llámala desde tu servidor. El token dura 7 días y no se renueva: al vencer, el usuario vuelve a iniciar sesión.',
           access: 'public',
-          body: [{ name: 'email', type: 'string', required: true, description: 'Email del usuario.' }],
-          request: `{ "email": "ada@example.com" }`,
-          response: `{ "message": "Verification email sent. Please check your inbox." }`,
+          form: true,
+          body: [
+            { name: 'grant_type', type: 'string', required: true, description: 'Siempre authorization_code.' },
+            { name: 'client_id', type: 'string', required: true, description: 'El client_id de tu sitio.' },
+            { name: 'client_secret', type: 'string', required: true, description: 'El secreto de tu sitio. Nunca lo expongas al navegador.' },
+            { name: 'code', type: 'string', required: true, description: 'El code que llegó a tu callback.' },
+            { name: 'code_verifier', type: 'string', required: true, description: 'El verificador con el que calculaste code_challenge.' },
+            { name: 'redirect_uri', type: 'string', required: true, description: 'La misma URL usada en /oauth/authorize.' },
+          ],
+          response: `{
+  "access_token": "oat_…",
+  "token_type": "Bearer",
+  "expires_in": 604800,
+  "scope": "api"
+}`,
+          notes: [
+            'Después de canjearlo, llama a GET /auth/me para obtener el usuario e inscribirlo en tu sitio.',
+            'Cambiar la contraseña revoca todos los tokens del usuario: trata un 401 como sesión terminada.',
+          ],
         },
+      ],
+    },
+    {
+      id: 'email',
+      title: 'Sesión',
+      endpoints: [
         {
           id: 'login',
           method: 'POST',
           path: '/auth/login',
-          summary: 'Iniciar sesión',
+          summary: 'Iniciar sesión desde un panel propio',
+          description: 'Para paneles de administración que tienen su propio formulario. En un sitio para tus usuarios usa OAuth: no necesitas recibir contraseñas, y este endpoint no permite registrarse ni recuperar la contraseña.',
           access: 'public',
           body: [
             { name: 'email', type: 'string', required: true, description: 'Email del usuario.' },
@@ -168,6 +192,7 @@ const authModule: ApiModule = {
 }`,
           notes: [
             'Responde 400 con { "message": "Email not verified." } si el correo aún no fue verificado.',
+            'Tras 5 intentos fallidos con una cuenta, o 30 en total, desde la misma IP, responde 429 durante un máximo de 15 minutos.',
             'Unas credenciales inválidas responden con un error genérico, sin indicar si falló el email o la contraseña.',
           ],
         },
@@ -215,8 +240,8 @@ const authModule: ApiModule = {
     },
     {
       id: 'google',
-      title: 'Google OAuth',
-      description: 'Flujo en dos pasos: pides la URL de autorización, rediriges al usuario y, cuando Google lo devuelve a tu callback con un code, lo intercambias por un token de appi. La URL de callback debe estar autorizada para el cliente OAuth de appi: solicítala junto con tu siteId.',
+      title: 'Google para paneles propios',
+      description: 'En un sitio para tus usuarios no necesitas estas rutas: las pantallas de appi ya ofrecen Google. Para un panel propio, el flujo tiene dos pasos: pides la URL de autorización, rediriges al usuario y, cuando Google lo devuelve a tu callback con un code, lo intercambias por un token de appi. La URL de callback debe estar autorizada para el cliente OAuth de appi: solicítala junto con tu siteId.',
       endpoints: [
         {
           id: 'google-url',

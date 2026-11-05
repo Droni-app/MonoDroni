@@ -3,8 +3,6 @@ import type { routes } from './index.ts'
 
 export interface ApiDefinition {
   auth: {
-    register: typeof routes['auth.register']
-    sendVerificationEmail: typeof routes['auth.send_verification_email']
     validate: typeof routes['auth.validate']
     login: typeof routes['auth.login']
     getGoogleUrl: typeof routes['auth.get_google_url']
@@ -122,6 +120,34 @@ export interface ApiDefinition {
     multiSite: typeof routes['mcp.multi_site'] & {
       notAllowed: typeof routes['mcp.multi_site.not_allowed']
     }
+  }
+  oauth: {
+    metadata: {
+      protectedResource: typeof routes['oauth.metadata.protected_resource']
+      authorizationServer: typeof routes['oauth.metadata.authorization_server']
+    }
+    register: typeof routes['oauth.register']
+    authorize: typeof routes['oauth.authorize'] & {
+      decide: typeof routes['oauth.authorize.decide']
+    }
+    login: typeof routes['oauth.login']
+    logout: typeof routes['oauth.logout']
+    signup: typeof routes['oauth.signup'] & {
+      store: typeof routes['oauth.signup.store']
+    }
+    resendVerification: typeof routes['oauth.resend_verification']
+    verifyEmail: typeof routes['oauth.verify_email']
+    forgotPassword: typeof routes['oauth.forgot_password'] & {
+      store: typeof routes['oauth.forgot_password.store']
+    }
+    resetPassword: typeof routes['oauth.reset_password'] & {
+      store: typeof routes['oauth.reset_password.store']
+    }
+    google: typeof routes['oauth.google'] & {
+      callback: typeof routes['oauth.google.callback']
+    }
+    token: typeof routes['oauth.token']
+    revoke: typeof routes['oauth.revoke']
   }
   admin: {
     content: {

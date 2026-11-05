@@ -8,6 +8,7 @@
 */
 
 import { middleware } from '#start/kernel'
+import { clientRegistrationThrottle } from '#start/limiter'
 import router from '@adonisjs/core/services/router'
 import { controllers } from '#generated/controllers'
 
@@ -21,8 +22,6 @@ router.get('/201aae24c561528ec1542b94df7e1db9.txt', ({ response }) => {
 })
 
 // Public routes
-router.post('auth/register', [controllers.Auth, 'register'])
-router.post('auth/send-verification-email', [controllers.Auth, 'sendVerificationEmail'])
 router.get('auth/verify-email/:enrollmentId', [controllers.Auth, 'verifyEmail']).as('auth.validate')
 router.post('auth/login', [controllers.Auth, 'login'])
 router.get('auth/google/url', [controllers.Auth, 'getGoogleUrl'])
@@ -193,14 +192,68 @@ router
 // MCP (Model Context Protocol): one stateless server per domain module, see app/services/mcp.
 // Tools replay calls against the routes below, so permissions stay in their middleware.
 // Without :siteId every tool takes a site_id argument, so one connector works across sites.
-router.post('mcp/:siteId/:module', [controllers.Mcp, 'handle']).as('mcp.site')
-router.post('mcp/:module', [controllers.Mcp, 'handle']).as('mcp.multi_site')
+router
+  .post('mcp/:siteId/:module', [controllers.Mcp, 'handle'])
+  .use(middleware.mcpAuth())
+  .as('mcp.site')
+router
+  .post('mcp/:module', [controllers.Mcp, 'handle'])
+  .use(middleware.mcpAuth())
+  .as('mcp.multi_site')
 router
   .route('mcp/:siteId/:module', ['GET', 'DELETE'], [controllers.Mcp, 'methodNotAllowed'])
   .as('mcp.site.not_allowed')
 router
   .route('mcp/:module', ['GET', 'DELETE'], [controllers.Mcp, 'methodNotAllowed'])
   .as('mcp.multi_site.not_allowed')
+
+// OAuth 2.1 authorization server for MCP connectors (session-based pages, see oauth/authorization_controller)
+router
+  .get('.well-known/oauth-protected-resource/*', [controllers.oauth.Metadata, 'protectedResource'])
+  .as('oauth.metadata.protected_resource')
+router
+  .get('.well-known/oauth-authorization-server', [
+    controllers.oauth.Metadata,
+    'authorizationServer',
+  ])
+  .as('oauth.metadata.authorization_server')
+router
+  .group(() => {
+    router
+      .post('register', [controllers.oauth.Registrations, 'store'])
+      .use(clientRegistrationThrottle)
+      .as('register')
+    router.get('authorize', [controllers.oauth.Authorization, 'show']).as('authorize')
+    router.post('authorize', [controllers.oauth.Authorization, 'decide']).as('authorize.decide')
+    router.post('login', [controllers.oauth.Authorization, 'login']).as('login')
+    router.post('logout', [controllers.oauth.Authorization, 'logout']).as('logout')
+    router.get('signup', [controllers.oauth.Accounts, 'showSignup']).as('signup')
+    router.post('signup', [controllers.oauth.Accounts, 'signup']).as('signup.store')
+    router
+      .post('resend-verification', [controllers.oauth.Accounts, 'resendVerification'])
+      .as('resend_verification')
+    router.get('verify-email/:id', [controllers.oauth.Accounts, 'verifyEmail']).as('verify_email')
+    router
+      .get('forgot-password', [controllers.oauth.Accounts, 'showForgotPassword'])
+      .as('forgot_password')
+    router
+      .post('forgot-password', [controllers.oauth.Accounts, 'forgotPassword'])
+      .as('forgot_password.store')
+    router
+      .get('reset-password', [controllers.oauth.Accounts, 'showResetPassword'])
+      .as('reset_password')
+    router
+      .post('reset-password', [controllers.oauth.Accounts, 'resetPassword'])
+      .as('reset_password.store')
+    router.post('google', [controllers.oauth.Authorization, 'google']).as('google')
+    router
+      .get('google/callback', [controllers.oauth.Authorization, 'googleCallback'])
+      .as('google.callback')
+    router.post('token', [controllers.oauth.Tokens, 'token']).as('token')
+    router.post('revoke', [controllers.oauth.Tokens, 'revoke']).as('revoke')
+  })
+  .prefix('oauth')
+  .as('oauth')
 
 // Admin routes
 router

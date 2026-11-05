@@ -3,6 +3,7 @@ import { McpServer } from '@modelcontextprotocol/sdk/server/mcp.js'
 import { StreamableHTTPServerTransport } from '@modelcontextprotocol/sdk/server/streamableHttp.js'
 import { appiClient } from '#services/mcp/appi_client'
 import { mcpModules } from '#services/mcp/modules'
+import { revokeLoopbackCredential } from '#services/mcp/loopback_credential'
 import { MULTI_SITE_INSTRUCTIONS, multiSite } from '#services/mcp/multi_site'
 
 export default class McpController {
@@ -34,7 +35,8 @@ export default class McpController {
     return this.serve(ctx, server)
   }
 
-  private async serve({ request, response }: HttpContext, server: McpServer) {
+  private async serve(ctx: HttpContext, server: McpServer) {
+    const { request, response } = ctx
     const transport = new StreamableHTTPServerTransport({
       sessionIdGenerator: undefined,
       enableJsonResponse: true,
@@ -42,6 +44,7 @@ export default class McpController {
     response.response.on('close', () => {
       transport.close()
       server.close()
+      revokeLoopbackCredential(ctx)
     })
 
     await server.connect(transport)

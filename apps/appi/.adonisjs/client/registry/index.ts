@@ -6,18 +6,6 @@ import type { ApiDefinition } from './tree.d.ts'
 const placeholder: any = {}
 
 const routes = {
-  'auth.register': {
-    methods: ["POST"],
-    pattern: '/auth/register',
-    tokens: [{"old":"/auth/register","type":0,"val":"auth","end":""},{"old":"/auth/register","type":0,"val":"register","end":""}],
-    types: placeholder as Registry['auth.register']['types'],
-  },
-  'auth.send_verification_email': {
-    methods: ["POST"],
-    pattern: '/auth/send-verification-email',
-    tokens: [{"old":"/auth/send-verification-email","type":0,"val":"auth","end":""},{"old":"/auth/send-verification-email","type":0,"val":"send-verification-email","end":""}],
-    types: placeholder as Registry['auth.send_verification_email']['types'],
-  },
   'auth.validate': {
     methods: ["GET","HEAD"],
     pattern: '/auth/verify-email/:enrollmentId',
@@ -431,6 +419,120 @@ const routes = {
     pattern: '/mcp/:module',
     tokens: [{"old":"/mcp/:module","type":0,"val":"mcp","end":""},{"old":"/mcp/:module","type":1,"val":"module","end":""}],
     types: placeholder as Registry['mcp.multi_site.not_allowed']['types'],
+  },
+  'oauth.metadata.protected_resource': {
+    methods: ["GET","HEAD"],
+    pattern: '/.well-known/oauth-protected-resource/*',
+    tokens: [{"old":"/.well-known/oauth-protected-resource/*","type":0,"val":".well-known","end":""},{"old":"/.well-known/oauth-protected-resource/*","type":0,"val":"oauth-protected-resource","end":""},{"old":"/.well-known/oauth-protected-resource/*","type":2,"val":"*","end":""}],
+    types: placeholder as Registry['oauth.metadata.protected_resource']['types'],
+  },
+  'oauth.metadata.authorization_server': {
+    methods: ["GET","HEAD"],
+    pattern: '/.well-known/oauth-authorization-server',
+    tokens: [{"old":"/.well-known/oauth-authorization-server","type":0,"val":".well-known","end":""},{"old":"/.well-known/oauth-authorization-server","type":0,"val":"oauth-authorization-server","end":""}],
+    types: placeholder as Registry['oauth.metadata.authorization_server']['types'],
+  },
+  'oauth.register': {
+    methods: ["POST"],
+    pattern: '/oauth/register',
+    tokens: [{"old":"/oauth/register","type":0,"val":"oauth","end":""},{"old":"/oauth/register","type":0,"val":"register","end":""}],
+    types: placeholder as Registry['oauth.register']['types'],
+  },
+  'oauth.authorize': {
+    methods: ["GET","HEAD"],
+    pattern: '/oauth/authorize',
+    tokens: [{"old":"/oauth/authorize","type":0,"val":"oauth","end":""},{"old":"/oauth/authorize","type":0,"val":"authorize","end":""}],
+    types: placeholder as Registry['oauth.authorize']['types'],
+  },
+  'oauth.authorize.decide': {
+    methods: ["POST"],
+    pattern: '/oauth/authorize',
+    tokens: [{"old":"/oauth/authorize","type":0,"val":"oauth","end":""},{"old":"/oauth/authorize","type":0,"val":"authorize","end":""}],
+    types: placeholder as Registry['oauth.authorize.decide']['types'],
+  },
+  'oauth.login': {
+    methods: ["POST"],
+    pattern: '/oauth/login',
+    tokens: [{"old":"/oauth/login","type":0,"val":"oauth","end":""},{"old":"/oauth/login","type":0,"val":"login","end":""}],
+    types: placeholder as Registry['oauth.login']['types'],
+  },
+  'oauth.logout': {
+    methods: ["POST"],
+    pattern: '/oauth/logout',
+    tokens: [{"old":"/oauth/logout","type":0,"val":"oauth","end":""},{"old":"/oauth/logout","type":0,"val":"logout","end":""}],
+    types: placeholder as Registry['oauth.logout']['types'],
+  },
+  'oauth.signup': {
+    methods: ["GET","HEAD"],
+    pattern: '/oauth/signup',
+    tokens: [{"old":"/oauth/signup","type":0,"val":"oauth","end":""},{"old":"/oauth/signup","type":0,"val":"signup","end":""}],
+    types: placeholder as Registry['oauth.signup']['types'],
+  },
+  'oauth.signup.store': {
+    methods: ["POST"],
+    pattern: '/oauth/signup',
+    tokens: [{"old":"/oauth/signup","type":0,"val":"oauth","end":""},{"old":"/oauth/signup","type":0,"val":"signup","end":""}],
+    types: placeholder as Registry['oauth.signup.store']['types'],
+  },
+  'oauth.resend_verification': {
+    methods: ["POST"],
+    pattern: '/oauth/resend-verification',
+    tokens: [{"old":"/oauth/resend-verification","type":0,"val":"oauth","end":""},{"old":"/oauth/resend-verification","type":0,"val":"resend-verification","end":""}],
+    types: placeholder as Registry['oauth.resend_verification']['types'],
+  },
+  'oauth.verify_email': {
+    methods: ["GET","HEAD"],
+    pattern: '/oauth/verify-email/:id',
+    tokens: [{"old":"/oauth/verify-email/:id","type":0,"val":"oauth","end":""},{"old":"/oauth/verify-email/:id","type":0,"val":"verify-email","end":""},{"old":"/oauth/verify-email/:id","type":1,"val":"id","end":""}],
+    types: placeholder as Registry['oauth.verify_email']['types'],
+  },
+  'oauth.forgot_password': {
+    methods: ["GET","HEAD"],
+    pattern: '/oauth/forgot-password',
+    tokens: [{"old":"/oauth/forgot-password","type":0,"val":"oauth","end":""},{"old":"/oauth/forgot-password","type":0,"val":"forgot-password","end":""}],
+    types: placeholder as Registry['oauth.forgot_password']['types'],
+  },
+  'oauth.forgot_password.store': {
+    methods: ["POST"],
+    pattern: '/oauth/forgot-password',
+    tokens: [{"old":"/oauth/forgot-password","type":0,"val":"oauth","end":""},{"old":"/oauth/forgot-password","type":0,"val":"forgot-password","end":""}],
+    types: placeholder as Registry['oauth.forgot_password.store']['types'],
+  },
+  'oauth.reset_password': {
+    methods: ["GET","HEAD"],
+    pattern: '/oauth/reset-password',
+    tokens: [{"old":"/oauth/reset-password","type":0,"val":"oauth","end":""},{"old":"/oauth/reset-password","type":0,"val":"reset-password","end":""}],
+    types: placeholder as Registry['oauth.reset_password']['types'],
+  },
+  'oauth.reset_password.store': {
+    methods: ["POST"],
+    pattern: '/oauth/reset-password',
+    tokens: [{"old":"/oauth/reset-password","type":0,"val":"oauth","end":""},{"old":"/oauth/reset-password","type":0,"val":"reset-password","end":""}],
+    types: placeholder as Registry['oauth.reset_password.store']['types'],
+  },
+  'oauth.google': {
+    methods: ["POST"],
+    pattern: '/oauth/google',
+    tokens: [{"old":"/oauth/google","type":0,"val":"oauth","end":""},{"old":"/oauth/google","type":0,"val":"google","end":""}],
+    types: placeholder as Registry['oauth.google']['types'],
+  },
+  'oauth.google.callback': {
+    methods: ["GET","HEAD"],
+    pattern: '/oauth/google/callback',
+    tokens: [{"old":"/oauth/google/callback","type":0,"val":"oauth","end":""},{"old":"/oauth/google/callback","type":0,"val":"google","end":""},{"old":"/oauth/google/callback","type":0,"val":"callback","end":""}],
+    types: placeholder as Registry['oauth.google.callback']['types'],
+  },
+  'oauth.token': {
+    methods: ["POST"],
+    pattern: '/oauth/token',
+    tokens: [{"old":"/oauth/token","type":0,"val":"oauth","end":""},{"old":"/oauth/token","type":0,"val":"token","end":""}],
+    types: placeholder as Registry['oauth.token']['types'],
+  },
+  'oauth.revoke': {
+    methods: ["POST"],
+    pattern: '/oauth/revoke',
+    tokens: [{"old":"/oauth/revoke","type":0,"val":"oauth","end":""},{"old":"/oauth/revoke","type":0,"val":"revoke","end":""}],
+    types: placeholder as Registry['oauth.revoke']['types'],
   },
   'admin.content.posts.import': {
     methods: ["POST"],

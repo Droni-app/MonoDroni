@@ -189,34 +189,17 @@ La API tiene tres niveles de acceso:
 
 ## Flujo de Autenticación
 
-### 1. Registro con email/password
+### 1. Registro y recuperación de contraseña
 
-```
-POST /auth/register
-Body: { email, password, passwordConfirmation, fullName }
-```
-
-1. Se valida el body (email único, password entre 8-32 chars, passwords coinciden).
-2. Se crea el usuario con la contraseña hasheada.
-3. Se crea un `Enrollment` con rol `"user"` para el sitio indicado en `x-site-id`.
-4. Se devuelve `{ user, enrollment }`. **El email no está verificado aún — no se puede hacer login todavía.**
+No hay API para esto: son pantallas de appi dentro del flujo OAuth (`/oauth/signup`, `/oauth/forgot-password`), a las que se llega desde la pantalla de inicio de sesión de `/oauth/authorize`.
 
 ---
 
 ### 2. Verificación de email
 
-```
-POST /auth/send-verification-email
-Body: { email }
-```
-
-1. Se genera una URL firmada con expiración de 24 horas:
-   `GET /auth/verify-email/:enrollmentId?signature=...`
-2. Se envía un email al usuario con ese link (template "emails/welcome").
-3. Cuando el usuario hace click:
-   - Se valida la firma (si expiró, se ignora silenciosamente).
-   - Se marca `user.email_verified_at = ahora`.
-   - Se redirige al frontend (`site.url`).
+1. Al registrarse, el usuario recibe un enlace firmado con expiración de 24 horas (`GET /oauth/verify-email/:id?signature=...`).
+2. Al abrirlo se marca `user.email_verified_at = ahora` y se confirma en una pantalla de appi.
+3. `GET /auth/verify-email/:enrollmentId` solo se mantiene para enlaces enviados antes de este cambio.
 
 ---
 
@@ -586,13 +569,11 @@ Elimina un comentario permanentemente del sitio.
 |----------|:-------:|:-------:|:-----:|
 | `GET /sites` | ✓ | ✓ | ✓ |
 | `GET /sites/:id` | ✓ | ✓ | ✓ |
-| `POST /auth/register` | ✓ | | |
 | `POST /auth/login` | ✓ | | |
 | `POST /auth/logout` | | ✓ | ✓ |
 | `GET /auth/me` | | ✓ | ✓ |
 | `GET /auth/google/url` | ✓ | | |
 | `GET /auth/google/handle` | ✓ | | |
-| `POST /auth/send-verification-email` | ✓ | | |
 | `GET /auth/verify-email/:id` | ✓ | | |
 | `GET /content/posts` | ✓ | ✓ | ✓ |
 | `GET /content/posts/:slug` | ✓ | ✓ | ✓ |

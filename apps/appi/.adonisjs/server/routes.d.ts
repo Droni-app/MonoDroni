@@ -4,8 +4,6 @@ type ParamValue = string | number | bigint | boolean
 
 export type ScannedRoutes = {
   ALL: {
-    'auth.register': { paramsTuple?: []; params?: {} }
-    'auth.send_verification_email': { paramsTuple?: []; params?: {} }
     'auth.validate': { paramsTuple: [ParamValue]; params: {'enrollmentId': ParamValue} }
     'auth.login': { paramsTuple?: []; params?: {} }
     'auth.get_google_url': { paramsTuple?: []; params?: {} }
@@ -75,6 +73,25 @@ export type ScannedRoutes = {
     'mcp.multi_site': { paramsTuple: [ParamValue]; params: {'module': ParamValue} }
     'mcp.site.not_allowed': { paramsTuple: [ParamValue,ParamValue]; params: {'siteId': ParamValue,'module': ParamValue} }
     'mcp.multi_site.not_allowed': { paramsTuple: [ParamValue]; params: {'module': ParamValue} }
+    'oauth.metadata.protected_resource': { paramsTuple: [...ParamValue[]]; params: {'*': ParamValue[]} }
+    'oauth.metadata.authorization_server': { paramsTuple?: []; params?: {} }
+    'oauth.register': { paramsTuple?: []; params?: {} }
+    'oauth.authorize': { paramsTuple?: []; params?: {} }
+    'oauth.authorize.decide': { paramsTuple?: []; params?: {} }
+    'oauth.login': { paramsTuple?: []; params?: {} }
+    'oauth.logout': { paramsTuple?: []; params?: {} }
+    'oauth.signup': { paramsTuple?: []; params?: {} }
+    'oauth.signup.store': { paramsTuple?: []; params?: {} }
+    'oauth.resend_verification': { paramsTuple?: []; params?: {} }
+    'oauth.verify_email': { paramsTuple: [ParamValue]; params: {'id': ParamValue} }
+    'oauth.forgot_password': { paramsTuple?: []; params?: {} }
+    'oauth.forgot_password.store': { paramsTuple?: []; params?: {} }
+    'oauth.reset_password': { paramsTuple?: []; params?: {} }
+    'oauth.reset_password.store': { paramsTuple?: []; params?: {} }
+    'oauth.google': { paramsTuple?: []; params?: {} }
+    'oauth.google.callback': { paramsTuple?: []; params?: {} }
+    'oauth.token': { paramsTuple?: []; params?: {} }
+    'oauth.revoke': { paramsTuple?: []; params?: {} }
     'admin.content.posts.import': { paramsTuple?: []; params?: {} }
     'admin.content.posts.index': { paramsTuple?: []; params?: {} }
     'admin.content.posts.store': { paramsTuple?: []; params?: {} }
@@ -194,6 +211,14 @@ export type ScannedRoutes = {
     'learn.courses.lessons.quizzes.index': { paramsTuple: [ParamValue,ParamValue]; params: {'course_id': ParamValue,'lesson_id': ParamValue} }
     'mcp.site.not_allowed': { paramsTuple: [ParamValue,ParamValue]; params: {'siteId': ParamValue,'module': ParamValue} }
     'mcp.multi_site.not_allowed': { paramsTuple: [ParamValue]; params: {'module': ParamValue} }
+    'oauth.metadata.protected_resource': { paramsTuple: [...ParamValue[]]; params: {'*': ParamValue[]} }
+    'oauth.metadata.authorization_server': { paramsTuple?: []; params?: {} }
+    'oauth.authorize': { paramsTuple?: []; params?: {} }
+    'oauth.signup': { paramsTuple?: []; params?: {} }
+    'oauth.verify_email': { paramsTuple: [ParamValue]; params: {'id': ParamValue} }
+    'oauth.forgot_password': { paramsTuple?: []; params?: {} }
+    'oauth.reset_password': { paramsTuple?: []; params?: {} }
+    'oauth.google.callback': { paramsTuple?: []; params?: {} }
     'admin.content.posts.index': { paramsTuple?: []; params?: {} }
     'admin.content.posts.show': { paramsTuple: [ParamValue]; params: {'id': ParamValue} }
     'admin.content.posts.attributes.index': { paramsTuple: [ParamValue]; params: {'post_id': ParamValue} }
@@ -268,6 +293,14 @@ export type ScannedRoutes = {
     'learn.courses.lessons.answers.index': { paramsTuple: [ParamValue,ParamValue]; params: {'course_id': ParamValue,'lesson_id': ParamValue} }
     'learn.courses.lessons.quizzes.show': { paramsTuple: [ParamValue,ParamValue,ParamValue]; params: {'course_id': ParamValue,'lesson_id': ParamValue,'id': ParamValue} }
     'learn.courses.lessons.quizzes.index': { paramsTuple: [ParamValue,ParamValue]; params: {'course_id': ParamValue,'lesson_id': ParamValue} }
+    'oauth.metadata.protected_resource': { paramsTuple: [...ParamValue[]]; params: {'*': ParamValue[]} }
+    'oauth.metadata.authorization_server': { paramsTuple?: []; params?: {} }
+    'oauth.authorize': { paramsTuple?: []; params?: {} }
+    'oauth.signup': { paramsTuple?: []; params?: {} }
+    'oauth.verify_email': { paramsTuple: [ParamValue]; params: {'id': ParamValue} }
+    'oauth.forgot_password': { paramsTuple?: []; params?: {} }
+    'oauth.reset_password': { paramsTuple?: []; params?: {} }
+    'oauth.google.callback': { paramsTuple?: []; params?: {} }
     'admin.content.posts.index': { paramsTuple?: []; params?: {} }
     'admin.content.posts.show': { paramsTuple: [ParamValue]; params: {'id': ParamValue} }
     'admin.content.posts.attributes.index': { paramsTuple: [ParamValue]; params: {'post_id': ParamValue} }
@@ -305,8 +338,6 @@ export type ScannedRoutes = {
     'admin.learn.site_users.index': { paramsTuple?: []; params?: {} }
   }
   POST: {
-    'auth.register': { paramsTuple?: []; params?: {} }
-    'auth.send_verification_email': { paramsTuple?: []; params?: {} }
     'auth.login': { paramsTuple?: []; params?: {} }
     'auth.logout': { paramsTuple?: []; params?: {} }
     'content.attachments.store': { paramsTuple?: []; params?: {} }
@@ -324,6 +355,17 @@ export type ScannedRoutes = {
     'learn.courses.lessons.quizzes.store': { paramsTuple: [ParamValue,ParamValue]; params: {'course_id': ParamValue,'lesson_id': ParamValue} }
     'mcp.site': { paramsTuple: [ParamValue,ParamValue]; params: {'siteId': ParamValue,'module': ParamValue} }
     'mcp.multi_site': { paramsTuple: [ParamValue]; params: {'module': ParamValue} }
+    'oauth.register': { paramsTuple?: []; params?: {} }
+    'oauth.authorize.decide': { paramsTuple?: []; params?: {} }
+    'oauth.login': { paramsTuple?: []; params?: {} }
+    'oauth.logout': { paramsTuple?: []; params?: {} }
+    'oauth.signup.store': { paramsTuple?: []; params?: {} }
+    'oauth.resend_verification': { paramsTuple?: []; params?: {} }
+    'oauth.forgot_password.store': { paramsTuple?: []; params?: {} }
+    'oauth.reset_password.store': { paramsTuple?: []; params?: {} }
+    'oauth.google': { paramsTuple?: []; params?: {} }
+    'oauth.token': { paramsTuple?: []; params?: {} }
+    'oauth.revoke': { paramsTuple?: []; params?: {} }
     'admin.content.posts.import': { paramsTuple?: []; params?: {} }
     'admin.content.posts.store': { paramsTuple?: []; params?: {} }
     'admin.content.posts.attributes.store': { paramsTuple: [ParamValue]; params: {'post_id': ParamValue} }

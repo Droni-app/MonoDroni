@@ -1,0 +1,16 @@
+<div class="site">
+  @if(site.logo)
+    <img class="site-mark" src="{{ site.logo }}" alt="" width="44" height="44">
+  @else
+    <div class="site-mark site-initial" aria-hidden="true">{{ site.initial }}</div>
+  @end
+  <div class="site-text">
+    <strong>{{ site.name }}</strong>
+    @if(site.host)
+      {{ site.host }}
+    @end
+    @if(site.description)
+      <p class="site-description">{{ site.description }}</p>
+    @end
+  </div>
+</div>
