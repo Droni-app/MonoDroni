@@ -36,40 +36,10 @@ export function useSiteAuth() {
     }
   }
 
-  async function login(email: string, password: string) {
-    status.value = 'loading'
-    const data = await $fetch<{ user: User; enrollment: Enrollment }>('/api/session/login', {
-      method: 'POST',
-      body: { email, password },
-    })
-    user.value = data.user
-    enrollment.value = data.enrollment
-    status.value = 'authenticated'
-    initialized.value = true
-  }
-
-  async function loginWithGoogle() {
-    const data = await $fetch<{ url: string }>('/api/session/google/url')
-    if (!data?.url) {
-      throw new Error('Google login URL is not available')
-    }
-    await navigateTo(data.url, {
+  async function login(redirect = '/') {
+    await navigateTo(`/api/session/oauth/start?redirect=${encodeURIComponent(redirect)}`, {
       external: true,
-      replace: true,
     })
-  }
-
-  async function handleGoogleCallback(code: string) {
-    status.value = 'loading'
-    const data = await $fetch<{ user: User; enrollment: Enrollment }>('/api/session/google/callback', {
-      query: {
-        code,
-      },
-    })
-    user.value = data.user
-    enrollment.value = data.enrollment
-    status.value = 'authenticated'
-    initialized.value = true
   }
 
   async function register(payload: RegisterInput) {
@@ -95,8 +65,6 @@ export function useSiteAuth() {
     init,
     refreshMe,
     login,
-    loginWithGoogle,
-    handleGoogleCallback,
     register,
     logout,
   }

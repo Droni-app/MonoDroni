@@ -113,12 +113,6 @@ declare global {
     value: string
   }
 
-  export interface Login {
-    user: User
-    token: string
-    enrollment: Enrollment
-  }
-  
   export interface Token {
     accessToken: AccessToken
     plainTextToken: string

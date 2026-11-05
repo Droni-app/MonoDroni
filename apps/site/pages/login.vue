@@ -27,40 +27,25 @@
 
       <DuiAlert v-if="error" color="danger" class="mb-3">{{ error }}</DuiAlert>
       <DuiAlert v-if="success" color="success" class="mb-3">{{ success }}</DuiAlert>
-      <DuiButton
-        v-if="showResendActivation"
-        type="button"
-        color="secondary"
-        :loading="resendLoading"
-        :block="true"
-        class="mb-3"
-        @click="resendActivationEmail"
-      >
-        Reenviar correo de activacion
-      </DuiButton>
-
-      <form v-if="tab === 'login'" @submit.prevent="submitLogin">
-        <DuiLabel title="Email" class="mb-3">
-          <DuiInput v-model="loginForm.email" type="email" :block="true" autofocus />
-        </DuiLabel>
-        <DuiLabel title="Contrasena" class="mb-3">
-          <DuiInput v-model="loginForm.password" type="password" :block="true" />
-        </DuiLabel>
-        <DuiButton type="submit" color="primary" :loading="loading" :block="true">
-          Entrar
+      <div v-if="tab === 'login'">
+        <p class="text-slate-600 dark:text-slate-300 text-sm mb-4">
+          Te llevaremos a la pagina de acceso de Droni, donde puedes entrar con tu email o con Google.
+        </p>
+        <DuiButton type="button" color="primary" :loading="loading" :block="true" @click="submitLogin">
+          Continuar
         </DuiButton>
-        <DuiButton
-          type="button"
-          color="neutral"
-          :loading="googleLoading"
-          :block="true"
-          class="mt-2"
-          @click="submitGoogleLogin"
-        >
-          <i class="mdi mdi-google" />
-          Iniciar sesion con Google
-        </DuiButton>
-      </form>
+        <details class="mt-4 text-sm text-slate-600 dark:text-slate-300">
+          <summary class="cursor-pointer">¿No te llego el correo de activacion?</summary>
+          <form class="mt-3" @submit.prevent="resendActivationEmail">
+            <DuiLabel title="Email" class="mb-3">
+              <DuiInput v-model="resendEmail" type="email" :block="true" />
+            </DuiLabel>
+            <DuiButton type="submit" color="secondary" :loading="resendLoading" :block="true">
+              Reenviar correo de activacion
+            </DuiButton>
+          </form>
+        </details>
+      </div>
 
       <form v-else @submit.prevent="submitRegister">
         <DuiLabel title="Nombre completo" class="mb-3">
@@ -88,19 +73,16 @@ import { DuiAlert, DuiButton, DuiInput, DuiLabel } from '@dronico/droni-kit'
 
 const route = useRoute()
 const router = useRouter()
-const { status, login, loginWithGoogle, register } = useSiteAuth()
+const { status, login, register } = useSiteAuth()
 
 const tab = ref<'login' | 'register'>('login')
 const loading = ref(false)
 const resendLoading = ref(false)
-const googleLoading = ref(false)
-const error = ref('')
+const error = ref(route.query.error ? 'No se pudo iniciar sesion. Intentalo de nuevo.' : '')
 const success = ref('')
+const resendEmail = ref('')
 
-const loginForm = ref({
-  email: '',
-  password: '',
-})
+const redirectTo = computed(() => (typeof route.query.redirect === 'string' ? route.query.redirect : '/'))
 
 const registerForm = ref({
   fullName: '',
@@ -114,14 +96,9 @@ function extractApiErrorMessage(e: any, fallback: string) {
   return firstError ?? e?.data?.message ?? e?.statusMessage ?? e?.message ?? fallback
 }
 
-const showResendActivation = computed(() =>
-  tab.value === 'login' && error.value.toLowerCase().includes('email not verified')
-)
-
 watchEffect(() => {
   if (status.value === 'authenticated') {
-    const redirectTo = typeof route.query.redirect === 'string' ? route.query.redirect : '/'
-    router.replace(redirectTo)
+    router.replace(redirectTo.value)
   }
 })
 
@@ -129,15 +106,7 @@ async function submitLogin() {
   error.value = ''
   success.value = ''
   loading.value = true
-  try {
-    await login(loginForm.value.email, loginForm.value.password)
-    const redirectTo = typeof route.query.redirect === 'string' ? route.query.redirect : '/'
-    await router.push(redirectTo)
-  } catch (e: any) {
-    error.value = extractApiErrorMessage(e, 'No se pudo iniciar sesion.')
-  } finally {
-    loading.value = false
-  }
+  await login(redirectTo.value)
 }
 
 async function submitRegister() {
@@ -146,9 +115,9 @@ async function submitRegister() {
   loading.value = true
   try {
     await register(registerForm.value)
-    success.value = 'Registro completado. Ahora inicia sesion con tu cuenta.'
+    success.value = 'Registro completado. Revisa tu correo para activar la cuenta y luego inicia sesion.'
     tab.value = 'login'
-    loginForm.value.email = registerForm.value.email
+    resendEmail.value = registerForm.value.email
   } catch (e: any) {
     error.value = extractApiErrorMessage(e, 'No se pudo registrar la cuenta.')
   } finally {
@@ -160,7 +129,7 @@ async function resendActivationEmail() {
   error.value = ''
   success.value = ''
 
-  if (!loginForm.value.email) {
+  if (!resendEmail.value) {
     error.value = 'Escribe tu email para reenviar el correo de activacion.'
     return
   }
@@ -170,7 +139,7 @@ async function resendActivationEmail() {
     const data = await $fetch<{ message?: string }>('/api/session/resend-verification', {
       method: 'POST',
       body: {
-        email: loginForm.value.email,
+        email: resendEmail.value,
       },
     })
     success.value = data?.message ?? 'Correo de activacion reenviado. Revisa tu bandeja de entrada.'
@@ -178,18 +147,6 @@ async function resendActivationEmail() {
     error.value = extractApiErrorMessage(e, 'No se pudo reenviar el correo de activacion.')
   } finally {
     resendLoading.value = false
-  }
-}
-
-async function submitGoogleLogin() {
-  error.value = ''
-  success.value = ''
-  googleLoading.value = true
-  try {
-    await loginWithGoogle()
-  } catch (e: any) {
-    error.value = extractApiErrorMessage(e, 'No se pudo iniciar sesion con Google.')
-    googleLoading.value = false
   }
 }
 </script>

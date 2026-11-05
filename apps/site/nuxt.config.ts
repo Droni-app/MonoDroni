@@ -22,6 +22,9 @@ export default defineNuxtConfig({
     appi: process.env.APPI,
     appiSiteId: process.env.APPI_SITE_ID,
     appUrl: process.env.APP_URL,
+    // Read at runtime from NUXT_APPI_OAUTH_CLIENT_ID/SECRET, so the secret stays out of the build
+    appiOauthClientId: '',
+    appiOauthClientSecret: '',
   },
   app: {
     head: {
