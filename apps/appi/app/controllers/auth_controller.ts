@@ -115,7 +115,7 @@ export default class AuthController {
     user.emailVerifiedAt = DateTime.now()
     await user.save()
 
-    return response.redirect(site.url)
+    return response.redirect(site.url, false)
   }
 
   /**
