@@ -7,11 +7,17 @@ const email = () => vine.string().email().maxLength(254)
 const password = () => vine.string().minLength(8).maxLength(32)
 
 /**
- * Validator to use when performing self-signup
+ * Signup in the OAuth pages: no unique rule, since the reply must not reveal which
+ * addresses have an account
  */
-export const signupValidator = vine.create({
-  fullName: vine.string().nullable(),
-  email: email().unique({ table: 'users', column: 'email' }),
+export const accountSignupValidator = vine.create({
+  fullName: vine.string().trim().minLength(1).maxLength(255),
+  email: email(),
+  password: password(),
+  passwordConfirmation: password().sameAs('password'),
+})
+
+export const passwordResetValidator = vine.create({
   password: password(),
   passwordConfirmation: password().sameAs('password'),
 })

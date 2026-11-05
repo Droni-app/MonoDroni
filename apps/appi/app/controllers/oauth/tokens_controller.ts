@@ -7,6 +7,7 @@ import User from '#models/user'
 import {
   ACCESS_TOKEN_PREFIX,
   ACCESS_TOKEN_TTL_SECONDS,
+  affectedRows,
   AUTHORIZATION_CODE_GRANT,
   FIRST_PARTY_CLIENT,
   FIRST_PARTY_SCOPE,
@@ -42,10 +43,6 @@ function tokenColumns(client: OauthClient) {
         : null,
     },
   }
-}
-
-function affectedRows(result: unknown) {
-  return Array.isArray(result) ? (result[0] as number) : (result as number)
 }
 
 export default class TokensController {

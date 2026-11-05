@@ -1,10 +1,12 @@
 import type { HttpContext } from '@adonisjs/core/http'
+import { errors } from '@adonisjs/limiter'
 import { DateTime } from 'luxon'
 import OauthAuthorizationCode from '#models/oauth/oauth_authorization_code'
 import OauthClient from '#models/oauth/oauth_client'
 import type Site from '#models/site'
 import User from '#models/user'
 import { loginValidator } from '#validators/user'
+import { TOO_MANY_ATTEMPTS, verifyLogin } from '#services/login_throttle'
 import {
   isMetadataDocumentUrl,
   resolveMetadataDocumentClient,
@@ -24,7 +26,7 @@ import {
   type McpResource,
 } from '#services/oauth/oauth_service'
 
-type AuthorizationRequest = {
+export type AuthorizationRequest = {
   client: OauthClient
   redirectUri: string
   state: string | null
@@ -69,7 +71,7 @@ export default class AuthorizationController {
     }
 
     return this.handleRequest(ctx, String(request.input('params') ?? ''), async (authRequest) => {
-      if (authRequest.client.type === FIRST_PARTY_CLIENT || !(await auth.use('web').check())) {
+      if (authRequest.client.type === FIRST_PARTY_CLIENT || !(await this.hasSession(ctx))) {
         return this.renderForUser(ctx, authRequest)
       }
       if (request.input('decision') !== 'allow') {
@@ -91,7 +93,7 @@ export default class AuthorizationController {
    * @responseBody 200 - Página de login con el error
    */
   async login(ctx: HttpContext) {
-    const { request } = ctx
+    const { request, response } = ctx
     if (!this.hasValidCsrf(ctx)) {
       return this.renderError(ctx, 'La sesión de esta página expiró. Vuelve a iniciar la conexión.')
     }
@@ -100,12 +102,22 @@ export default class AuthorizationController {
       let user: User
       try {
         const { email, password } = await loginValidator.validate(request.all())
-        user = await User.verifyCredentials(email, password)
-      } catch {
+        user = await verifyLogin(request, email, password)
+      } catch (error) {
+        if (error instanceof errors.E_TOO_MANY_REQUESTS) {
+          response.header('Retry-After', error.response.availableIn)
+          return this.renderLogin(ctx, authRequest, TOO_MANY_ATTEMPTS, 429)
+        }
         return this.renderLogin(ctx, authRequest, 'Correo o contraseña incorrectos.')
       }
       if (!user.emailVerifiedAt) {
-        return this.renderLogin(ctx, authRequest, 'Debes verificar tu correo antes de continuar.')
+        return this.renderLogin(
+          ctx,
+          authRequest,
+          'Debes verificar tu correo antes de continuar.',
+          200,
+          user.email
+        )
       }
 
       return this.completeLogin(ctx, authRequest, user)
@@ -214,7 +226,25 @@ export default class AuthorizationController {
       return this.redirectWithCode(ctx, authRequest, user.id)
     }
     await ctx.auth.use('web').login(user)
+    ctx.session.put('oauth.credential', hashToken(user.password))
     return ctx.response.redirect(`/oauth/authorize?${authRequest.query}`, false, 303)
+  }
+
+  /**
+   * Sessions live in cookies and can't be revoked from the server. Tying them to the password
+   * ends them when it changes, or whoever stole it could keep authorizing connectors.
+   */
+  private async hasSession(ctx: HttpContext) {
+    const web = ctx.auth.use('web')
+    if (!(await web.check())) {
+      return false
+    }
+    const credential = ctx.session.get('oauth.credential')
+    if (credential && !safeEqual(credential, hashToken(web.user!.password))) {
+      await web.logout()
+      return false
+    }
+    return true
   }
 
   private async redirectWithCode(
@@ -248,7 +278,7 @@ export default class AuthorizationController {
    * RFC 6749 §4.1.2.1: without a trustworthy client and redirect_uri the error can only be
    * shown here. Past that point errors go back to the client, which is the one that can act.
    */
-  private async handleRequest(
+  protected async handleRequest(
     ctx: HttpContext,
     query: string,
     next: (authRequest: AuthorizationRequest) => unknown
@@ -311,25 +341,32 @@ export default class AuthorizationController {
   }
 
   private async renderForUser(ctx: HttpContext, authRequest: AuthorizationRequest) {
-    if (authRequest.client.type !== FIRST_PARTY_CLIENT && (await ctx.auth.use('web').check())) {
+    if (authRequest.client.type !== FIRST_PARTY_CLIENT && (await this.hasSession(ctx))) {
       return this.render(ctx, 200, { screen: 'consent', ...this.consentData(ctx, authRequest) })
     }
     return this.renderLogin(ctx, authRequest)
   }
 
-  private renderLogin(ctx: HttpContext, authRequest: AuthorizationRequest, error?: string) {
-    return this.render(ctx, 200, {
+  protected renderLogin(
+    ctx: HttpContext,
+    authRequest: AuthorizationRequest,
+    error?: string,
+    status = 200,
+    unverifiedEmail?: string
+  ) {
+    return this.render(ctx, status, {
       screen: 'login',
       error,
+      unverifiedEmail,
       ...this.consentData(ctx, authRequest),
     })
   }
 
-  private renderError(ctx: HttpContext, error: string) {
+  protected renderError(ctx: HttpContext, error: string) {
     return this.render(ctx, 400, { screen: 'error', error })
   }
 
-  private consentData(ctx: HttpContext, authRequest: AuthorizationRequest) {
+  protected consentData(ctx: HttpContext, authRequest: AuthorizationRequest) {
     const { client, redirectUri, resource, query } = authRequest
     const redirect = new URL(redirectUri)
     const firstParty = client.type === FIRST_PARTY_CLIENT
@@ -349,17 +386,23 @@ export default class AuthorizationController {
       module: resource?.module ?? null,
       // A first-party client is its site. A connector is not: anyone can register one and
       // point it at any site, so its site only ever reads as what access is being asked to
-      site: this.siteData(firstParty ? client.site : resource?.site),
+      site: this.siteData(this.requestSite(authRequest)),
     }
   }
 
-  private siteData(site?: Site | null) {
+  /** The site an account created in this request belongs to, or the one being asked for. */
+  protected requestSite({ client, resource }: AuthorizationRequest) {
+    return (client.type === FIRST_PARTY_CLIENT ? client.site : resource?.site) ?? null
+  }
+
+  protected siteData(site?: Site | null) {
     if (!site) {
       return null
     }
     let host: string | null = null
     try {
-      host = new URL(site.url).hostname
+      const url = new URL(site.url)
+      host = /^https?:$/.test(url.protocol) ? url.hostname : null
     } catch {}
     return {
       name: site.name,
@@ -367,11 +410,12 @@ export default class AuthorizationController {
       host,
       // Free text in the database; the page's CSP only loads https images
       logo: site.logo?.startsWith('https://') ? site.logo : null,
+      url: host ? site.url : null,
       initial: site.name.charAt(0).toUpperCase(),
     }
   }
 
-  private csrfToken({ session }: HttpContext) {
+  protected csrfToken({ session }: HttpContext) {
     let token = session.get('oauth.csrf')
     if (!token) {
       token = generateToken()
@@ -380,7 +424,7 @@ export default class AuthorizationController {
     return token
   }
 
-  private hasValidCsrf({ request, session }: HttpContext) {
+  protected hasValidCsrf({ request, session }: HttpContext) {
     const expected = session.get('oauth.csrf')
     const received = request.input('_csrf')
     return (
@@ -412,7 +456,7 @@ export default class AuthorizationController {
     return response.redirect(this.errorRedirectUrl(authRequest, error, description), false)
   }
 
-  private async render(
+  protected async render(
     { response, view }: HttpContext,
     status: number,
     data: Record<string, unknown>

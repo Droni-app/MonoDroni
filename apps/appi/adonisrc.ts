@@ -31,7 +31,7 @@ export default defineConfig({
     () => import('@adonisjs/session/commands'),
     () => import('@adonisjs/bouncer/commands'),
     () => import('@adonisjs/mail/commands'),
-    () => import('@outloud/adonis-openapi/commands')
+    () => import('@outloud/adonis-openapi/commands'),
   ],
 
   /*
@@ -46,6 +46,7 @@ export default defineConfig({
   providers: [
     () => import('@adonisjs/core/providers/app_provider'),
     () => import('@adonisjs/core/providers/hash_provider'),
+    () => import('@adonisjs/limiter/limiter_provider'),
     {
       file: () => import('@adonisjs/core/providers/repl_provider'),
       environment: ['repl', 'test'],
@@ -62,7 +63,7 @@ export default defineConfig({
     () => import('@adonisjs/mail/mail_provider'),
     () => import('@adonisjs/core/providers/edge_provider'),
     () => import('@adonisjs/ally/ally_provider'),
-    () => import('@outloud/adonis-openapi/provider')
+    () => import('@outloud/adonis-openapi/provider'),
   ],
 
   /*
@@ -113,14 +114,15 @@ export default defineConfig({
   | the production build.
   |
   */
-  metaFiles: [{
-    pattern: 'resources/views/**/*.edge',
+  metaFiles: [
+    {
+      pattern: 'resources/views/**/*.edge',
       reloadServer: false,
-  },
-  {
-    pattern: '.adonisjs/openapi.json',
+    },
+    {
+      pattern: '.adonisjs/openapi.json',
       reloadServer: false,
-  }
+    },
   ],
 
   hooks: {
@@ -129,7 +131,7 @@ export default defineConfig({
         transformers: { enabled: true },
       }),
       generateRegistry(),
-      indexPolicies()
+      indexPolicies(),
     ],
   },
 })

@@ -7,30 +7,6 @@ import type { InferInput, SimpleError } from '@vinejs/vine/types'
 export type ParamValue = string | number | bigint | boolean
 
 export interface Registry {
-  'auth.register': {
-    methods: ["POST"]
-    pattern: '/auth/register'
-    types: {
-      body: ExtractBody<InferInput<(typeof import('#validators/user').signupValidator)>>
-      paramsTuple: []
-      params: {}
-      query: ExtractQuery<InferInput<(typeof import('#validators/user').signupValidator)>>
-      response: ExtractResponse<Awaited<ReturnType<import('#controllers/auth_controller').default['register']>>>
-      errorResponse: ExtractErrorResponse<Awaited<ReturnType<import('#controllers/auth_controller').default['register']>>> | { status: 422; response: { errors: SimpleError[] } }
-    }
-  }
-  'auth.send_verification_email': {
-    methods: ["POST"]
-    pattern: '/auth/send-verification-email'
-    types: {
-      body: ExtractBody<InferInput<(typeof import('#validators/user').sendVerificationEmailValidator)>>
-      paramsTuple: []
-      params: {}
-      query: ExtractQuery<InferInput<(typeof import('#validators/user').sendVerificationEmailValidator)>>
-      response: ExtractResponse<Awaited<ReturnType<import('#controllers/auth_controller').default['sendVerificationEmail']>>>
-      errorResponse: ExtractErrorResponse<Awaited<ReturnType<import('#controllers/auth_controller').default['sendVerificationEmail']>>> | { status: 422; response: { errors: SimpleError[] } }
-    }
-  }
   'auth.validate': {
     methods: ["GET","HEAD"]
     pattern: '/auth/verify-email/:enrollmentId'
@@ -941,6 +917,102 @@ export interface Registry {
       query: {}
       response: ExtractResponse<Awaited<ReturnType<import('#controllers/oauth/authorization_controller').default['logout']>>>
       errorResponse: ExtractErrorResponse<Awaited<ReturnType<import('#controllers/oauth/authorization_controller').default['logout']>>>
+    }
+  }
+  'oauth.signup': {
+    methods: ["GET","HEAD"]
+    pattern: '/oauth/signup'
+    types: {
+      body: {}
+      paramsTuple: []
+      params: {}
+      query: {}
+      response: ExtractResponse<Awaited<ReturnType<import('#controllers/oauth/accounts_controller').default['showSignup']>>>
+      errorResponse: ExtractErrorResponse<Awaited<ReturnType<import('#controllers/oauth/accounts_controller').default['showSignup']>>>
+    }
+  }
+  'oauth.signup.store': {
+    methods: ["POST"]
+    pattern: '/oauth/signup'
+    types: {
+      body: {}
+      paramsTuple: []
+      params: {}
+      query: {}
+      response: ExtractResponse<Awaited<ReturnType<import('#controllers/oauth/accounts_controller').default['signup']>>>
+      errorResponse: ExtractErrorResponse<Awaited<ReturnType<import('#controllers/oauth/accounts_controller').default['signup']>>>
+    }
+  }
+  'oauth.resend_verification': {
+    methods: ["POST"]
+    pattern: '/oauth/resend-verification'
+    types: {
+      body: {}
+      paramsTuple: []
+      params: {}
+      query: {}
+      response: ExtractResponse<Awaited<ReturnType<import('#controllers/oauth/accounts_controller').default['resendVerification']>>>
+      errorResponse: ExtractErrorResponse<Awaited<ReturnType<import('#controllers/oauth/accounts_controller').default['resendVerification']>>>
+    }
+  }
+  'oauth.verify_email': {
+    methods: ["GET","HEAD"]
+    pattern: '/oauth/verify-email/:id'
+    types: {
+      body: {}
+      paramsTuple: [ParamValue]
+      params: { id: ParamValue }
+      query: {}
+      response: ExtractResponse<Awaited<ReturnType<import('#controllers/oauth/accounts_controller').default['verifyEmail']>>>
+      errorResponse: ExtractErrorResponse<Awaited<ReturnType<import('#controllers/oauth/accounts_controller').default['verifyEmail']>>>
+    }
+  }
+  'oauth.forgot_password': {
+    methods: ["GET","HEAD"]
+    pattern: '/oauth/forgot-password'
+    types: {
+      body: {}
+      paramsTuple: []
+      params: {}
+      query: {}
+      response: ExtractResponse<Awaited<ReturnType<import('#controllers/oauth/accounts_controller').default['showForgotPassword']>>>
+      errorResponse: ExtractErrorResponse<Awaited<ReturnType<import('#controllers/oauth/accounts_controller').default['showForgotPassword']>>>
+    }
+  }
+  'oauth.forgot_password.store': {
+    methods: ["POST"]
+    pattern: '/oauth/forgot-password'
+    types: {
+      body: {}
+      paramsTuple: []
+      params: {}
+      query: {}
+      response: ExtractResponse<Awaited<ReturnType<import('#controllers/oauth/accounts_controller').default['forgotPassword']>>>
+      errorResponse: ExtractErrorResponse<Awaited<ReturnType<import('#controllers/oauth/accounts_controller').default['forgotPassword']>>>
+    }
+  }
+  'oauth.reset_password': {
+    methods: ["GET","HEAD"]
+    pattern: '/oauth/reset-password'
+    types: {
+      body: {}
+      paramsTuple: []
+      params: {}
+      query: {}
+      response: ExtractResponse<Awaited<ReturnType<import('#controllers/oauth/accounts_controller').default['showResetPassword']>>>
+      errorResponse: ExtractErrorResponse<Awaited<ReturnType<import('#controllers/oauth/accounts_controller').default['showResetPassword']>>>
+    }
+  }
+  'oauth.reset_password.store': {
+    methods: ["POST"]
+    pattern: '/oauth/reset-password'
+    types: {
+      body: {}
+      paramsTuple: []
+      params: {}
+      query: {}
+      response: ExtractResponse<Awaited<ReturnType<import('#controllers/oauth/accounts_controller').default['resetPassword']>>>
+      errorResponse: ExtractErrorResponse<Awaited<ReturnType<import('#controllers/oauth/accounts_controller').default['resetPassword']>>>
     }
   }
   'oauth.google': {

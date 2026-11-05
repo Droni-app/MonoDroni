@@ -57,6 +57,10 @@ export function safeEqual(a: string, b: string) {
   return left.length === right.length && timingSafeEqual(left, right)
 }
 
+export function affectedRows(result: unknown) {
+  return Array.isArray(result) ? (result[0] as number) : (result as number)
+}
+
 export function verifyPkce(verifier: string, challenge: string) {
   if (!/^[A-Za-z0-9\-._~]{43,128}$/.test(verifier)) {
     return false

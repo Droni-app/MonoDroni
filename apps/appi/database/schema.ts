@@ -401,6 +401,36 @@ export class OauthGrantSchema extends BaseModel {
   declare userId: string
 }
 
+export class PasswordResetTokenSchema extends BaseModel {
+  static $columns = ['createdAt', 'expiresAt', 'id', 'siteId', 'tokenHash', 'usedAt', 'userId'] as const
+  $columns = PasswordResetTokenSchema.$columns
+  @column.dateTime({ autoCreate: true })
+  declare createdAt: DateTime | null
+  @column.dateTime()
+  declare expiresAt: DateTime
+  @column({ isPrimary: true })
+  declare id: number
+  @column()
+  declare siteId: string | null
+  @column()
+  declare tokenHash: string
+  @column.dateTime()
+  declare usedAt: DateTime | null
+  @column()
+  declare userId: string
+}
+
+export class RateLimitSchema extends BaseModel {
+  static $columns = ['expire', 'key', 'points'] as const
+  $columns = RateLimitSchema.$columns
+  @column()
+  declare expire: bigint | number | null
+  @column({ isPrimary: true })
+  declare key: string
+  @column()
+  declare points: number
+}
+
 export class SiteSchema extends BaseModel {
   static $columns = ['createdAt', 'description', 'expiresAt', 'id', 'logo', 'name', 'updatedAt', 'url'] as const
   $columns = SiteSchema.$columns

@@ -22,6 +22,10 @@ export default await Env.create(new URL('../', import.meta.url), {
   APP_KEY: Env.schema.secret(),
   APP_URL: Env.schema.string({ format: 'url', tld: false }),
 
+  // Rate limiting. CLIENT_IP_HEADER names the proxy's client IP header (do-connecting-ip on App Platform)
+  LIMITER_STORE: Env.schema.enum.optional(['database', 'memory'] as const),
+  CLIENT_IP_HEADER: Env.schema.string.optional(),
+
   // Session
   SESSION_DRIVER: Env.schema.enum(['cookie', 'memory', 'database'] as const),
 

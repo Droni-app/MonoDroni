@@ -3,8 +3,6 @@ import type { routes } from './index.ts'
 
 export interface ApiDefinition {
   auth: {
-    register: typeof routes['auth.register']
-    sendVerificationEmail: typeof routes['auth.send_verification_email']
     validate: typeof routes['auth.validate']
     login: typeof routes['auth.login']
     getGoogleUrl: typeof routes['auth.get_google_url']
@@ -134,6 +132,17 @@ export interface ApiDefinition {
     }
     login: typeof routes['oauth.login']
     logout: typeof routes['oauth.logout']
+    signup: typeof routes['oauth.signup'] & {
+      store: typeof routes['oauth.signup.store']
+    }
+    resendVerification: typeof routes['oauth.resend_verification']
+    verifyEmail: typeof routes['oauth.verify_email']
+    forgotPassword: typeof routes['oauth.forgot_password'] & {
+      store: typeof routes['oauth.forgot_password.store']
+    }
+    resetPassword: typeof routes['oauth.reset_password'] & {
+      store: typeof routes['oauth.reset_password.store']
+    }
     google: typeof routes['oauth.google'] & {
       callback: typeof routes['oauth.google.callback']
     }

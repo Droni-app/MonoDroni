@@ -8,6 +8,7 @@
 */
 
 import { middleware } from '#start/kernel'
+import { clientRegistrationThrottle } from '#start/limiter'
 import router from '@adonisjs/core/services/router'
 import { controllers } from '#generated/controllers'
 
@@ -21,8 +22,6 @@ router.get('/201aae24c561528ec1542b94df7e1db9.txt', ({ response }) => {
 })
 
 // Public routes
-router.post('auth/register', [controllers.Auth, 'register'])
-router.post('auth/send-verification-email', [controllers.Auth, 'sendVerificationEmail'])
 router.get('auth/verify-email/:enrollmentId', [controllers.Auth, 'verifyEmail']).as('auth.validate')
 router.post('auth/login', [controllers.Auth, 'login'])
 router.get('auth/google/url', [controllers.Auth, 'getGoogleUrl'])
@@ -220,11 +219,32 @@ router
   .as('oauth.metadata.authorization_server')
 router
   .group(() => {
-    router.post('register', [controllers.oauth.Registrations, 'store']).as('register')
+    router
+      .post('register', [controllers.oauth.Registrations, 'store'])
+      .use(clientRegistrationThrottle)
+      .as('register')
     router.get('authorize', [controllers.oauth.Authorization, 'show']).as('authorize')
     router.post('authorize', [controllers.oauth.Authorization, 'decide']).as('authorize.decide')
     router.post('login', [controllers.oauth.Authorization, 'login']).as('login')
     router.post('logout', [controllers.oauth.Authorization, 'logout']).as('logout')
+    router.get('signup', [controllers.oauth.Accounts, 'showSignup']).as('signup')
+    router.post('signup', [controllers.oauth.Accounts, 'signup']).as('signup.store')
+    router
+      .post('resend-verification', [controllers.oauth.Accounts, 'resendVerification'])
+      .as('resend_verification')
+    router.get('verify-email/:id', [controllers.oauth.Accounts, 'verifyEmail']).as('verify_email')
+    router
+      .get('forgot-password', [controllers.oauth.Accounts, 'showForgotPassword'])
+      .as('forgot_password')
+    router
+      .post('forgot-password', [controllers.oauth.Accounts, 'forgotPassword'])
+      .as('forgot_password.store')
+    router
+      .get('reset-password', [controllers.oauth.Accounts, 'showResetPassword'])
+      .as('reset_password')
+    router
+      .post('reset-password', [controllers.oauth.Accounts, 'resetPassword'])
+      .as('reset_password.store')
     router.post('google', [controllers.oauth.Authorization, 'google']).as('google')
     router
       .get('google/callback', [controllers.oauth.Authorization, 'googleCallback'])

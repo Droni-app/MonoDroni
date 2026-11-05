@@ -6,18 +6,6 @@ import type { ApiDefinition } from './tree.d.ts'
 const placeholder: any = {}
 
 const routes = {
-  'auth.register': {
-    methods: ["POST"],
-    pattern: '/auth/register',
-    tokens: [{"old":"/auth/register","type":0,"val":"auth","end":""},{"old":"/auth/register","type":0,"val":"register","end":""}],
-    types: placeholder as Registry['auth.register']['types'],
-  },
-  'auth.send_verification_email': {
-    methods: ["POST"],
-    pattern: '/auth/send-verification-email',
-    tokens: [{"old":"/auth/send-verification-email","type":0,"val":"auth","end":""},{"old":"/auth/send-verification-email","type":0,"val":"send-verification-email","end":""}],
-    types: placeholder as Registry['auth.send_verification_email']['types'],
-  },
   'auth.validate': {
     methods: ["GET","HEAD"],
     pattern: '/auth/verify-email/:enrollmentId',
@@ -473,6 +461,54 @@ const routes = {
     pattern: '/oauth/logout',
     tokens: [{"old":"/oauth/logout","type":0,"val":"oauth","end":""},{"old":"/oauth/logout","type":0,"val":"logout","end":""}],
     types: placeholder as Registry['oauth.logout']['types'],
+  },
+  'oauth.signup': {
+    methods: ["GET","HEAD"],
+    pattern: '/oauth/signup',
+    tokens: [{"old":"/oauth/signup","type":0,"val":"oauth","end":""},{"old":"/oauth/signup","type":0,"val":"signup","end":""}],
+    types: placeholder as Registry['oauth.signup']['types'],
+  },
+  'oauth.signup.store': {
+    methods: ["POST"],
+    pattern: '/oauth/signup',
+    tokens: [{"old":"/oauth/signup","type":0,"val":"oauth","end":""},{"old":"/oauth/signup","type":0,"val":"signup","end":""}],
+    types: placeholder as Registry['oauth.signup.store']['types'],
+  },
+  'oauth.resend_verification': {
+    methods: ["POST"],
+    pattern: '/oauth/resend-verification',
+    tokens: [{"old":"/oauth/resend-verification","type":0,"val":"oauth","end":""},{"old":"/oauth/resend-verification","type":0,"val":"resend-verification","end":""}],
+    types: placeholder as Registry['oauth.resend_verification']['types'],
+  },
+  'oauth.verify_email': {
+    methods: ["GET","HEAD"],
+    pattern: '/oauth/verify-email/:id',
+    tokens: [{"old":"/oauth/verify-email/:id","type":0,"val":"oauth","end":""},{"old":"/oauth/verify-email/:id","type":0,"val":"verify-email","end":""},{"old":"/oauth/verify-email/:id","type":1,"val":"id","end":""}],
+    types: placeholder as Registry['oauth.verify_email']['types'],
+  },
+  'oauth.forgot_password': {
+    methods: ["GET","HEAD"],
+    pattern: '/oauth/forgot-password',
+    tokens: [{"old":"/oauth/forgot-password","type":0,"val":"oauth","end":""},{"old":"/oauth/forgot-password","type":0,"val":"forgot-password","end":""}],
+    types: placeholder as Registry['oauth.forgot_password']['types'],
+  },
+  'oauth.forgot_password.store': {
+    methods: ["POST"],
+    pattern: '/oauth/forgot-password',
+    tokens: [{"old":"/oauth/forgot-password","type":0,"val":"oauth","end":""},{"old":"/oauth/forgot-password","type":0,"val":"forgot-password","end":""}],
+    types: placeholder as Registry['oauth.forgot_password.store']['types'],
+  },
+  'oauth.reset_password': {
+    methods: ["GET","HEAD"],
+    pattern: '/oauth/reset-password',
+    tokens: [{"old":"/oauth/reset-password","type":0,"val":"oauth","end":""},{"old":"/oauth/reset-password","type":0,"val":"reset-password","end":""}],
+    types: placeholder as Registry['oauth.reset_password']['types'],
+  },
+  'oauth.reset_password.store': {
+    methods: ["POST"],
+    pattern: '/oauth/reset-password',
+    tokens: [{"old":"/oauth/reset-password","type":0,"val":"oauth","end":""},{"old":"/oauth/reset-password","type":0,"val":"reset-password","end":""}],
+    types: placeholder as Registry['oauth.reset_password.store']['types'],
   },
   'oauth.google': {
     methods: ["POST"],

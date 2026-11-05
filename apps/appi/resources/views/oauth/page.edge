@@ -17,7 +17,7 @@
     p { margin: 0 0 12px; color: var(--muted); font-size: 14px; }
     strong { color: var(--text); overflow-wrap: anywhere; }
     label { display: block; margin-bottom: 12px; font-size: 14px; font-weight: 600; }
-    input[type=email], input[type=password] { display: block; width: 100%; margin-top: 4px; padding: 10px; font: inherit; color: inherit; background: transparent; border: 1px solid var(--border); border-radius: 8px; }
+    input[type=text], input[type=email], input[type=password] { display: block; width: 100%; margin-top: 4px; padding: 10px; font: inherit; color: inherit; background: transparent; border: 1px solid var(--border); border-radius: 8px; }
     button, .button { display: block; width: 100%; padding: 10px; font: inherit; font-weight: 600; text-align: center; text-decoration: none; cursor: pointer; border-radius: 8px; border: 1px solid var(--border); background: transparent; color: var(--text); }
     button.primary { background: var(--accent); border-color: var(--accent); color: #fff; }
     @media (prefers-color-scheme: dark) { button.primary { color: #18181b; } }
@@ -46,13 +46,41 @@
     @if(screen === 'error')
       <h1>No se pudo conectar</h1>
       <p class="error">{{ error }}</p>
+    @elseif(screen === 'notice')
+      @if(site)
+        @include('oauth/site')
+      @end
+      <h1>{{ heading }}</h1>
+      <p>{{ text }}</p>
+      @if(site && site.url)
+        <p class="back"><a class="link" href="{{ site.url }}">Ir a {{ site.name }}</a></p>
+      @else
+        <p>Vuelve a tu aplicación e inicia sesión desde ahí.</p>
+      @end
+    @elseif(screen === 'reset')
+      @if(site)
+        @include('oauth/site')
+      @end
+      <h1>Elige una contraseña nueva</h1>
+      @if(error)
+        <p class="error" role="alert">{{ error }}</p>
+      @end
+      <form method="POST" action="/oauth/reset-password">
+        <input type="hidden" name="_csrf" value="{{ csrf }}">
+        <input type="hidden" name="token" value="{{ token }}">
+        <label>Contraseña nueva <input type="password" name="password" autocomplete="new-password" minlength="8" maxlength="32" required autofocus></label>
+        <label>Repítela <input type="password" name="passwordConfirmation" autocomplete="new-password" minlength="8" maxlength="32" required></label>
+        <button type="submit" class="primary">Cambiar contraseña</button>
+      </form>
     @else
       @if(site && firstParty)
         @include('oauth/site')
       @end
-      <h1>{{ screen === 'login' ? (firstParty ? 'Inicia sesión' : 'Inicia sesión en Droni') : 'Autorizar acceso' }}</h1>
+      <h1>{{ heading ? heading : (screen === 'login' ? (firstParty ? 'Inicia sesión' : 'Inicia sesión en Droni') : 'Autorizar acceso') }}</h1>
       @if(firstParty)
-        <p>Usa tu cuenta de Droni para continuar en <strong>{{ site ? site.name : clientName }}</strong>.</p>
+        @if(screen === 'login')
+          <p>Usa tu cuenta de Droni para continuar en <strong>{{ site ? site.name : clientName }}</strong>.</p>
+        @end
       @else
         <p>
           <strong>{{ clientName }}</strong> quiere conectarse a tu cuenta.
@@ -90,9 +118,51 @@
           <input type="hidden" name="params" value="{{ params }}">
           <button type="submit">Continuar con Google</button>
         </form>
-        @if(firstParty)
-          <p class="back"><a class="link" href="{{ backUrl }}">Crear una cuenta o volver a {{ site ? site.name : redirectHost }}</a></p>
+        @if(unverifiedEmail)
+          <form method="POST" action="/oauth/resend-verification" class="back">
+            <input type="hidden" name="_csrf" value="{{ csrf }}">
+            <input type="hidden" name="params" value="{{ params }}">
+            <input type="hidden" name="email" value="{{ unverifiedEmail }}">
+            <button type="submit" class="link">Reenviar correo de verificación</button>
+          </form>
         @end
+        <p class="back">
+          <a class="link" href="/oauth/forgot-password?{{ params }}">¿Olvidaste tu contraseña?</a>
+          ·
+          <a class="link" href="/oauth/signup?{{ params }}">Crear una cuenta</a>
+        </p>
+        @if(firstParty)
+          <p class="back"><a class="link" href="{{ backUrl }}">Volver a {{ site ? site.name : redirectHost }}</a></p>
+        @end
+      @elseif(screen === 'signup')
+        <form method="POST" action="/oauth/signup">
+          <input type="hidden" name="_csrf" value="{{ csrf }}">
+          <input type="hidden" name="params" value="{{ params }}">
+          <label>Nombre <input type="text" name="fullName" value="{{ fullName ?? '' }}" autocomplete="name" maxlength="255" required autofocus></label>
+          <label>Correo <input type="email" name="email" value="{{ email ?? '' }}" autocomplete="username" required></label>
+          <label>Contraseña <input type="password" name="password" autocomplete="new-password" minlength="8" maxlength="32" required></label>
+          <label>Repite la contraseña <input type="password" name="passwordConfirmation" autocomplete="new-password" minlength="8" maxlength="32" required></label>
+          <button type="submit" class="primary">Crear cuenta</button>
+        </form>
+        <div class="divider">o</div>
+        <form method="POST" action="/oauth/google">
+          <input type="hidden" name="_csrf" value="{{ csrf }}">
+          <input type="hidden" name="params" value="{{ params }}">
+          <button type="submit">Continuar con Google</button>
+        </form>
+        <p class="back"><a class="link" href="/oauth/authorize?{{ params }}">Ya tengo una cuenta</a></p>
+      @elseif(screen === 'forgot')
+        <p>Escribe tu correo y te enviaremos un enlace para elegir una contraseña nueva.</p>
+        <form method="POST" action="/oauth/forgot-password">
+          <input type="hidden" name="_csrf" value="{{ csrf }}">
+          <input type="hidden" name="params" value="{{ params }}">
+          <label>Correo <input type="email" name="email" value="{{ email ?? '' }}" autocomplete="username" required autofocus></label>
+          <button type="submit" class="primary">Enviar enlace</button>
+        </form>
+        <p class="back"><a class="link" href="/oauth/authorize?{{ params }}">Volver a iniciar sesión</a></p>
+      @elseif(screen === 'sent')
+        <p>{{ text }}</p>
+        <p class="back"><a class="link" href="/oauth/authorize?{{ params }}">Volver a iniciar sesión</a></p>
       @else
         <p>Si autorizas, podrá actuar en tu nombre con los mismos permisos que tiene tu usuario:</p>
         <ul>

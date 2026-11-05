@@ -1,104 +1,15 @@
-import { loginValidator, signupValidator, sendVerificationEmailValidator } from '#validators/user'
+import { loginValidator } from '#validators/user'
 import type { HttpContext } from '@adonisjs/core/http'
-import mail from '@adonisjs/mail/services/main'
-import { signedUrlFor } from '@adonisjs/core/services/url_builder'
 import User from '#models/user'
 import Enrollment from '#models/enrollment'
 import { DateTime } from 'luxon'
 import Site from '#models/site'
+import { verifyLogin } from '#services/login_throttle'
 
 export default class AuthController {
   /**
-   * @register
-   * @summary Registro de nuevo usuario
-   * @requestBody {"fullName": "string", "email": "user@example.com", "password": "password123", "passwordConfirmation": "password123"}
-   * @responseBody 201 - {"user": {"id": "uuid", "fullName": "string", "email": "string", "avatar": "string|null", "createdAt": "string"}, "enrollment": {"id": "uuid", "siteId": "string", "userId": "uuid", "role": "user", "createdAt": "string"}}
-   * @responseBody 422 - {"errors": [{"message": "string", "field": "string"}]}
-   */
-  async register({ request, site }: HttpContext) {
-    const { fullName, email, password } = await request.validateUsing(signupValidator)
-
-    const user = await User.create({ fullName, email, password })
-    const enrollment = await Enrollment.firstOrCreate(
-      { siteId: site.id, userId: user.id },
-      {
-        siteId: site.id,
-        userId: user.id,
-        role: 'user',
-      }
-    )
-
-    const verificationUrl = signedUrlFor(
-      'auth.validate',
-      {
-        enrollmentId: enrollment.id,
-      },
-      {
-        expiresIn: '1 days',
-        prefixUrl: process.env.APP_URL,
-      }
-    )
-
-    await mail.send((message) => {
-      message
-        .to(user.email)
-        .from('noreply@droni.co', site.name)
-        .subject(`Bienvenido a ${site.name}`)
-        .htmlView('emails/welcome', { user, site, verificationUrl })
-    })
-
-    return {
-      user: user,
-      enrollment: enrollment,
-    }
-  }
-
-  /**
-   * @sendVerificationEmail
-   * @summary Reenviar email de verificación
-   * @requestBody {"email": "user@example.com"}
-   * @responseBody 200 - {"message": "Verification email sent. Please check your inbox."}
-   * @responseBody 404 - {"message": "Row not found"}
-   */
-  async sendVerificationEmail({ request, site }: HttpContext) {
-    const { email } = await request.validateUsing(sendVerificationEmailValidator)
-    const user = await User.findByOrFail('email', email)
-    const enrollment = await Enrollment.firstOrCreate(
-      { siteId: site.id, userId: user.id },
-      {
-        siteId: site.id,
-        userId: user.id,
-        role: 'user',
-      }
-    )
-
-    const verificationUrl = signedUrlFor(
-      'auth.validate',
-      {
-        enrollmentId: enrollment.id,
-      },
-      {
-        expiresIn: '1 days',
-        prefixUrl: process.env.APP_URL,
-      }
-    )
-
-    await mail.send((message) => {
-      message
-        .to(user.email)
-        .from('noreply@droni.co', site.name)
-        .subject(`Bienvenido a ${site.name}`)
-        .htmlView('emails/welcome', { user, site, verificationUrl })
-    })
-
-    return {
-      message: 'Verification email sent. Please check your inbox.',
-    }
-  }
-
-  /**
    * @verifyEmail
-   * @summary Verificar email con enlace firmado
+   * @summary Verificar email con enlace firmado (solo enlaces ya enviados; los nuevos usan /oauth/verify-email)
    * @paramPath enrollmentId - ID del enrollment incluido en el enlace de verificación - @type(string) @required
    * @responseBody 302 - Redirige a la URL del site si el enlace es válido
    * @responseBody 400 - {"message": "Invalid or expired verification link"}
@@ -125,11 +36,12 @@ export default class AuthController {
    * @responseBody 200 - {"user": {"id": "uuid", "fullName": "string", "email": "string", "avatar": "string|null"}, "enrollment": {"id": "uuid", "role": "user|owner"}, "token": "oat_xxxxxxxxxxxx"}
    * @responseBody 400 - {"message": "Email not verified."}
    * @responseBody 422 - {"errors": [{"message": "string", "field": "string"}]}
+   * @responseBody 429 - {"errors": [{"message": "string", "retryAfter": 900}]}
    */
   async login({ request, site, response }: HttpContext) {
     const { email, password } = await request.validateUsing(loginValidator)
 
-    const user = await User.verifyCredentials(email, password)
+    const user = await verifyLogin(request, email, password)
     const enrollment = await Enrollment.firstOrCreate(
       { siteId: site.id, userId: user.id },
       {
