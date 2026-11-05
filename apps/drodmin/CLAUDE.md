@@ -18,6 +18,8 @@ Copy `.env.example` to `.env` and set:
 
 ```
 VITE_API_URL=https://appi.droni.co
+VITE_APP_URL=https://drodmin.droni.co
+VITE_APPI_OAUTH_CLIENT_ID=<client id from appi's oauth:spa-client>
 ```
 
 `VITE_API_URL` must be defined at build time — `AppiService` throws on startup if it's missing.
@@ -26,9 +28,9 @@ VITE_API_URL=https://appi.droni.co
 
 **File-based routing** via `vite-plugin-pages`: every `.vue` file under `src/pages/` becomes a route automatically. The directory structure maps directly to URL paths (e.g. `src/pages/social/comments/index.vue` → `/social/comments`). Dynamic segments use brackets: `src/pages/content/posts/[id].vue` → `/content/posts/:id`.
 
-**Auth flow**: `src/main.ts` registers a global `router.beforeEach` guard that redirects unauthenticated users to `/login`. Auth state lives in `src/composables/useAuth.ts` as module-level refs (not a Pinia store), so the state is shared across all component instances that call `useAuth()`. The token and `site_id` are persisted in `localStorage` under the keys `auth_token` and `site_id`.
+**Auth flow**: login is OAuth 2.1 with PKCE against appi, as a public first-party client: drodmin ships no secret and never sees a password, and login, signup and recovery are appi's pages (`VITE_APPI_OAUTH_CLIENT_ID`, created with `node ace oauth:spa-client <name> <redirect-uri>` in appi; the redirect URI is `<VITE_APP_URL>/oauth/callback`). `/oauth/callback` exchanges the code for an `oat_` token, then `/sites` lists the sites from `GET /auth/sites` where the user is `owner`, the only role appi's admin routes accept, skipping the choice if there's only one. After that the header's `SiteSelector` switches site at any time: it goes to `/` and `App.vue` rebuilds the page (`RouterView` keyed by site), since pages load their data on mount and ids belong to one site. A session change in another tab reloads this one (`useAuth.ts`), because requests read the site from `localStorage` on every call. `src/main.ts`'s `router.beforeEach` sends users without a token to `/login` and without a site to `/sites`. Auth state lives in `src/composables/useAuth.ts` as module-level refs (not a Pinia store), so the state is shared across all component instances that call `useAuth()`. The token and `site_id` are persisted in `localStorage` under the keys `auth_token` and `site_id`, and a 401 from appi ends the session (`AppiService.ts`).
 
-**API client**: `src/services/AppiService.ts` is an Axios instance pointing at `VITE_API_URL`. A request interceptor automatically injects `Authorization: Bearer <token>` and `x-site-id` headers from `localStorage` on every request. Pass `x-site-id` explicitly in the login call before these values are stored.
+**API client**: `src/services/AppiService.ts` is an Axios instance pointing at `VITE_API_URL`. A request interceptor automatically injects `Authorization: Bearer <token>` and `x-site-id` headers from `localStorage` on every request.
 
 **UI components**: The app uses `@dronico/droni-kit` (internal Droni design system). Import components from that package rather than building from scratch (`DuiCard`, `DuiInput`, `DuiButton`, `DuiAlert`, `DuiNavbar`, `DuiLabel`, etc.). Its CSS must be imported globally — it is already done in `src/main.ts`.
 

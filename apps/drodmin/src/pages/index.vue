@@ -4,11 +4,11 @@ import { useAuth } from '../composables/useAuth'
 import { modules } from '../navigation'
 import PageHeader from '../components/ui/PageHeader.vue'
 
-const { user, siteId } = useAuth()
+const { user, siteId, currentSite } = useAuth()
 </script>
 
 <template>
-  <PageHeader :title="`Hola, ${user?.fullName ?? 'admin'}`" :subtitle="`Sitio: ${siteId}`" />
+  <PageHeader :title="`Hola, ${user?.fullName ?? 'admin'}`" :subtitle="`Sitio: ${currentSite?.site?.name ?? siteId}`" />
 
   <div class="grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
     <DuiCard v-for="mod in modules" :key="mod.label">

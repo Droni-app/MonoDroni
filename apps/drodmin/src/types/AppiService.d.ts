@@ -20,10 +20,11 @@ export interface AuthUser {
   emailVerifiedAt?: string | null
 }
 
-export interface AuthResponse {
-  user: AuthUser
-  enrollment: Pick<Enrollment, 'id' | 'role'>
-  token: string
+export interface UserSite {
+  id: string
+  siteId: string
+  role: string
+  site?: { id: string; name: string; logo?: string | null; url?: string | null }
 }
 
 export interface PaginationMeta {

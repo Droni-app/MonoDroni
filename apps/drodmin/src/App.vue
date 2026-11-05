@@ -3,7 +3,7 @@ import { DuiToast } from '@dronico/droni-kit'
 import MainHeader from './components/MainHeader.vue'
 import { useAuth } from './composables/useAuth'
 
-const { isAuthenticated } = useAuth()
+const { isAuthenticated, siteId } = useAuth()
 </script>
 
 <template>
@@ -13,7 +13,8 @@ const { isAuthenticated } = useAuth()
         <MainHeader />
       </div>
       <main class="mx-auto max-w-7xl px-4 py-6 sm:px-6">
-        <RouterView />
+        <!-- Rebuilt on a site change: pages load their data once, when they mount -->
+        <RouterView :key="siteId ?? ''" />
       </main>
     </template>
     <RouterView v-else />
