@@ -12,9 +12,11 @@ const router = createRouter({
 
 router.beforeEach((to) => {
   const token = localStorage.getItem('auth_token')
-  const publicPaths = ['/login', '/oauth/google/callback']
-  if (!token && !publicPaths.includes(to.path)) return '/login'
-  if (token && to.path === '/login') return '/'
+  const siteId = localStorage.getItem('site_id')
+  if (to.path === '/oauth/callback') return
+  if (!token) return to.path === '/login' ? undefined : '/login'
+  if (!siteId) return to.path === '/sites' ? undefined : '/sites'
+  if (to.path === '/login' || to.path === '/sites') return '/'
 })
 
 createApp(App).use(router).mount('#app')

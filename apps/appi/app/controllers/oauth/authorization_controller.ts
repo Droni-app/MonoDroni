@@ -7,6 +7,7 @@ import type Site from '#models/site'
 import User from '#models/user'
 import { loginValidator } from '#validators/user'
 import { TOO_MANY_ATTEMPTS, verifyLogin } from '#services/login_throttle'
+import { ALL_MODULES } from '#services/mcp/modules'
 import {
   isMetadataDocumentUrl,
   resolveMetadataDocumentClient,
@@ -381,7 +382,7 @@ export default class AuthorizationController {
       clientHost: client.type === 'metadata_document' ? new URL(client.id).hostname : null,
       redirectHost: redirect.hostname || redirect.protocol,
       isLoopback: isLoopbackRedirect(redirectUri),
-      module: resource?.module ?? null,
+      module: resource?.module === ALL_MODULES ? null : (resource?.module ?? null),
       // A first-party client is its site. A connector is not: anyone can register one and
       // point it at any site, so its site only ever reads as what access is being asked to
       site: this.siteData(this.requestSite(authRequest)),

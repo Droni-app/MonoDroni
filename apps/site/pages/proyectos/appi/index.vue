@@ -208,6 +208,8 @@
           <p class="text-zinc-600 dark:text-zinc-300 mb-3">
             Hay un servidor por módulo, para que el asistente trabaje con pocas tools y bien enfocadas. Conecta solo
             los que necesites: un asistente de atención al cliente no necesita <code>store-admin</code>.
+            Si prefieres un solo conector, <code>/mcp/all</code> reúne todas las tools, a cambio de una lista mucho más
+            larga para el asistente y de darle acceso a todos los módulos.
           </p>
           <div class="grid gap-4 sm:grid-cols-2 mb-4">
             <div
@@ -263,7 +265,7 @@
             y las renueva solo. Funciona con cualquier cliente MCP compatible con OAuth 2.1.
           </p>
           <ul class="list-disc pl-6 space-y-1 text-zinc-600 dark:text-zinc-300 mt-3">
-            <li>La autorización vale para la URL que agregaste: un conector de <code>content</code> no puede usar <code>store-admin</code>, y uno de un sitio fijo no puede usar otros sitios. Cada servidor se autoriza por separado.</li>
+            <li>La autorización vale para la URL que agregaste: un conector de <code>content</code> no puede usar <code>store-admin</code> (uno de <code>all</code> tiene todos los módulos), y uno de un sitio fijo no puede usar otros sitios. Cada servidor se autoriza por separado.</li>
             <li>Los tokens del conector solo sirven en el MCP, no en la API REST. A la inversa, un token <code>oat_</code> de <code>/auth/login</code> no sirve en el MCP.</li>
             <li>El token de acceso dura 1 hora. La renovación es automática y dura 90 días desde la última vez que se usó; después tendrás que autorizar de nuevo.</li>
             <li>Todas las tools requieren autorización, incluso las que leen datos públicos.</li>

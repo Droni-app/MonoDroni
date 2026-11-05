@@ -5,6 +5,7 @@ import { useRouter } from 'vue-router'
 import { useAuth } from '../composables/useAuth'
 import { useTheme } from '../composables/useTheme'
 import { modules } from '../navigation'
+import SiteSelector from './SiteSelector.vue'
 import UserAvatar from './ui/UserAvatar.vue'
 import logoLight from '../assets/img/logo.svg'
 import logoDark from '../assets/img/logo-w.svg'
@@ -21,8 +22,8 @@ const navItems = modules.map(({ label, children }) => ({
 
 const logo = computed(() => theme.value === 'dark' ? logoDark : logoLight)
 
-function handleLogout() {
-  logout()
+async function handleLogout() {
+  await logout()
   router.push('/login')
 }
 </script>
@@ -35,6 +36,7 @@ function handleLogout() {
       </RouterLink>
     </template>
     <template #actions>
+      <SiteSelector />
       <RouterLink to="/profile" class="text-slate-600 transition-colors hover:text-slate-900 dark:text-white/80 dark:hover:text-white">
         <UserAvatar :user="user" size="md" :show-name="false" class="sm:hidden" />
         <UserAvatar :user="user" size="md" class="hidden font-medium sm:inline-flex" />

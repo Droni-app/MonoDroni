@@ -319,6 +319,52 @@ test.group('OAuth for MCP connectors', (group) => {
     assert.include(sites.body().result.content[0].text, site.id)
   })
 
+  test('the all module serves the tools of every module', async ({
+    client,
+    assert,
+  }: TestContext) => {
+    const resource = `${BASE}/mcp/all`
+    const { user, tokens } = await connect(client, { resource })
+
+    const listTools = async (path: string, token: string) => {
+      const response = await client
+        .post(path)
+        .header('accept', 'application/json, text/event-stream')
+        .header('authorization', `Bearer ${token}`)
+        .json({ jsonrpc: '2.0', id: 2, method: 'tools/list', params: {} })
+      response.assertStatus(200)
+      return response.body().result.tools as { name: string }[]
+    }
+
+    const allTools = await listTools('/mcp/all', tokens.access_token)
+    const tools = allTools.map((tool) => tool.name)
+    assert.includeMembers(tools, ['list_my_sites', 'list_posts', 'admin_create_post'])
+    assert.lengthOf(new Set(tools), tools.length)
+
+    const moduleTools = await Promise.all(
+      ['content', 'social', 'store', 'store-admin', 'learn', 'learn-admin'].map(async (module) => {
+        const { tokens: moduleTokens } = await connect(client, {
+          resource: `${BASE}/mcp/${module}`,
+        })
+        return listTools(`/mcp/${module}`, moduleTokens.access_token)
+      })
+    )
+    const expected = new Set(moduleTools.flat().map((tool) => tool.name))
+    assert.sameMembers(tools, [...expected])
+
+    // The token stays bound to the URL it was granted for
+    const other = await mcpPost(client, '/mcp/content', tokens.access_token)
+    other.assertStatus(401)
+
+    const consentClient = await createClient()
+    const consent = await client
+      .get(`/oauth/authorize?${authorizeQuery(consentClient.id, pkce().challenge, { resource })}`)
+      .withGuard('web')
+      .loginAs(user)
+    consent.assertStatus(200)
+    assert.include(consent.text(), 'todos los módulos')
+  })
+
   test('a code needs the right verifier and works only once', async ({
     client,
     assert,
@@ -631,6 +677,65 @@ test.group('OAuth for first-party clients', (group) => {
       code_verifier: verifier,
       redirect_uri: REDIRECT_URI,
     })
+
+  test('a secretless client without a site gets a token through PKCE alone', async ({
+    client,
+    assert,
+  }: TestContext) => {
+    const user = await createUser()
+    const oauthClient = await OauthClient.create({
+      id: crypto.randomUUID(),
+      type: 'first_party',
+      name: 'Panel de prueba',
+      redirectUris: [REDIRECT_URI],
+      grantTypes: ['authorization_code'],
+      tokenEndpointAuthMethod: 'none',
+    })
+    const { verifier, challenge } = pkce()
+
+    const page = await client.get(
+      `/oauth/authorize?${authorizeQuery(oauthClient.id, challenge, { resource: '' })}`
+    )
+    page.assertStatus(200)
+    assert.include(page.text(), 'Panel de prueba')
+
+    const wrongUri = await client.get(
+      `/oauth/authorize?${authorizeQuery(oauthClient.id, challenge, {
+        resource: '',
+        redirect_uri: 'https://evil.example/cb',
+      })}`
+    )
+    wrongUri.assertStatus(400)
+
+    const response = await login(client, user, oauthClient.id, challenge)
+    response.assertStatus(303)
+    assert.notProperty(response.session(), 'auth_web')
+    const code = new URL(response.header('location')).searchParams.get('code')
+
+    const body = {
+      grant_type: 'authorization_code',
+      client_id: oauthClient.id,
+      code,
+      redirect_uri: REDIRECT_URI,
+    }
+    const noVerifier = await client.post('/oauth/token').form(body)
+    noVerifier.assertStatus(400)
+
+    const tokens = await client.post('/oauth/token').form({ ...body, code_verifier: verifier })
+    tokens.assertStatus(200)
+    assert.match(tokens.body().access_token, /^oat_/)
+    assert.notProperty(tokens.body(), 'refresh_token')
+
+    const authHeader = `Bearer ${tokens.body().access_token}`
+    const sites = await client.get('/auth/sites').header('authorization', authHeader)
+    sites.assertStatus(200)
+
+    // Logging out needs no site: drodmin can do it from its site picker
+    const logout = await client.post('/auth/logout').header('authorization', authHeader)
+    logout.assertStatus(200)
+    const revoked = await client.get('/auth/sites').header('authorization', authHeader)
+    revoked.assertStatus(401)
+  })
 
   test('login goes straight back with a code and leaves no session', async ({
     client,

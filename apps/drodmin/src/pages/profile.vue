@@ -4,7 +4,7 @@ import { useAuth } from '../composables/useAuth'
 import PageHeader from '../components/ui/PageHeader.vue'
 import UserAvatar from '../components/ui/UserAvatar.vue'
 
-const { user, siteId } = useAuth()
+const { user, siteId, currentSite } = useAuth()
 </script>
 
 <template>
@@ -17,7 +17,7 @@ const { user, siteId } = useAuth()
           <p class="text-xl font-bold">{{ user?.fullName }}</p>
           <p class="text-sm text-slate-500 dark:text-slate-400">{{ user?.email }}</p>
         </div>
-        <p class="font-mono text-xs text-slate-400">Sitio: {{ siteId }}</p>
+        <p class="text-xs text-slate-400">Sitio: {{ currentSite?.site?.name ?? siteId }}</p>
       </div>
     </DuiCard>
   </div>
