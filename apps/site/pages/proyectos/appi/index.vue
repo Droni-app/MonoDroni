@@ -59,8 +59,9 @@
             Para empezar necesitas que creemos tu sitio. Te entregaremos un <code>siteId</code> (UUID) y una cuenta
             con rol <strong>owner</strong>, con la que podrás administrar el contenido desde
             <a href="https://drodmin.droni.co" class="text-pink-600 dark:text-pink-400 underline">drodmin</a>
-            o desde tu propio panel usando los endpoints de administración. Si vas a usar el inicio de sesión con Google,
-            indícanos también las URLs de callback de tu frontend.
+            o desde tu propio panel usando los endpoints de administración. Si tu sitio tendrá usuarios, indícanos
+            también la URL de callback de tu servidor y te entregaremos un <code>client_id</code> y un
+            <code>client_secret</code> de OAuth para ese sitio.
           </p>
           <NuxtLink to="/login" class="inline-flex items-center gap-2 text-sm font-semibold text-pink-600 dark:text-pink-400">
             Solicitar un sitio <i class="mdi mdi-arrow-top-right" />
@@ -98,21 +99,27 @@
           </p>
           <ul class="list-disc pl-6 space-y-1 text-zinc-600 dark:text-zinc-300 mb-4">
             <li>El token del usuario vive en una cookie <code>httpOnly</code>, fuera del alcance de JavaScript del navegador.</li>
-            <li>El <code>siteId</code> y la URL de appi se configuran como variables de entorno del servidor.</li>
+            <li>El <code>siteId</code>, la URL de appi y las credenciales OAuth se configuran como variables de entorno del servidor.</li>
             <li>Puedes cachear respuestas públicas (posts, productos, cursos) para ganar velocidad.</li>
           </ul>
           <p class="text-zinc-600 dark:text-zinc-300 mb-3">Ejemplo con Nuxt 3 — un proxy genérico en <code>server/api/appi/[...path].ts</code>:</p>
           <AppiCode label="server/api/appi/[...path].ts" :code="proxyExample" />
-          <p class="text-zinc-600 dark:text-zinc-300 my-3">Y un endpoint de login que guarda el token en la cookie:</p>
-          <AppiCode label="server/api/session/login.post.ts" :code="loginExample" />
+          <p class="text-zinc-600 dark:text-zinc-300 my-3">
+            El inicio de sesión no se construye en tu sitio: tu botón lleva a las pantallas de appi, que muestran el
+            nombre y el logo de tu sitio. Un endpoint inicia el flujo:
+          </p>
+          <AppiCode label="server/api/session/oauth/start.get.ts" :code="oauthStartExample" />
+          <p class="text-zinc-600 dark:text-zinc-300 my-3">Y tu callback canjea el código y guarda el token en la cookie:</p>
+          <AppiCode label="server/api/session/oauth/callback.get.ts" :code="oauthCallbackExample" />
         </section>
 
         <section id="autenticacion">
           <h2 class="text-2xl font-bold mb-3">4. Usuarios y roles</h2>
           <p class="text-zinc-600 dark:text-zinc-300 mb-3">
-            Un usuario se registra con email y contraseña (y verifica su correo) o entra con Google. El login devuelve
-            un token que debes enviar como <code>Authorization: Bearer</code>. Cada endpoint de esta documentación
-            indica qué nivel de acceso necesita:
+            El inicio de sesión, el registro, la verificación de correo, la recuperación de contraseña y el acceso con
+            Google ocurren en las pantallas de appi, sin que tu sitio reciba contraseñas. Al terminar obtienes un token
+            que debes enviar como <code>Authorization: Bearer</code>. Cada endpoint de esta documentación indica qué
+            nivel de acceso necesita:
           </p>
           <div class="grid gap-2 sm:grid-cols-2">
             <div
@@ -391,18 +398,67 @@ export default defineEventHandler(async (event) => {
   })
 })`
 
-const loginExample = `export default defineEventHandler(async (event) => {
-  const config = useRuntimeConfig()
-  const { email, password } = await readBody(event)
+const oauthStartExample = `import { createHash, randomBytes } from 'node:crypto'
 
-  const { user, enrollment, token } = await $fetch<any>('/auth/login', {
-    baseURL: config.appiUrl,
-    method: 'POST',
-    headers: { 'x-site-id': config.appiSiteId, Accept: 'application/json' },
-    body: { email, password },
+// .env → APPI_CLIENT_ID=…  APPI_CLIENT_SECRET=…  APPI_CALLBACK_URL=https://misitio.com/api/session/oauth/callback
+export default defineEventHandler((event) => {
+  const config = useRuntimeConfig()
+  const state = randomBytes(32).toString('base64url')
+  const verifier = randomBytes(32).toString('base64url')
+
+  setCookie(event, 'appi_oauth_flow', JSON.stringify({ state, verifier }), {
+    httpOnly: true,
+    secure: true,
+    sameSite: 'lax',
+    path: '/api/session/oauth',
+    maxAge: 60 * 10,
   })
 
-  setCookie(event, 'appi_token', token, {
+  const params = new URLSearchParams({
+    response_type: 'code',
+    client_id: config.appiClientId,
+    redirect_uri: config.appiCallbackUrl,
+    state,
+    code_challenge: createHash('sha256').update(verifier).digest('base64url'),
+    code_challenge_method: 'S256',
+  })
+
+  return sendRedirect(event, \`\${config.appiUrl}/oauth/authorize?\${params}\`)
+})`
+
+const oauthCallbackExample = `export default defineEventHandler(async (event) => {
+  const config = useRuntimeConfig()
+  const { code, state, error } = getQuery(event)
+  const flow = JSON.parse(getCookie(event, 'appi_oauth_flow') ?? 'null')
+  deleteCookie(event, 'appi_oauth_flow', { path: '/api/session/oauth' })
+
+  // El state evita que otra web complete un inicio de sesión en tu sitio
+  if (!flow || state !== flow.state) {
+    return sendRedirect(event, '/?login=error')
+  }
+  // El usuario pulsó "Volver" en appi: no lo envíes de nuevo a iniciar sesión
+  if (error === 'access_denied') {
+    return sendRedirect(event, '/')
+  }
+  if (error || typeof code !== 'string') {
+    return sendRedirect(event, '/?login=error')
+  }
+
+  const tokens = await $fetch<{ access_token: string }>('/oauth/token', {
+    baseURL: config.appiUrl,
+    method: 'POST',
+    body: new URLSearchParams({
+      grant_type: 'authorization_code',
+      client_id: config.appiClientId,
+      client_secret: config.appiClientSecret,
+      code,
+      code_verifier: flow.verifier,
+      redirect_uri: config.appiCallbackUrl,
+    }),
+  })
+
+  // Nunca devuelvas el token al navegador
+  setCookie(event, 'appi_token', tokens.access_token, {
     httpOnly: true,
     secure: true,
     sameSite: 'lax',
@@ -410,8 +466,7 @@ const loginExample = `export default defineEventHandler(async (event) => {
     maxAge: 60 * 60 * 24 * 7,
   })
 
-  // Nunca devuelvas el token al navegador
-  return { user, enrollment }
+  return sendRedirect(event, '/')
 })`
 
 const paginationExample = `{
@@ -441,11 +496,13 @@ const errorRows = [
   { code: '403', text: 'Autenticado, pero sin el rol necesario (por ejemplo, rol de curso) o fuera de la ventana permitida.' },
   { code: '404', text: 'El recurso no existe, no pertenece a tu sitio o no es tuyo. Las rutas protegidas por rol de sitio también pueden responder 404 en lugar de 403.' },
   { code: '422', text: 'Error de validación del cuerpo o query: revisa errors[].field y errors[].message.' },
+  { code: '429', text: 'Demasiados intentos, por ejemplo de inicio de sesión. El header Retry-After indica cuántos segundos esperar.' },
 ]
 
 const securityTips = [
   'Llama a appi desde tu servidor y guarda el token en una cookie httpOnly, secure y sameSite. No lo pongas en localStorage ni en la URL.',
   'Nunca devuelvas el token al navegador ni lo registres en logs.',
+  'El client_secret solo debe existir en tu servidor. Si se filtra, pídenos uno nuevo.',
   'Mantén las credenciales del owner fuera del frontend público. Si tu sitio necesita acciones de administración, constrúyelas en un panel aparte y protegido.',
   'No confíes en totales calculados en el cliente: appi recalcula precios y descuentos al crear un pedido.',
   'Confirma los pagos con tu pasarela desde tu servidor (webhooks) antes de marcarlos como completados.',
